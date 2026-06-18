@@ -144,7 +144,16 @@ Both subdevices are active and owned by PipeWire (PID 3659) at 48000 Hz:
 | API | ALSA / udev |
 | ALSA path | `hw:3` |
 | Object serial | 5361 |
-| Profile | `pro-audio` (default for this UAC1 device) |
+| Active profile | `output:iec958-stereo+input:mono-fallback` |
+| Available profiles | `off`, `output:analog-stereo+input:mono-fallback`, `output:analog-stereo`, `output:iec958-stereo+input:mono-fallback`, `output:iec958-stereo`, `pro-audio`, `input:mono-fallback` |
+
+### 6.1a Card ports
+
+| Port | Type | Priority | Profiles |
+|------|------|----------|----------|
+| `analog-input-mic` | Microphone | 8700 | all input-capable profiles |
+| `analog-output` | Analog Output | 9900 | `output:analog-stereo`, `output:analog-stereo+input:mono-fallback` |
+| `iec958-stereo-output` | Digital Output (S/PDIF) | 0 | `output:iec958-stereo`, `output:iec958-stereo+input:mono-fallback` |
 
 ### 6.2 Sink (playback)
 
@@ -228,6 +237,7 @@ crw-rw----+ root audio 116, 19  /dev/snd/controlC3  (control)
 - The microphone signal path is **mono**, while the headphone monitor path is **stereo**.
 - The hardware supports **24-bit/48 kHz and 96 kHz** operation but is currently running at **48 kHz** through PipeWire.
 - Both capture and playback subdevices are currently open and RUNNING, driven by PipeWire.
+- Although the hardware output terminal is a headphone output, the currently active PipeWire profile is `output:iec958-stereo+input:mono-fallback`; the `analog-output` port is also available if an analog-stereo profile is preferred.
 - The device includes a **DFU interface**, meaning firmware updates are possible over USB using a DFU tool.
 
 ## 10. Raw Data Inventory
