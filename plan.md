@@ -1,6 +1,7 @@
 # Elgato Wave:3 Native Linux Support — Investigation & Implementation Plan
 
 **Status:** Planning phase — all raw materials are present in this repository.  
+**Host environment:** Linux only. No switching to Windows or macOS is required for testing; all reverse engineering, capture, and development will be done from the existing Linux host using VMs, static analysis, and Linux-native tools.  
 **Goal:** Build a native, first-class Linux integration for the Elgato Wave:3 by extracting the vendor USB control protocol from the official Wave Link applications and bridging it into the standard Linux audio stack (ALSA / PipeWire).
 
 This plan is derived from the evidence collected in this repo:
@@ -178,53 +179,95 @@ Investigate:
 4. How is the hardware capture channel mixed into the stream?
 5. Can the same behavior be reproduced with PipeWire null sinks, loopbacks, and filter chains?
 
-### 1.6 Cross-platform protocol verification
+### 1.6 Cross-platform protocol verification (from Linux)
 
-1. Capture the same setting change on both Windows and macOS.
-2. Verify that the USB payload is byte-for-byte identical. (The 309 shared control paths strongly suggest it is.)
-3. Document any OS-specific initialization differences.
-4. Confirm that the protocol does not depend on Thesycon driver state — it should work through `libusb` on Linux.
+1. Compare the disassembled protocol code in `waveapi.dll` (Windows) and `WaveAPI.framework` (macOS) from the Linux analysis environment.
+2. If a macOS guest VM is available, capture the same setting change there; otherwise rely on binary cross-reference.
+3. Verify that the USB payload encoding is byte-for-byte identical. (The 309 shared control paths strongly suggest it is.)
+4. Document any OS-specific initialization differences found in the binaries.
+5. Confirm that the protocol does not depend on Thesycon driver state — it should work through `libusb` on Linux.
 
 ---
 
-## 2. Required Capture Environments
+## 2. Reverse-Engineering Environments (All From Linux)
 
-### 2.1 Windows capture environment
+All investigation will be performed from the existing Linux host. The official Windows and macOS Wave Link installers have already been downloaded and extracted into this repository, so no OS switching is required. Use the following approaches from Linux.
 
-- Machine with Wave Link 3.0 installed and a Wave:3 connected.
-- Tools:
-  - **Wireshark** with **USBPcap** for raw USB traffic.
-  - **USBlyzer** or **Bus Hound** as alternative analyzers.
-  - **Dbgview** / **Process Monitor** for app/driver interactions.
-- Procedure:
-  1. Start capture on the Wave:3 USB device.
-  2. Open Wave Link, wait for device enumeration.
-  3. Change one setting at a time, wait 2–3 seconds, change back.
-  4. Note the exact timestamp and UI value for each change.
-  5. Export capture as `.pcapng` and label each transaction.
+### 2.1 Live USB traffic capture from a Windows Wave Link guest (QEMU/KVM)
 
-### 2.2 macOS capture environment
+Because the Wave Link application is Windows-only for full hardware control, run it inside a Windows virtual machine on the Linux host and capture the USB traffic on the host side.
 
-- Mac with Wave Link 3.0 installed and a Wave:3 connected.
-- Tools:
-  - **Wireshark** with macOS USB capture (`USBPcap` equivalent).
-  - **IORegistryExplorer** to inspect USB device tree.
-  - **DTrace** scripts for user-kernel boundary tracing.
-- Procedure same as Windows.
+- **Hypervisor:** QEMU/KVM with SPICE or virt-manager.
+- **USB passthrough:** Pass the entire Wave:3 composite device (all 5 interfaces) to the Windows guest. Use one of:
+  - `virt-manager` device passthrough
+  - QEMU command line: `-device usb-host,hostbus=5,hostaddr=72`
+  - USB controller PCIe passthrough for cleaner timing
+- **Capture tools on Linux host:**
+  - **`usbmon`** kernel module + **Wireshark** for raw USB traffic on the host bus.
+  - **`tshark`** for headless capture.
+  - Save captures as `.pcapng`.
+- **Procedure:**
+  1. Load `usbmon`: `sudo modprobe usbmon`.
+  2. Identify the Wave:3 bus/device from `lsusb` (e.g. `005:072`).
+  3. Start Wireshark capture on `usbmon5` (or the appropriate bus).
+  4. Start the Windows VM and open Wave Link.
+  5. Change one setting at a time in Wave Link, wait 2–3 seconds, change back.
+  6. Annotate the capture with timestamps and UI values.
+  7. Stop capture and export the `.pcapng` into `native-linux/captures/`.
 
-### 2.3 Static binary analysis environment
+This approach keeps Linux as the host OS while still observing the official application’s real USB behavior.
 
-- Use the already-extracted binaries in this repo.
-- Tools available on Linux:
-  - `strings`, `objdump`, `readelf` for PE/Mach-O via `llvm-objdump` or `objconv`.
-  - `ghidra` / `rizin` / `radare2` for decompilation.
-  - `ilspycmd` / `dnspy` for .NET assemblies.
-- Targets:
-  - `wavelink/windows/msix_extracted/waveapi.dll`
-  - `wavelink/windows/msix_extracted/EWLWAudioEngine.dll`
-  - `wavelink/windows/msix_extracted/tlusbdfuapi.dll`
-  - `wavelink/mac/dmg_extracted/.../WaveAPI.framework/Versions/A/WaveAPI`
-  - `wavelink/mac/dmg_extracted/.../tlusbdfuapi.framework/Versions/A/tlusbdfuapi`
+### 2.2 Live USB traffic capture under Wine (experimental fallback)
+
+As a Linux-native alternative to a VM, attempt to run the extracted `Elgato.WaveLink.exe` under **Wine** with USB device access.
+
+- **Tools:** `wine`, `winetricks`, optional `wineusb`/`libusb` Wine USB support.
+- **Capture:** `usbmon` + Wireshark, same as above.
+- **Caveats:**
+  - Wave Link is a WinUI 3 / Windows App SDK 1.8 application and may not launch under Wine.
+  - Native USB access from Wine can be fragile.
+  - Treat this as a convenience fallback; the QEMU/KVM path is authoritative.
+- **If it works:** It avoids the VM overhead and gives cleaner captures.
+
+### 2.3 Static binary analysis on Linux
+
+The extracted Wave Link binaries are already present in the repo and can be analyzed directly from Linux.
+
+- **Disassemblers / decompilers:**
+  - **Ghidra** (Java-based, runs natively on Linux).
+  - **rizin** / **radare2** / **Cutter** (native Linux).
+  - **objdump** / `llvm-objdump` for quick PE/Mach-O inspection.
+- **.NET assembly inspection:**
+  - **ilspycmd** (.NET CLI decompiler, runs on Linux via `dotnet`).
+  - **dnSpyEx** under Wine if a GUI is needed.
+- **String and metadata extraction:**
+  - `strings -n`, `file`, `binwalk`, `pextractor`.
+- **Primary targets:**
+  - `wavelink/windows/msix_extracted/waveapi.dll` — vendor protocol backend.
+  - `wavelink/windows/msix_extracted/EWLWAudioEngine.dll` — audio engine and SWIG C# bindings.
+  - `wavelink/windows/msix_extracted/tlusbdfuapi.dll` — DFU update API.
+  - `wavelink/windows/msix_extracted/Elgato.WaveLink.AppLogic.dll` — C# setting/session field names and PID list.
+  - `wavelink/mac/dmg_extracted/.../WaveAPI.framework/Versions/A/WaveAPI` — cross-reference.
+  - `wavelink/mac/dmg_extracted/.../tlusbdfuapi.framework/Versions/A/tlusbdfuapi` — cross-reference.
+
+### 2.4 Runtime instrumentation from Linux
+
+If the protocol backend can be isolated:
+
+- Build a tiny Linux `libusb` probe that claims interface 3 and sends candidate vendor requests.
+- Use information from static analysis to predict valid request shapes.
+- Fuzz small numeric property IDs and observe device responses (stalls, length changes, or state changes).
+- **Safety:** Only perform fuzzing on a device whose firmware can be recovered via DFU. Avoid destructive writes until the protocol is understood.
+
+### 2.5 Cross-reference captures with static findings
+
+For every captured USB transaction:
+
+1. Note the control-path string from Wave Link UI / static analysis.
+2. Find the corresponding raw USB request in the `.pcapng`.
+3. Decode the payload using the framing rules discovered in static analysis.
+4. Build a mapping table: `control path → property ID → request bytes → response bytes`.
+5. Verify the same mapping works on both Windows and macOS binaries by comparing their disassembled protocol code.
 
 ---
 
@@ -442,13 +485,16 @@ The project is complete when:
 
 ---
 
-## 7. Next Immediate Action
+## 7. Next Immediate Action (All From Linux)
 
-1. Set up a Windows or macOS capture environment with Wireshark + USBPcap.
-2. Record a baseline capture of Wave Link enumerating the Wave:3 and changing the five highest-value settings:
+1. Set up a Windows VM under QEMU/KVM on the Linux host and passthrough the Wave:3 composite device.
+2. Load `usbmon` and start Wireshark on the host-side `usbmon` interface for the Wave:3 bus.
+3. Install Wave Link 3.0 inside the Windows VM using the already-downloaded `wavelink/windows/Elgato.WaveLink_3.0.0.2388_x64.msix`.
+4. Record a baseline capture of Wave Link enumerating the Wave:3 and changing the five highest-value settings:
    - Microphone gain
    - Headphone volume
    - Mute toggle
    - Clipguard toggle
    - Low-cut toggle
-3. Import the capture into this repo under `native-linux/captures/` and begin correlating packets with control paths.
+5. Import the capture into this repo under `native-linux/captures/` and begin correlating packets with control paths.
+6. In parallel, begin static analysis of `waveapi.dll` in Ghidra/rizin to identify the property lookup table and request encoding functions.
