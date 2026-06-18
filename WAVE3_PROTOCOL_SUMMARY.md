@@ -12,7 +12,7 @@
 
 ### 1.1 USB Configuration
 
-The Wave:3 exposes four interfaces:
+The Wave:3 exposes five interfaces:
 
 | Interface | `bInterfaceClass` | `bInterfaceSubClass` | `bInterfaceProtocol` | Endpoints | Purpose |
 |-----------|-------------------|----------------------|----------------------|-----------|---------|
@@ -199,7 +199,8 @@ From Undertone's implementation:
 | Shell CLI | `native-linux/bin/wave3ctl` | Working |
 | udev rules | `native-linux/udev/50-elgato-wave3.rules` | Installed |
 | systemd service | `native-linux/systemd/wave3-daemon.service` | Installed |
-| D-Bus policy | `native-linux/dbus/org.wave3.Daemon.conf` | Installed |
+| D-Bus session activation | `native-linux/dbus/org.wave3.Daemon.service` | Installed |
+| D-Bus system policy (optional) | `native-linux/dbus/org.wave3.Daemon-system.conf` | Created |
 | ALSA UCM profile | `native-linux/alsa-ucm/Elgato Wave 3.conf` + `HiFi.conf` | Created |
 | PipeWire virtual sinks | `native-linux/pipewire/pipewire.conf.d/wave3-mix-sinks.conf` | Created |
 | WirePlumber auto-start rule | `native-linux/wireplumber/wave3.lua` | Created |
