@@ -1,0 +1,36 @@
+Elgato Systems Elgato Wave:3 at usb-0000:10:00.3-2.4.4.1.3, full speed : USB Audio
+
+Playback:
+  Status: Running
+    Interface = 1
+    Altset = 1
+    Packet Size = 432
+    Momentary freq = 48000 Hz (0x30.0000)
+    Feedback Format = 18.14
+  Interface 1
+    Altset 1
+    Format: S24_3LE
+    Channels: 2
+    Endpoint: 0x01 (1 OUT) (ASYNC)
+    Rates: 48000, 96000
+    Bits: 24
+    Channel map: FL FR
+    Sync Endpoint: 0x81 (1 IN)
+    Sync EP Interface: 1
+    Sync EP Altset: 1
+    Implicit Feedback Mode: No
+
+Capture:
+  Status: Running
+    Interface = 2
+    Altset = 1
+    Packet Size = 216
+    Momentary freq = 48000 Hz (0x30.0000)
+  Interface 2
+    Altset 1
+    Format: S24_3LE
+    Channels: 1
+    Endpoint: 0x82 (2 IN) (ASYNC)
+    Rates: 48000, 96000
+    Bits: 24
+    Channel map: MONO

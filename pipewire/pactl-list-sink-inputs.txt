@@ -1,0 +1,53 @@
+Sink Input #5653
+	Driver: PipeWire
+	Owner Module: n/a
+	Client: 5652
+	Sink: 5616
+	Sample Specification: float32le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Format: pcm, format.sample_format = "\"float32le\""  format.rate = "48000"  format.channels = "2"  format.channel_map = "\"front-left,front-right\""
+	Corked: no
+	Mute: no
+	Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Buffer Latency: 0 usec
+	Sink Latency: 0 usec
+	Resample method: PipeWire
+	Properties:
+		client.api = "pipewire-pulse"
+		pulse.server.type = "unix"
+		application.name = "Vivaldi"
+		application.process.id = "8801"
+		application.process.user = "USER"
+		application.process.host = "HOST"
+		application.process.binary = "vivaldi-bin"
+		application.language = "en_US.UTF-8"
+		window.x11.display = ":0"
+		application.process.machine_id = "MACHINE_ID_REDACTED"
+		application.process.session_id = "1"
+		application.icon_name = "vivaldi"
+		media.name = "Playback"
+		pulse.corked = "false"
+		node.rate = "1/48000"
+		node.latency = "1024/48000"
+		stream.is-live = "true"
+		node.name = "Vivaldi"
+		node.want-driver = "true"
+		node.autoconnect = "true"
+		media.class = "Stream/Output/Audio"
+		port.group = "stream.0"
+		adapt.follower.spa-node = ""
+		object.register = "false"
+		factory.id = "7"
+		clock.quantum-limit = "8192"
+		node.loop.name = "data-loop.0"
+		library.name = "audioconvert/libspa-audioconvert"
+		client.id = "94"
+		object.id = "180"
+		object.serial = "5653"
+		pulse.attr.maxlength = "4194304"
+		pulse.attr.tlength = "16384"
+		pulse.attr.prebuf = "12296"
+		pulse.attr.minreq = "4096"
+		node.driver-id = "118"
+		module-stream-restore.id = "sink-input-by-application-name:Vivaldi"

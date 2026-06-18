@@ -1,0 +1,3 @@
+53	alsa_output.pci-0000_01_00.1.hdmi-stereo.monitor	PipeWire	s32le 2ch 48000Hz	SUSPENDED
+5616	alsa_output.usb-Elgato_Systems_Elgato_Wave_3_WAVE3_SERIAL_REDACTED-00.iec958-stereo.monitor	PipeWire	s24le 2ch 48000Hz	RUNNING
+5617	alsa_input.usb-Elgato_Systems_Elgato_Wave_3_WAVE3_SERIAL_REDACTED-00.mono-fallback	PipeWire	s24le 1ch 48000Hz	IDLE

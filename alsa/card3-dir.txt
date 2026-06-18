@@ -1,0 +1,7 @@
+id
+pcm0c
+pcm0p
+stream0
+usbbus
+usbid
+usbmixer

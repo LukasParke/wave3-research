@@ -1,0 +1,35 @@
+snd_seq_dummy          12288  0
+snd_hrtimer            12288  1
+snd_seq               135168  7 snd_seq_dummy
+snd_hda_codec_alc882    20480  1
+snd_hda_codec_realtek_lib    65536  1 snd_hda_codec_alc882
+snd_hda_codec_nvhdmi    16384  1
+snd_hda_codec_atihdmi    20480  1
+snd_hda_codec_hdmi     61440  2 snd_hda_codec_nvhdmi,snd_hda_codec_atihdmi
+snd_hda_codec_generic   114688  2 snd_hda_codec_realtek_lib,snd_hda_codec_alc882
+snd_usb_audio         610304  3
+btusb                  86016  0
+snd_hda_intel          73728  3
+btmtk                  32768  1 btusb
+snd_usbmidi_lib        53248  1 snd_usb_audio
+snd_hda_codec         221184  7 snd_hda_codec_generic,snd_hda_codec_hdmi,snd_hda_intel,snd_hda_codec_nvhdmi,snd_hda_codec_realtek_lib,snd_hda_codec_alc882,snd_hda_codec_atihdmi
+btrtl                  32768  1 btusb
+snd_ump                40960  1 snd_usb_audio
+btbcm                  24576  1 btusb
+snd_hda_core          147456  6 snd_hda_codec_generic,snd_hda_codec_hdmi,snd_hda_intel,snd_hda_codec,snd_hda_codec_realtek_lib,snd_hda_codec_atihdmi
+snd_rawmidi            57344  2 snd_usbmidi_lib,snd_ump
+btintel                73728  1 btusb
+snd_intel_dspcfg       49152  1 snd_hda_intel
+snd_seq_device         16384  3 snd_seq,snd_ump,snd_rawmidi
+bluetooth            1196032  34 btrtl,btmtk,btintel,btbcm,bnep,btusb,rfcomm
+snd_intel_sdw_acpi     16384  1 snd_intel_dspcfg
+mc                     94208  5 videodev,snd_usb_audio,videobuf2_v4l2,uvcvideo,videobuf2_common
+snd_hwdep              24576  2 snd_usb_audio,snd_hda_codec
+snd_pcm               221184  7 snd_hda_codec_hdmi,snd_hda_intel,snd_usb_audio,snd_hda_codec,snd_hda_core
+snd_timer              57344  3 snd_seq,snd_hrtimer,snd_pcm
+snd                   159744  26 snd_hda_codec_generic,snd_seq,snd_seq_device,snd_hda_codec_hdmi,snd_hwdep,snd_hda_intel,snd_usb_audio,snd_usbmidi_lib,snd_hda_codec,snd_timer,snd_hda_codec_realtek_lib,snd_ump,snd_pcm,snd_rawmidi
+soundcore              16384  1 snd
+ 0 snd_hda_intel
+ 1 snd_hda_intel
+ 2 snd_hda_intel
+ 3 snd_usb_audio

@@ -1,0 +1,57 @@
+PipeWire 'pipewire-0' [1.6.6, USER@HOST, cookie:3357621025]
+ └─ Clients:
+        32. xdg-desktop-portal                  [1.6.6, USER@HOST, pid:3547]
+        33. WirePlumber                         [1.6.6, USER@HOST, pid:3660]
+        38. xdg-desktop-portal-hyprland         [1.6.6, USER@HOST, pid:3671]
+        42. WirePlumber [export]                [1.6.6, USER@HOST, pid:3660]
+        67. pipewire                            [1.6.6, USER@HOST, pid:4066]
+        68. pipewire                            [1.6.6, USER@HOST, pid:4066]
+        69. waybar                              [1.6.6, USER@HOST, pid:3146]
+        70. Chromium input                      [1.6.6, USER@HOST, pid:40466]
+        72. Steam Voice Settings                [1.6.6, USER@HOST, pid:8294]
+        73. Steam                               [1.6.6, USER@HOST, pid:8294]
+        74. Vivaldi input                       [1.6.6, USER@HOST, pid:8801]
+        77. Chromium input                      [1.6.6, USER@HOST, pid:39773]
+        87. wpctl                               [1.6.6, USER@HOST, pid:706552]
+        94. Vivaldi                             [1.6.6, USER@HOST, pid:8801]
+       120. Chromium input                      [1.6.6, USER@HOST, pid:117822]
+
+Audio
+ ├─ Devices:
+ │      43. AD103 High Definition Audio Controller [alsa]
+ │      44. Radeon High Definition Audio Controller [alsa]
+ │      46. Ryzen HD Audio Controller           [alsa]
+ │     114. Elgato Wave:3                       [alsa]
+ │  
+ ├─ Sinks:
+ │      53. AD103 High Definition Audio Controller Digital Stereo (HDMI) [vol: 0.00]
+ │  *  118. Wave3                               [vol: 0.40]
+ │  
+ ├─ Sources:
+ │  *   96. Wave3 Mic                           [vol: 0.35]
+ │  
+ ├─ Filters:
+ │  
+ └─ Streams:
+       180. Vivaldi                                                     
+            154. output_FL       > Wave3:playback_FL	[active]
+            181. output_FR       > Wave3:playback_FR	[active]
+
+Video
+ ├─ Devices:
+ │     108. Elgato Facecam MK.2 (USB2)          [v4l2]
+ │     130. Elgato Facecam MK.2 (USB2)          [v4l2]
+ │  
+ ├─ Sinks:
+ │  
+ ├─ Sources:
+ │  *  169. Elgato Facecam MK.2 (USB2) (V4L2)  
+ │  
+ ├─ Filters:
+ │  
+ └─ Streams:
+
+Settings
+ └─ Default Configured Devices:
+         0. Audio/Sink    alsa_output.usb-Elgato_Systems_Elgato_Wave_3_WAVE3_SERIAL_REDACTED-00.iec958-stereo
+         1. Audio/Source  alsa_input.usb-Elgato_Systems_Elgato_Wave_3_WAVE3_SERIAL_REDACTED-00.mono-fallback

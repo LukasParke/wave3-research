@@ -1,0 +1,48 @@
+null
+    Discard all samples (playback) or generate zero samples (capture)
+lavrate
+    Rate Converter Plugin Using Libav/FFmpeg Library
+samplerate
+    Rate Converter Plugin Using Samplerate Library
+speexrate
+    Rate Converter Plugin Using Speex Resampler
+jack
+    JACK Audio Connection Kit
+oss
+    Open Sound System
+pipewire
+    PipeWire Sound Server
+pulse
+    PulseAudio Sound Server
+speex
+    Plugin using Speex DSP (resample, agc, denoise, echo, dereverb)
+upmix
+    Plugin for channel upmix (4,6,8)
+vdownmix
+    Plugin for channel downmix (stereo) with a simple spacialization
+default
+    Default ALSA Output (currently PipeWire Media Server)
+usbstream:CARD=NVidia
+    HDA NVidia
+    USB Stream Output
+usbstream:CARD=Generic
+    HD-Audio Generic
+    USB Stream Output
+sysdefault:CARD=Generic_1
+    HD-Audio Generic, ALC1220 Analog
+    Default Audio Device
+front:CARD=Generic_1,DEV=0
+    HD-Audio Generic, ALC1220 Analog
+    Front output / input
+usbstream:CARD=Generic_1
+    HD-Audio Generic
+    USB Stream Output
+sysdefault:CARD=Wave3
+    Elgato Wave:3, USB Audio
+    Default Audio Device
+front:CARD=Wave3,DEV=0
+    Elgato Wave:3, USB Audio
+    Front output / input
+usbstream:CARD=Wave3
+    Elgato Wave:3
+    USB Stream Output

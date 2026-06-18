@@ -1,0 +1,365 @@
+	State: RUNNING
+	Name: alsa_output.usb-Elgato_Systems_Elgato_Wave_3_WAVE3_SERIAL_REDACTED-00.iec958-stereo
+	Description: Wave3
+	Driver: PipeWire
+	Sample Specification: s24le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Owner Module: 4294967295
+	Mute: no
+	Volume: front-left: 26224 /  40% / -23.87 dB,   front-right: 26224 /  40% / -23.87 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor Source: alsa_output.usb-Elgato_Systems_Elgato_Wave_3_WAVE3_SERIAL_REDACTED-00.iec958-stereo.monitor
+	Latency: 0 usec, configured 0 usec
+	Flags: HARDWARE DECIBEL_VOLUME LATENCY SET_FORMATS 
+	Properties:
+		object.path = "alsa:acp:Wave3:4:playback"
+		api.alsa.path = "iec958:3"
+		api.alsa.pcm.card = "3"
+		api.alsa.pcm.stream = "playback"
+		port.group = "playback"
+		device.icon_name = "audio-card-analog"
+		device.bus = "usb"
+		audio.channels = "2"
+		audio.position = "[ FL, FR ]"
+		device.routes = "1"
+		alsa.resolution_bits = "24"
+		alsa.card = "3"
+		alsa.card_name = "Elgato Wave:3"
+		alsa.long_card_name = "Elgato Systems Elgato Wave:3 at usb-0000:10:00.3-2.4.4.1.3, full speed"
+		alsa.driver_name = "snd_usb_audio"
+		alsa.mixer_name = "USB Mixer"
+		alsa.components = "USB0fd9:0070"
+		alsa.id = "Wave3"
+		device.api = "alsa"
+		device.class = "sound"
+		alsa.class = "generic"
+		alsa.subclass = "generic-mix"
+		alsa.name = "USB Audio"
+		alsa.subdevice = "0"
+		alsa.subdevice_name = "subdevice #0"
+		alsa.device = "0"
+		alsa.sync.id = "00000000:00000000:00000000:00000000"
+		device.profile.name = "iec958-stereo"
+		device.profile.description = "Digital Stereo (IEC958)"
+		card.profile.device = "4"
+		device.id = "114"
+		factory.name = "api.alsa.pcm.sink"
+		node.pause-on-idle = "false"
+		priority.driver = "1108"
+		priority.session = "1108"
+		media.class = "Audio/Sink"
+		node.name = "alsa_output.usb-Elgato_Systems_Elgato_Wave_3_WAVE3_SERIAL_REDACTED-00.iec958-stereo"
+		node.nick = "Wave3"
+		device.description = "Elgato Wave:3"
+		api.alsa.card.name = "Elgato Wave:3"
+		api.alsa.card.longname = "Elgato Systems Elgato Wave:3 at usb-0000:10:00.3-2.4.4.1.3, full speed"
+		session.suspend-timeout-seconds = "0"
+		factory.id = "19"
+		clock.quantum-limit = "8192"
+		client.id = "42"
+		node.driver = "true"
+		node.loop.name = "data-loop.0"
+		library.name = "audioconvert/libspa-audioconvert"
+		object.id = "118"
+		object.serial = "5616"
+		node.max-latency = "16384/48000"
+		api.alsa.period-size = "512"
+		api.alsa.period-num = "64"
+		api.alsa.headroom = "512"
+		device.enum.api = "udev"
+		api.alsa.card = "3"
+		device.plugged.usec = "252089073178"
+		device.bus_path = "pci-0000:10:00.3-usb-0:2.4.4.1.3:1.0"
+		sysfs.path = "/devices/pci0000:00/0000:00:08.1/0000:10:00.3/usb5/5-2/5-2.4/5-2.4.4/5-2.4.4.1/5-2.4.4.1.3/5-2.4.4.1.3:1.0/sound/card3"
+		device.bus-id = "usb-Elgato_Systems_Elgato_Wave:3_WAVE3_SERIAL_REDACTED-00"
+		device.subsystem = "sound"
+		device.vendor.id = "0x0fd9"
+		device.vendor.name = "Elgato Systems GmbH"
+		device.product.id = "0x0070"
+		device.product.name = "Elgato Wave:3"
+		device.serial = "Elgato_Systems_Elgato_Wave:3_WAVE3_SERIAL_REDACTED"
+		device.name = "alsa_card.usb-Elgato_Systems_Elgato_Wave_3_WAVE3_SERIAL_REDACTED-00"
+		device.nick = "Elgato Wave:3"
+		api.alsa.use-acp = "true"
+		api.acp.auto-profile = "false"
+		api.acp.auto-port = "false"
+		api.dbus.ReserveDevice1.Priority = "-20"
+		api.alsa.split-enable = "true"
+		api.dbus.ReserveDevice1 = "Audio3"
+		spa.object.id = "8"
+		device.string = "3"
+	Ports:
+		iec958-stereo-output: Digital Output (S/PDIF) (type: SPDIF, priority: 0, availability unknown)
+	Active Port: iec958-stereo-output
+	Formats:
+		pcm
+
+Source #53
+	State: SUSPENDED
+	Name: alsa_output.pci-0000_01_00.1.hdmi-stereo.monitor
+	Description: Monitor of AD103 High Definition Audio Controller Digital Stereo (HDMI)
+	Driver: PipeWire
+	Sample Specification: s32le 2ch 48000Hz
+--
+	State: RUNNING
+	Name: alsa_output.usb-Elgato_Systems_Elgato_Wave_3_WAVE3_SERIAL_REDACTED-00.iec958-stereo.monitor
+	Description: Monitor of Wave3
+	Driver: PipeWire
+	Sample Specification: s24le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Owner Module: 4294967295
+	Mute: no
+	Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor of Sink: alsa_output.usb-Elgato_Systems_Elgato_Wave_3_WAVE3_SERIAL_REDACTED-00.iec958-stereo
+	Latency: 0 usec, configured 0 usec
+	Flags: HARDWARE DECIBEL_VOLUME LATENCY 
+	Properties:
+		object.path = "alsa:acp:Wave3:4:playback"
+		api.alsa.path = "iec958:3"
+		api.alsa.pcm.card = "3"
+		api.alsa.pcm.stream = "playback"
+		port.group = "playback"
+		device.icon_name = "audio-card-analog"
+		device.bus = "usb"
+		audio.channels = "2"
+		audio.position = "[ FL, FR ]"
+		device.routes = "1"
+		alsa.resolution_bits = "24"
+		alsa.card = "3"
+		alsa.card_name = "Elgato Wave:3"
+		alsa.long_card_name = "Elgato Systems Elgato Wave:3 at usb-0000:10:00.3-2.4.4.1.3, full speed"
+		alsa.driver_name = "snd_usb_audio"
+		alsa.mixer_name = "USB Mixer"
+		alsa.components = "USB0fd9:0070"
+		alsa.id = "Wave3"
+		device.api = "alsa"
+		device.class = "monitor"
+		alsa.class = "generic"
+		alsa.subclass = "generic-mix"
+		alsa.name = "USB Audio"
+		alsa.subdevice = "0"
+		alsa.subdevice_name = "subdevice #0"
+		alsa.device = "0"
+		alsa.sync.id = "00000000:00000000:00000000:00000000"
+		device.profile.name = "iec958-stereo"
+		device.profile.description = "Digital Stereo (IEC958)"
+		card.profile.device = "4"
+		device.id = "114"
+		factory.name = "api.alsa.pcm.sink"
+		node.pause-on-idle = "false"
+		priority.driver = "1108"
+		priority.session = "1108"
+		media.class = "Audio/Sink"
+		node.name = "alsa_output.usb-Elgato_Systems_Elgato_Wave_3_WAVE3_SERIAL_REDACTED-00.iec958-stereo"
+		node.nick = "Wave3"
+		device.description = "Elgato Wave:3"
+		api.alsa.card.name = "Elgato Wave:3"
+		api.alsa.card.longname = "Elgato Systems Elgato Wave:3 at usb-0000:10:00.3-2.4.4.1.3, full speed"
+		session.suspend-timeout-seconds = "0"
+		factory.id = "19"
+		clock.quantum-limit = "8192"
+		client.id = "42"
+		node.driver = "true"
+		node.loop.name = "data-loop.0"
+		library.name = "audioconvert/libspa-audioconvert"
+		object.id = "118"
+		object.serial = "5616"
+		node.max-latency = "16384/48000"
+		api.alsa.period-size = "512"
+		api.alsa.period-num = "64"
+		api.alsa.headroom = "512"
+		device.enum.api = "udev"
+		api.alsa.card = "3"
+		device.plugged.usec = "252089073178"
+		device.bus_path = "pci-0000:10:00.3-usb-0:2.4.4.1.3:1.0"
+		sysfs.path = "/devices/pci0000:00/0000:00:08.1/0000:10:00.3/usb5/5-2/5-2.4/5-2.4.4/5-2.4.4.1/5-2.4.4.1.3/5-2.4.4.1.3:1.0/sound/card3"
+		device.bus-id = "usb-Elgato_Systems_Elgato_Wave:3_WAVE3_SERIAL_REDACTED-00"
+		device.subsystem = "sound"
+		device.vendor.id = "0x0fd9"
+		device.vendor.name = "Elgato Systems GmbH"
+		device.product.id = "0x0070"
+		device.product.name = "Elgato Wave:3"
+		device.serial = "Elgato_Systems_Elgato_Wave:3_WAVE3_SERIAL_REDACTED"
+		device.name = "alsa_card.usb-Elgato_Systems_Elgato_Wave_3_WAVE3_SERIAL_REDACTED-00"
+		device.nick = "Elgato Wave:3"
+		api.alsa.use-acp = "true"
+		api.acp.auto-profile = "false"
+		api.acp.auto-port = "false"
+		api.dbus.ReserveDevice1.Priority = "-20"
+		api.alsa.split-enable = "true"
+		api.dbus.ReserveDevice1 = "Audio3"
+		spa.object.id = "8"
+		device.string = "3"
+	Ports:
+		iec958-stereo-output: Digital Output (S/PDIF) (type: SPDIF, priority: 0, availability unknown)
+	Active Port: iec958-stereo-output
+	Formats:
+		pcm
+
+Source #5617
+	State: IDLE
+	Name: alsa_input.usb-Elgato_Systems_Elgato_Wave_3_WAVE3_SERIAL_REDACTED-00.mono-fallback
+	Description: Wave3 Mic
+	Driver: PipeWire
+	Sample Specification: s24le 1ch 48000Hz
+	Channel Map: mono
+	Owner Module: 4294967295
+	Mute: no
+	Volume: mono: 22616 /  35% / -27.72 dB
+	        balance 0.00
+	Base Volume: 14119 /  22% / -40.00 dB
+	Monitor of Sink: n/a
+	Latency: 0 usec, configured 0 usec
+	Flags: HARDWARE HW_MUTE_CTRL HW_VOLUME_CTRL DECIBEL_VOLUME LATENCY 
+	Properties:
+		object.path = "alsa:acp:Wave3:2:capture"
+		api.alsa.path = "hw:3"
+		api.alsa.pcm.card = "3"
+		api.alsa.pcm.stream = "capture"
+		port.group = "capture"
+		device.icon_name = "audio-card-analog"
+		device.bus = "usb"
+		audio.channels = "1"
+		audio.position = "[ MONO ]"
+		device.routes = "1"
+		alsa.resolution_bits = "24"
+		alsa.card = "3"
+		alsa.card_name = "Elgato Wave:3"
+		alsa.long_card_name = "Elgato Systems Elgato Wave:3 at usb-0000:10:00.3-2.4.4.1.3, full speed"
+		alsa.driver_name = "snd_usb_audio"
+		alsa.mixer_name = "USB Mixer"
+		alsa.components = "USB0fd9:0070"
+		alsa.id = "Wave3"
+		device.api = "alsa"
+		device.class = "sound"
+		alsa.class = "generic"
+		alsa.subclass = "generic-mix"
+		alsa.name = "USB Audio"
+		alsa.subdevice = "0"
+		alsa.subdevice_name = "subdevice #0"
+		alsa.device = "0"
+		alsa.sync.id = "00000000:00000000:00000000:00000000"
+		device.profile.name = "mono-fallback"
+		device.profile.description = "Mono"
+		card.profile.device = "2"
+		device.id = "114"
+		factory.name = "api.alsa.pcm.source"
+		node.pause-on-idle = "false"
+		priority.driver = "2100"
+		priority.session = "2100"
+		media.class = "Audio/Source"
+		node.name = "alsa_input.usb-Elgato_Systems_Elgato_Wave_3_WAVE3_SERIAL_REDACTED-00.mono-fallback"
+		node.nick = "Wave3 Mic"
+		device.description = "Elgato Wave:3"
+		api.alsa.card.name = "Elgato Wave:3"
+		api.alsa.card.longname = "Elgato Systems Elgato Wave:3 at usb-0000:10:00.3-2.4.4.1.3, full speed"
+		session.suspend-timeout-seconds = "0"
+		node.always-process = "true"
+		factory.id = "19"
+		clock.quantum-limit = "8192"
+		client.id = "42"
+		node.driver = "true"
+		node.loop.name = "data-loop.0"
+		library.name = "audioconvert/libspa-audioconvert"
+		object.id = "96"
+		object.serial = "5617"
+		node.max-latency = "16384/48000"
+		api.alsa.period-size = "512"
+		api.alsa.period-num = "64"
+		api.alsa.headroom = "512"
+		device.enum.api = "udev"
+		api.alsa.card = "3"
+		device.plugged.usec = "252089073178"
+		device.bus_path = "pci-0000:10:00.3-usb-0:2.4.4.1.3:1.0"
+		sysfs.path = "/devices/pci0000:00/0000:00:08.1/0000:10:00.3/usb5/5-2/5-2.4/5-2.4.4/5-2.4.4.1/5-2.4.4.1.3/5-2.4.4.1.3:1.0/sound/card3"
+		device.bus-id = "usb-Elgato_Systems_Elgato_Wave:3_WAVE3_SERIAL_REDACTED-00"
+		device.subsystem = "sound"
+		device.vendor.id = "0x0fd9"
+		device.vendor.name = "Elgato Systems GmbH"
+		device.product.id = "0x0070"
+		device.product.name = "Elgato Wave:3"
+		device.serial = "Elgato_Systems_Elgato_Wave:3_WAVE3_SERIAL_REDACTED"
+		device.name = "alsa_card.usb-Elgato_Systems_Elgato_Wave_3_WAVE3_SERIAL_REDACTED-00"
+		device.nick = "Elgato Wave:3"
+		api.alsa.use-acp = "true"
+		api.acp.auto-profile = "false"
+		api.acp.auto-port = "false"
+		api.dbus.ReserveDevice1.Priority = "-20"
+		api.alsa.split-enable = "true"
+		api.dbus.ReserveDevice1 = "Audio3"
+		spa.object.id = "8"
+		device.string = "3"
+	Ports:
+		analog-input-mic: Microphone (type: Mic, priority: 8700, availability unknown)
+	Active Port: analog-input-mic
+	Formats:
+		pcm
+
+Sink Input #5653
+	Driver: PipeWire
+	Owner Module: n/a
+	Client: 5652
+	Sink: 5616
+	Sample Specification: float32le 2ch 48000Hz
+--
+		api.alsa.path = "hw:3"
+		api.alsa.card = "3"
+		api.alsa.card.name = "Elgato Wave:3"
+		api.alsa.card.longname = "Elgato Systems Elgato Wave:3 at usb-0000:10:00.3-2.4.4.1.3, full speed"
+		device.plugged.usec = "252089073178"
+		device.bus_path = "pci-0000:10:00.3-usb-0:2.4.4.1.3:1.0"
+		sysfs.path = "/devices/pci0000:00/0000:00:08.1/0000:10:00.3/usb5/5-2/5-2.4/5-2.4.4/5-2.4.4.1/5-2.4.4.1.3/5-2.4.4.1.3:1.0/sound/card3"
+		device.bus-id = "usb-Elgato_Systems_Elgato_Wave:3_WAVE3_SERIAL_REDACTED-00"
+		device.bus = "usb"
+		device.subsystem = "sound"
+		device.vendor.id = "0x0fd9"
+		device.vendor.name = "Elgato Systems GmbH"
+		device.product.id = "0x0070"
+		device.product.name = "Elgato Wave:3"
+		device.serial = "Elgato_Systems_Elgato_Wave:3_WAVE3_SERIAL_REDACTED"
+		device.name = "alsa_card.usb-Elgato_Systems_Elgato_Wave_3_WAVE3_SERIAL_REDACTED-00"
+		device.description = "Elgato Wave:3"
+		device.nick = "Elgato Wave:3"
+		device.icon_name = "audio-card-analog-usb"
+		api.alsa.use-acp = "true"
+		api.acp.auto-profile = "false"
+		api.acp.auto-port = "false"
+		api.dbus.ReserveDevice1.Priority = "-20"
+		api.alsa.split-enable = "true"
+		api.dbus.ReserveDevice1 = "Audio3"
+		spa.object.id = "8"
+		factory.id = "15"
+		client.id = "42"
+		object.id = "114"
+		object.serial = "5361"
+		object.path = "alsa:acp:Wave3"
+		alsa.card = "3"
+		alsa.card_name = "Elgato Wave:3"
+		alsa.long_card_name = "Elgato Systems Elgato Wave:3 at usb-0000:10:00.3-2.4.4.1.3, full speed"
+		alsa.driver_name = "snd_usb_audio"
+		alsa.mixer_name = "USB Mixer"
+		alsa.components = "USB0fd9:0070"
+		alsa.id = "Wave3"
+		device.string = "3"
+	Profiles:
+		off: Off (sinks: 0, sources: 0, priority: 0, available: yes)
+		output:analog-stereo+input:mono-fallback: Analog Stereo Output + Mono Input (sinks: 1, sources: 1, priority: 6501, available: yes)
+		output:analog-stereo: Analog Stereo Output (sinks: 1, sources: 0, priority: 6500, available: yes)
+		output:iec958-stereo+input:mono-fallback: Digital Stereo (IEC958) Output + Mono Input (sinks: 1, sources: 1, priority: 5501, available: yes)
+		output:iec958-stereo: Digital Stereo (IEC958) Output (sinks: 1, sources: 0, priority: 5500, available: yes)
+		pro-audio: Pro Audio (sinks: 1, sources: 1, priority: 1, available: yes)
+		input:mono-fallback: Mono Input (sinks: 0, sources: 1, priority: 1, available: yes)
+	Active Profile: output:iec958-stereo+input:mono-fallback
+	Ports:
+		analog-input-mic: Microphone (type: Mic, priority: 8700, latency offset: 0 usec, availability unknown)
+			Properties:
+				port.type = "mic"
+				device.icon_name = "audio-input-microphone"
+				card.profile.port = "0"
+			Part of profile(s): input:mono-fallback, output:analog-stereo+input:mono-fallback, output:iec958-stereo+input:mono-fallback
+		analog-output: Analog Output (type: Analog, priority: 9900, latency offset: 0 usec, availability unknown)
+			Properties:
+				port.type = "analog"

@@ -1,0 +1,10 @@
+**** List of CAPTURE Hardware Devices ****
+card 2: Generic_1 [HD-Audio Generic], device 0: ALC1220 Analog [ALC1220 Analog]
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 2: Generic_1 [HD-Audio Generic], device 2: ALC1220 Alt Analog [ALC1220 Alt Analog]
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 3: Wave3 [Elgato Wave:3], device 0: USB Audio [USB Audio]
+  Subdevices: 0/1
+  Subdevice #0: subdevice #0

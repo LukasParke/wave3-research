@@ -1,0 +1,105 @@
+null
+    Discard all samples (playback) or generate zero samples (capture)
+lavrate
+    Rate Converter Plugin Using Libav/FFmpeg Library
+samplerate
+    Rate Converter Plugin Using Samplerate Library
+speexrate
+    Rate Converter Plugin Using Speex Resampler
+jack
+    JACK Audio Connection Kit
+oss
+    Open Sound System
+pipewire
+    PipeWire Sound Server
+pulse
+    PulseAudio Sound Server
+speex
+    Plugin using Speex DSP (resample, agc, denoise, echo, dereverb)
+upmix
+    Plugin for channel upmix (4,6,8)
+vdownmix
+    Plugin for channel downmix (stereo) with a simple spacialization
+default
+    Default ALSA Output (currently PipeWire Media Server)
+hdmi:CARD=NVidia,DEV=0
+    HDA NVidia, Odyssey Ark
+    HDMI Audio Output
+hdmi:CARD=NVidia,DEV=1
+    HDA NVidia, HDMI 1
+    HDMI Audio Output
+hdmi:CARD=NVidia,DEV=2
+    HDA NVidia, HDMI 2
+    HDMI Audio Output
+hdmi:CARD=NVidia,DEV=3
+    HDA NVidia, HDMI 3
+    HDMI Audio Output
+usbstream:CARD=NVidia
+    HDA NVidia
+    USB Stream Output
+hdmi:CARD=Generic,DEV=0
+    HD-Audio Generic, HDMI 0
+    HDMI Audio Output
+hdmi:CARD=Generic,DEV=1
+    HD-Audio Generic, HDMI 1
+    HDMI Audio Output
+usbstream:CARD=Generic
+    HD-Audio Generic
+    USB Stream Output
+sysdefault:CARD=Generic_1
+    HD-Audio Generic, ALC1220 Analog
+    Default Audio Device
+front:CARD=Generic_1,DEV=0
+    HD-Audio Generic, ALC1220 Analog
+    Front output / input
+surround21:CARD=Generic_1,DEV=0
+    HD-Audio Generic, ALC1220 Analog
+    2.1 Surround output to Front and Subwoofer speakers
+surround40:CARD=Generic_1,DEV=0
+    HD-Audio Generic, ALC1220 Analog
+    4.0 Surround output to Front and Rear speakers
+surround41:CARD=Generic_1,DEV=0
+    HD-Audio Generic, ALC1220 Analog
+    4.1 Surround output to Front, Rear and Subwoofer speakers
+surround50:CARD=Generic_1,DEV=0
+    HD-Audio Generic, ALC1220 Analog
+    5.0 Surround output to Front, Center and Rear speakers
+surround51:CARD=Generic_1,DEV=0
+    HD-Audio Generic, ALC1220 Analog
+    5.1 Surround output to Front, Center, Rear and Subwoofer speakers
+surround71:CARD=Generic_1,DEV=0
+    HD-Audio Generic, ALC1220 Analog
+    7.1 Surround output to Front, Center, Side, Rear and Woofer speakers
+usbstream:CARD=Generic_1
+    HD-Audio Generic
+    USB Stream Output
+sysdefault:CARD=Wave3
+    Elgato Wave:3, USB Audio
+    Default Audio Device
+front:CARD=Wave3,DEV=0
+    Elgato Wave:3, USB Audio
+    Front output / input
+surround21:CARD=Wave3,DEV=0
+    Elgato Wave:3, USB Audio
+    2.1 Surround output to Front and Subwoofer speakers
+surround40:CARD=Wave3,DEV=0
+    Elgato Wave:3, USB Audio
+    4.0 Surround output to Front and Rear speakers
+surround41:CARD=Wave3,DEV=0
+    Elgato Wave:3, USB Audio
+    4.1 Surround output to Front, Rear and Subwoofer speakers
+surround50:CARD=Wave3,DEV=0
+    Elgato Wave:3, USB Audio
+    5.0 Surround output to Front, Center and Rear speakers
+surround51:CARD=Wave3,DEV=0
+    Elgato Wave:3, USB Audio
+    5.1 Surround output to Front, Center, Rear and Subwoofer speakers
+surround71:CARD=Wave3,DEV=0
+    Elgato Wave:3, USB Audio
+    7.1 Surround output to Front, Center, Side, Rear and Woofer speakers
+iec958:CARD=Wave3,DEV=0
+    Elgato Wave:3, USB Audio
+    IEC958 (S/PDIF) Digital Audio Output
+usbstream:CARD=Wave3
+    Elgato Wave:3
+    USB Stream Output

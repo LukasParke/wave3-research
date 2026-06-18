@@ -1,0 +1,2 @@
+Bus 005 Device 071: ID 0fd9:0093 Elgato Systems GmbH Elgato Facecam MK.2 (USB2)
+Bus 005 Device 072: ID 0fd9:0070 Elgato Systems GmbH Elgato Wave:3

@@ -1,0 +1,6 @@
+manufacturer=Elgato Systems
+product=Elgato Wave:3
+serial=WAVE3_SERIAL_REDACTED
+bcdDevice=0122
+version= 2.00
+speed=12

@@ -1,0 +1,23 @@
+Source #5616
+	State: RUNNING
+	Name: alsa_output.usb-Elgato_Systems_Elgato_Wave_3_WAVE3_SERIAL_REDACTED-00.iec958-stereo.monitor
+	Description: Monitor of Wave3
+	Driver: PipeWire
+	Sample Specification: s24le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Owner Module: 4294967295
+	Mute: no
+	Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor of Sink: alsa_output.usb-Elgato_Systems_Elgato_Wave_3_WAVE3_SERIAL_REDACTED-00.iec958-stereo
+	Latency: 0 usec, configured 0 usec
+	Flags: HARDWARE DECIBEL_VOLUME LATENCY 
+	Properties:
+		object.path = "alsa:acp:Wave3:4:playback"
+		api.alsa.path = "iec958:3"
+		api.alsa.pcm.card = "3"
+		api.alsa.pcm.stream = "playback"
+		port.group = "playback"
+		device.icon_name = "audio-card-analog"
+		device.bus = "usb"

@@ -1,0 +1,162 @@
+Jun 14 21:06:08 HOST kernel: usb 5-2.4.4.1.2: Product: Elgato Facecam MK.2 (USB2)
+Jun 14 21:06:08 HOST kernel: usb 5-2.4.4.1.2: Manufacturer: Elgato
+Jun 14 21:06:08 HOST kernel: input: Elgato Elgato Facecam MK.2 (USB2) as /devices/pci0000:00/0000:00:08.1/0000:10:00.3/usb5/5-2/5-2.4/5-2.4.4/5-2.4.4.1/5-2.4.4.1.2/5-2.4.4.1.2:1.2/0003:0FD9:0093.0009/input/input15
+Jun 14 21:06:08 HOST kernel: hid-generic 0003:0FD9:0093.0009: input,hidraw8: USB HID v1.11 Device [Elgato Elgato Facecam MK.2 (USB2)] on usb-0000:10:00.3-2.4.4.1.2/input2
+Jun 14 21:06:08 HOST kernel: usb 5-2.4.4.1.3: Product: Elgato Wave:3
+Jun 14 21:06:08 HOST kernel: usb 5-2.4.4.1.3: Manufacturer: Elgato Systems
+Jun 14 21:06:10 HOST kernel: uvcvideo 5-2.4.4.1.2:1.0: Found UVC 1.00 device Elgato Facecam MK.2 (USB2) (0fd9:0093)
+Jun 14 23:26:57 HOST kernel: usb 5-2.4.4.1.2: Product: Elgato Facecam MK.2 (USB2)
+Jun 14 23:26:57 HOST kernel: usb 5-2.4.4.1.2: Manufacturer: Elgato
+Jun 14 23:26:57 HOST kernel: uvcvideo 5-2.4.4.1.2:1.0: Found UVC 1.00 device Elgato Facecam MK.2 (USB2) (0fd9:0093)
+Jun 14 23:26:57 HOST kernel: input: Elgato Elgato Facecam MK.2 (USB2) as /devices/pci0000:00/0000:00:08.1/0000:10:00.3/usb5/5-2/5-2.4/5-2.4.4/5-2.4.4.1/5-2.4.4.1.2/5-2.4.4.1.2:1.2/0003:0FD9:0093.000F/input/input44
+Jun 14 23:26:57 HOST kernel: hid-generic 0003:0FD9:0093.000F: input,hidraw8: USB HID v1.11 Device [Elgato Elgato Facecam MK.2 (USB2)] on usb-0000:10:00.3-2.4.4.1.2/input2
+Jun 14 23:26:57 HOST kernel: usb 5-2.4.4.1.3: Product: Elgato Wave:3
+Jun 14 23:26:57 HOST kernel: usb 5-2.4.4.1.3: Manufacturer: Elgato Systems
+Jun 14 23:49:18 HOST kernel: usb 5-2.4.4.1.2: Product: Elgato Facecam MK.2 (USB2)
+Jun 14 23:49:18 HOST kernel: usb 5-2.4.4.1.2: Manufacturer: Elgato
+Jun 14 23:49:19 HOST kernel: uvcvideo 5-2.4.4.1.2:1.0: Found UVC 1.00 device Elgato Facecam MK.2 (USB2) (0fd9:0093)
+Jun 14 23:49:19 HOST kernel: input: Elgato Elgato Facecam MK.2 (USB2) as /devices/pci0000:00/0000:00:08.1/0000:10:00.3/usb5/5-2/5-2.4/5-2.4.4/5-2.4.4.1/5-2.4.4.1.2/5-2.4.4.1.2:1.2/0003:0FD9:0093.0015/input/input57
+Jun 14 23:49:19 HOST kernel: hid-generic 0003:0FD9:0093.0015: input,hidraw8: USB HID v1.11 Device [Elgato Elgato Facecam MK.2 (USB2)] on usb-0000:10:00.3-2.4.4.1.2/input2
+Jun 14 23:49:19 HOST kernel: usb 5-2.4.4.1.3: Product: Elgato Wave:3
+Jun 14 23:49:19 HOST kernel: usb 5-2.4.4.1.3: Manufacturer: Elgato Systems
+Jun 14 23:57:15 HOST kernel: usb 5-2.4.4.1.2: Product: Elgato Facecam MK.2 (USB2)
+Jun 14 23:57:15 HOST kernel: usb 5-2.4.4.1.2: Manufacturer: Elgato
+Jun 14 23:57:15 HOST kernel: uvcvideo 5-2.4.4.1.2:1.0: Found UVC 1.00 device Elgato Facecam MK.2 (USB2) (0fd9:0093)
+Jun 14 23:57:15 HOST kernel: input: Elgato Elgato Facecam MK.2 (USB2) as /devices/pci0000:00/0000:00:08.1/0000:10:00.3/usb5/5-2/5-2.4/5-2.4.4/5-2.4.4.1/5-2.4.4.1.2/5-2.4.4.1.2:1.2/0003:0FD9:0093.001B/input/input70
+Jun 14 23:57:15 HOST kernel: hid-generic 0003:0FD9:0093.001B: input,hidraw8: USB HID v1.11 Device [Elgato Elgato Facecam MK.2 (USB2)] on usb-0000:10:00.3-2.4.4.1.2/input2
+Jun 14 23:57:16 HOST kernel: usb 5-2.4.4.1.3: Product: Elgato Wave:3
+Jun 14 23:57:16 HOST kernel: usb 5-2.4.4.1.3: Manufacturer: Elgato Systems
+Jun 15 08:25:17 HOST kernel: usb 5-2.4.4.1.2: Product: Elgato Facecam MK.2 (USB2)
+Jun 15 08:25:17 HOST kernel: usb 5-2.4.4.1.2: Manufacturer: Elgato
+Jun 15 08:25:17 HOST kernel: uvcvideo 5-2.4.4.1.2:1.0: Found UVC 1.00 device Elgato Facecam MK.2 (USB2) (0fd9:0093)
+Jun 15 08:25:17 HOST kernel: input: Elgato Elgato Facecam MK.2 (USB2) as /devices/pci0000:00/0000:00:08.1/0000:10:00.3/usb5/5-2/5-2.4/5-2.4.4/5-2.4.4.1/5-2.4.4.1.2/5-2.4.4.1.2:1.2/0003:0FD9:0093.0021/input/input83
+Jun 15 08:25:17 HOST kernel: hid-generic 0003:0FD9:0093.0021: input,hidraw8: USB HID v1.11 Device [Elgato Elgato Facecam MK.2 (USB2)] on usb-0000:10:00.3-2.4.4.1.2/input2
+Jun 15 08:25:17 HOST kernel: usb 5-2.4.4.1.3: Product: Elgato Wave:3
+Jun 15 08:25:17 HOST kernel: usb 5-2.4.4.1.3: Manufacturer: Elgato Systems
+Jun 15 11:30:04 HOST kernel: usb 5-2.4.4.1.2: Product: Elgato Facecam MK.2 (USB2)
+Jun 15 11:30:04 HOST kernel: usb 5-2.4.4.1.2: Manufacturer: Elgato
+Jun 15 11:30:04 HOST kernel: uvcvideo 5-2.4.4.1.2:1.0: Found UVC 1.00 device Elgato Facecam MK.2 (USB2) (0fd9:0093)
+Jun 15 11:30:04 HOST kernel: input: Elgato Elgato Facecam MK.2 (USB2) as /devices/pci0000:00/0000:00:08.1/0000:10:00.3/usb5/5-2/5-2.4/5-2.4.4/5-2.4.4.1/5-2.4.4.1.2/5-2.4.4.1.2:1.2/0003:0FD9:0093.0027/input/input97
+Jun 15 11:30:04 HOST kernel: hid-generic 0003:0FD9:0093.0027: input,hidraw8: USB HID v1.11 Device [Elgato Elgato Facecam MK.2 (USB2)] on usb-0000:10:00.3-2.4.4.1.2/input2
+Jun 15 11:30:04 HOST kernel: usb 5-2.4.4.1.3: Product: Elgato Wave:3
+Jun 15 11:30:04 HOST kernel: usb 5-2.4.4.1.3: Manufacturer: Elgato Systems
+Jun 15 14:53:21 HOST kernel: usb 5-2.4.4.1.2: Product: Elgato Facecam MK.2 (USB2)
+Jun 15 14:53:21 HOST kernel: usb 5-2.4.4.1.2: Manufacturer: Elgato
+Jun 15 14:53:22 HOST kernel: uvcvideo 5-2.4.4.1.2:1.0: Found UVC 1.00 device Elgato Facecam MK.2 (USB2) (0fd9:0093)
+Jun 15 14:53:22 HOST kernel: input: Elgato Elgato Facecam MK.2 (USB2) as /devices/pci0000:00/0000:00:08.1/0000:10:00.3/usb5/5-2/5-2.4/5-2.4.4/5-2.4.4.1/5-2.4.4.1.2/5-2.4.4.1.2:1.2/0003:0FD9:0093.002D/input/input110
+Jun 15 14:53:22 HOST kernel: hid-generic 0003:0FD9:0093.002D: input,hidraw8: USB HID v1.11 Device [Elgato Elgato Facecam MK.2 (USB2)] on usb-0000:10:00.3-2.4.4.1.2/input2
+Jun 15 14:56:30 HOST kernel: usb 5-2.4.4.1.2: Product: Elgato Facecam MK.2 (USB2)
+Jun 15 14:56:30 HOST kernel: usb 5-2.4.4.1.2: Manufacturer: Elgato
+Jun 15 14:56:30 HOST kernel: uvcvideo 5-2.4.4.1.2:1.0: Found UVC 1.00 device Elgato Facecam MK.2 (USB2) (0fd9:0093)
+Jun 15 14:56:30 HOST kernel: input: Elgato Elgato Facecam MK.2 (USB2) as /devices/pci0000:00/0000:00:08.1/0000:10:00.3/usb5/5-2/5-2.4/5-2.4.4/5-2.4.4.1/5-2.4.4.1.2/5-2.4.4.1.2:1.2/0003:0FD9:0093.0033/input/input123
+Jun 15 14:56:30 HOST kernel: hid-generic 0003:0FD9:0093.0033: input,hidraw8: USB HID v1.11 Device [Elgato Elgato Facecam MK.2 (USB2)] on usb-0000:10:00.3-2.4.4.1.2/input2
+Jun 15 14:56:31 HOST kernel: usb 5-2.4.4.1.3: Product: Elgato Wave:3
+Jun 15 14:56:31 HOST kernel: usb 5-2.4.4.1.3: Manufacturer: Elgato Systems
+Jun 15 15:01:14 HOST kernel: usb 5-2.4.4.1.2: Product: Elgato Facecam MK.2 (USB2)
+Jun 15 15:01:14 HOST kernel: usb 5-2.4.4.1.2: Manufacturer: Elgato
+Jun 15 15:01:14 HOST kernel: uvcvideo 5-2.4.4.1.2:1.0: Found UVC 1.00 device Elgato Facecam MK.2 (USB2) (0fd9:0093)
+Jun 15 15:01:14 HOST kernel: input: Elgato Elgato Facecam MK.2 (USB2) as /devices/pci0000:00/0000:00:08.1/0000:10:00.3/usb5/5-2/5-2.4/5-2.4.4/5-2.4.4.1/5-2.4.4.1.2/5-2.4.4.1.2:1.2/0003:0FD9:0093.0039/input/input136
+Jun 15 15:01:14 HOST kernel: hid-generic 0003:0FD9:0093.0039: input,hidraw8: USB HID v1.11 Device [Elgato Elgato Facecam MK.2 (USB2)] on usb-0000:10:00.3-2.4.4.1.2/input2
+Jun 15 15:01:14 HOST kernel: usb 5-2.4.4.1.3: Product: Elgato Wave:3
+Jun 15 15:01:14 HOST kernel: usb 5-2.4.4.1.3: Manufacturer: Elgato Systems
+Jun 15 15:51:35 HOST kernel: usb 5-2.4.4.1.2: Product: Elgato Facecam MK.2 (USB2)
+Jun 15 15:51:35 HOST kernel: usb 5-2.4.4.1.2: Manufacturer: Elgato
+Jun 15 15:51:35 HOST kernel: uvcvideo 5-2.4.4.1.2:1.0: Found UVC 1.00 device Elgato Facecam MK.2 (USB2) (0fd9:0093)
+Jun 15 15:51:35 HOST kernel: input: Elgato Elgato Facecam MK.2 (USB2) as /devices/pci0000:00/0000:00:08.1/0000:10:00.3/usb5/5-2/5-2.4/5-2.4.4/5-2.4.4.1/5-2.4.4.1.2/5-2.4.4.1.2:1.2/0003:0FD9:0093.003F/input/input149
+Jun 15 15:51:35 HOST kernel: hid-generic 0003:0FD9:0093.003F: input,hidraw8: USB HID v1.11 Device [Elgato Elgato Facecam MK.2 (USB2)] on usb-0000:10:00.3-2.4.4.1.2/input2
+Jun 15 15:51:35 HOST kernel: usb 5-2.4.4.1.3: Product: Elgato Wave:3
+Jun 15 15:51:35 HOST kernel: usb 5-2.4.4.1.3: Manufacturer: Elgato Systems
+Jun 15 18:16:16 HOST kernel: usb 5-2.4.4.1.2: Product: Elgato Facecam MK.2 (USB2)
+Jun 15 18:16:16 HOST kernel: usb 5-2.4.4.1.2: Manufacturer: Elgato
+Jun 15 18:16:17 HOST kernel: uvcvideo 5-2.4.4.1.2:1.0: Found UVC 1.00 device Elgato Facecam MK.2 (USB2) (0fd9:0093)
+Jun 15 18:16:17 HOST kernel: input: Elgato Elgato Facecam MK.2 (USB2) as /devices/pci0000:00/0000:00:08.1/0000:10:00.3/usb5/5-2/5-2.4/5-2.4.4/5-2.4.4.1/5-2.4.4.1.2/5-2.4.4.1.2:1.2/0003:0FD9:0093.0045/input/input162
+Jun 15 18:16:17 HOST kernel: hid-generic 0003:0FD9:0093.0045: input,hidraw8: USB HID v1.11 Device [Elgato Elgato Facecam MK.2 (USB2)] on usb-0000:10:00.3-2.4.4.1.2/input2
+Jun 15 18:16:17 HOST kernel: usb 5-2.4.4.1.3: Product: Elgato Wave:3
+Jun 15 18:16:17 HOST kernel: usb 5-2.4.4.1.3: Manufacturer: Elgato Systems
+Jun 15 18:29:29 HOST kernel: usb 5-2.4.4.1.2: Product: Elgato Facecam MK.2 (USB2)
+Jun 15 18:29:29 HOST kernel: usb 5-2.4.4.1.2: Manufacturer: Elgato
+Jun 15 18:29:29 HOST kernel: uvcvideo 5-2.4.4.1.2:1.0: Found UVC 1.00 device Elgato Facecam MK.2 (USB2) (0fd9:0093)
+Jun 15 18:29:29 HOST kernel: input: Elgato Elgato Facecam MK.2 (USB2) as /devices/pci0000:00/0000:00:08.1/0000:10:00.3/usb5/5-2/5-2.4/5-2.4.4/5-2.4.4.1/5-2.4.4.1.2/5-2.4.4.1.2:1.2/0003:0FD9:0093.004B/input/input175
+Jun 15 18:29:30 HOST kernel: hid-generic 0003:0FD9:0093.004B: input,hidraw8: USB HID v1.11 Device [Elgato Elgato Facecam MK.2 (USB2)] on usb-0000:10:00.3-2.4.4.1.2/input2
+Jun 15 18:29:30 HOST kernel: usb 5-2.4.4.1.3: Product: Elgato Wave:3
+Jun 15 18:29:30 HOST kernel: usb 5-2.4.4.1.3: Manufacturer: Elgato Systems
+Jun 16 08:36:37 HOST kernel: usb 5-2.4.4.1.2: Product: Elgato Facecam MK.2 (USB2)
+Jun 16 08:36:37 HOST kernel: usb 5-2.4.4.1.2: Manufacturer: Elgato
+Jun 16 08:36:37 HOST kernel: uvcvideo 5-2.4.4.1.2:1.0: Found UVC 1.00 device Elgato Facecam MK.2 (USB2) (0fd9:0093)
+Jun 16 08:36:37 HOST kernel: input: Elgato Elgato Facecam MK.2 (USB2) as /devices/pci0000:00/0000:00:08.1/0000:10:00.3/usb5/5-2/5-2.4/5-2.4.4/5-2.4.4.1/5-2.4.4.1.2/5-2.4.4.1.2:1.2/0003:0FD9:0093.0051/input/input188
+Jun 16 08:36:37 HOST kernel: hid-generic 0003:0FD9:0093.0051: input,hidraw8: USB HID v1.11 Device [Elgato Elgato Facecam MK.2 (USB2)] on usb-0000:10:00.3-2.4.4.1.2/input2
+Jun 16 08:36:38 HOST kernel: usb 5-2.4.4.1.3: Product: Elgato Wave:3
+Jun 16 08:36:38 HOST kernel: usb 5-2.4.4.1.3: Manufacturer: Elgato Systems
+Jun 16 12:16:06 HOST kernel: usb 5-2.4.4.1.2: Product: Elgato Facecam MK.2 (USB2)
+Jun 16 12:16:06 HOST kernel: usb 5-2.4.4.1.2: Manufacturer: Elgato
+Jun 16 12:16:06 HOST kernel: uvcvideo 5-2.4.4.1.2:1.0: Found UVC 1.00 device Elgato Facecam MK.2 (USB2) (0fd9:0093)
+Jun 16 12:16:06 HOST kernel: input: Elgato Elgato Facecam MK.2 (USB2) as /devices/pci0000:00/0000:00:08.1/0000:10:00.3/usb5/5-2/5-2.4/5-2.4.4/5-2.4.4.1/5-2.4.4.1.2/5-2.4.4.1.2:1.2/0003:0FD9:0093.0057/input/input201
+Jun 16 12:16:06 HOST kernel: hid-generic 0003:0FD9:0093.0057: input,hidraw8: USB HID v1.11 Device [Elgato Elgato Facecam MK.2 (USB2)] on usb-0000:10:00.3-2.4.4.1.2/input2
+Jun 16 12:16:06 HOST kernel: usb 5-2.4.4.1.3: Product: Elgato Wave:3
+Jun 16 12:16:06 HOST kernel: usb 5-2.4.4.1.3: Manufacturer: Elgato Systems
+Jun 16 12:17:04 HOST kernel: usb 5-2.4.4.1.2: Product: Elgato Facecam MK.2 (USB2)
+Jun 16 12:17:04 HOST kernel: usb 5-2.4.4.1.2: Manufacturer: Elgato
+Jun 16 12:17:04 HOST kernel: uvcvideo 5-2.4.4.1.2:1.0: Found UVC 1.00 device Elgato Facecam MK.2 (USB2) (0fd9:0093)
+Jun 16 12:17:04 HOST kernel: input: Elgato Elgato Facecam MK.2 (USB2) as /devices/pci0000:00/0000:00:08.1/0000:10:00.3/usb5/5-2/5-2.4/5-2.4.4/5-2.4.4.1/5-2.4.4.1.2/5-2.4.4.1.2:1.2/0003:0FD9:0093.005D/input/input214
+Jun 16 12:17:04 HOST kernel: hid-generic 0003:0FD9:0093.005D: input,hidraw8: USB HID v1.11 Device [Elgato Elgato Facecam MK.2 (USB2)] on usb-0000:10:00.3-2.4.4.1.2/input2
+Jun 16 12:17:04 HOST kernel: usb 5-2.4.4.1.3: Product: Elgato Wave:3
+Jun 16 12:17:04 HOST kernel: usb 5-2.4.4.1.3: Manufacturer: Elgato Systems
+Jun 16 16:19:28 HOST kernel: usb 5-2.4.4.1.2: Product: Elgato Facecam MK.2 (USB2)
+Jun 16 16:19:28 HOST kernel: usb 5-2.4.4.1.2: Manufacturer: Elgato
+Jun 16 16:19:28 HOST kernel: uvcvideo 5-2.4.4.1.2:1.0: Found UVC 1.00 device Elgato Facecam MK.2 (USB2) (0fd9:0093)
+Jun 16 16:19:28 HOST kernel: input: Elgato Elgato Facecam MK.2 (USB2) as /devices/pci0000:00/0000:00:08.1/0000:10:00.3/usb5/5-2/5-2.4/5-2.4.4/5-2.4.4.1/5-2.4.4.1.2/5-2.4.4.1.2:1.2/0003:0FD9:0093.0063/input/input227
+Jun 16 16:19:28 HOST kernel: hid-generic 0003:0FD9:0093.0063: input,hidraw8: USB HID v1.11 Device [Elgato Elgato Facecam MK.2 (USB2)] on usb-0000:10:00.3-2.4.4.1.2/input2
+Jun 16 17:02:18 HOST kernel: usb 5-2.4.4.1.2: Product: Elgato Facecam MK.2 (USB2)
+Jun 16 17:02:18 HOST kernel: usb 5-2.4.4.1.2: Manufacturer: Elgato
+Jun 16 17:02:18 HOST kernel: uvcvideo 5-2.4.4.1.2:1.0: Found UVC 1.00 device Elgato Facecam MK.2 (USB2) (0fd9:0093)
+Jun 16 17:02:18 HOST kernel: input: Elgato Elgato Facecam MK.2 (USB2) as /devices/pci0000:00/0000:00:08.1/0000:10:00.3/usb5/5-2/5-2.4/5-2.4.4/5-2.4.4.1/5-2.4.4.1.2/5-2.4.4.1.2:1.2/0003:0FD9:0093.0069/input/input240
+Jun 16 17:02:18 HOST kernel: hid-generic 0003:0FD9:0093.0069: input,hidraw8: USB HID v1.11 Device [Elgato Elgato Facecam MK.2 (USB2)] on usb-0000:10:00.3-2.4.4.1.2/input2
+Jun 16 17:02:19 HOST kernel: usb 5-2.4.4.1.3: Product: Elgato Wave:3
+Jun 16 17:02:19 HOST kernel: usb 5-2.4.4.1.3: Manufacturer: Elgato Systems
+Jun 16 19:47:42 HOST kernel: usb 5-2.4.4.1.2: Product: Elgato Facecam MK.2 (USB2)
+Jun 16 19:47:42 HOST kernel: usb 5-2.4.4.1.2: Manufacturer: Elgato
+Jun 16 19:47:42 HOST kernel: uvcvideo 5-2.4.4.1.2:1.0: Found UVC 1.00 device Elgato Facecam MK.2 (USB2) (0fd9:0093)
+Jun 16 19:47:42 HOST kernel: input: Elgato Elgato Facecam MK.2 (USB2) as /devices/pci0000:00/0000:00:08.1/0000:10:00.3/usb5/5-2/5-2.4/5-2.4.4/5-2.4.4.1/5-2.4.4.1.2/5-2.4.4.1.2:1.2/0003:0FD9:0093.006F/input/input253
+Jun 16 19:47:42 HOST kernel: hid-generic 0003:0FD9:0093.006F: input,hidraw8: USB HID v1.11 Device [Elgato Elgato Facecam MK.2 (USB2)] on usb-0000:10:00.3-2.4.4.1.2/input2
+Jun 16 19:47:42 HOST kernel: usb 5-2.4.4.1.3: Product: Elgato Wave:3
+Jun 16 19:47:42 HOST kernel: usb 5-2.4.4.1.3: Manufacturer: Elgato Systems
+Jun 16 20:49:22 HOST kernel: usb 5-2.4.4.1.2: Product: Elgato Facecam MK.2 (USB2)
+Jun 16 20:49:22 HOST kernel: usb 5-2.4.4.1.2: Manufacturer: Elgato
+Jun 16 20:49:22 HOST kernel: uvcvideo 5-2.4.4.1.2:1.0: Found UVC 1.00 device Elgato Facecam MK.2 (USB2) (0fd9:0093)
+Jun 16 20:49:22 HOST kernel: input: Elgato Elgato Facecam MK.2 (USB2) as /devices/pci0000:00/0000:00:08.1/0000:10:00.3/usb5/5-2/5-2.4/5-2.4.4/5-2.4.4.1/5-2.4.4.1.2/5-2.4.4.1.2:1.2/0003:0FD9:0093.0075/input/input266
+Jun 16 20:49:22 HOST kernel: hid-generic 0003:0FD9:0093.0075: input,hidraw8: USB HID v1.11 Device [Elgato Elgato Facecam MK.2 (USB2)] on usb-0000:10:00.3-2.4.4.1.2/input2
+Jun 16 20:49:22 HOST kernel: usb 5-2.4.4.1.3: Product: Elgato Wave:3
+Jun 16 20:49:22 HOST kernel: usb 5-2.4.4.1.3: Manufacturer: Elgato Systems
+Jun 16 21:40:20 HOST kernel: usb 5-2.4.4.1.2: Product: Elgato Facecam MK.2 (USB2)
+Jun 16 21:40:20 HOST kernel: usb 5-2.4.4.1.2: Manufacturer: Elgato
+Jun 16 21:40:20 HOST kernel: uvcvideo 5-2.4.4.1.2:1.0: Found UVC 1.00 device Elgato Facecam MK.2 (USB2) (0fd9:0093)
+Jun 16 21:40:20 HOST kernel: input: Elgato Elgato Facecam MK.2 (USB2) as /devices/pci0000:00/0000:00:08.1/0000:10:00.3/usb5/5-2/5-2.4/5-2.4.4/5-2.4.4.1/5-2.4.4.1.2/5-2.4.4.1.2:1.2/0003:0FD9:0093.007B/input/input279
+Jun 16 21:40:20 HOST kernel: hid-generic 0003:0FD9:0093.007B: input,hidraw8: USB HID v1.11 Device [Elgato Elgato Facecam MK.2 (USB2)] on usb-0000:10:00.3-2.4.4.1.2/input2
+Jun 16 21:40:21 HOST kernel: usb 5-2.4.4.1.3: Product: Elgato Wave:3
+Jun 16 21:40:21 HOST kernel: usb 5-2.4.4.1.3: Manufacturer: Elgato Systems
+Jun 16 23:48:42 HOST kernel: usb 5-2.4.4.1.2: Product: Elgato Facecam MK.2 (USB2)
+Jun 16 23:48:42 HOST kernel: usb 5-2.4.4.1.2: Manufacturer: Elgato
+Jun 16 23:48:42 HOST kernel: uvcvideo 5-2.4.4.1.2:1.0: Found UVC 1.00 device Elgato Facecam MK.2 (USB2) (0fd9:0093)
+Jun 16 23:48:42 HOST kernel: input: Elgato Elgato Facecam MK.2 (USB2) as /devices/pci0000:00/0000:00:08.1/0000:10:00.3/usb5/5-2/5-2.4/5-2.4.4/5-2.4.4.1/5-2.4.4.1.2/5-2.4.4.1.2:1.2/0003:0FD9:0093.0081/input/input292
+Jun 16 23:48:42 HOST kernel: hid-generic 0003:0FD9:0093.0081: input,hidraw8: USB HID v1.11 Device [Elgato Elgato Facecam MK.2 (USB2)] on usb-0000:10:00.3-2.4.4.1.2/input2
+Jun 16 23:48:42 HOST kernel: usb 5-2.4.4.1.3: Product: Elgato Wave:3
+Jun 16 23:48:42 HOST kernel: usb 5-2.4.4.1.3: Manufacturer: Elgato Systems
+Jun 17 10:11:29 HOST kernel: usb 5-2.4.4.1.2: Product: Elgato Facecam MK.2 (USB2)
+Jun 17 10:11:29 HOST kernel: usb 5-2.4.4.1.2: Manufacturer: Elgato
+Jun 17 10:11:29 HOST kernel: uvcvideo 5-2.4.4.1.2:1.0: Found UVC 1.00 device Elgato Facecam MK.2 (USB2) (0fd9:0093)
+Jun 17 10:11:29 HOST kernel: input: Elgato Elgato Facecam MK.2 (USB2) as /devices/pci0000:00/0000:00:08.1/0000:10:00.3/usb5/5-2/5-2.4/5-2.4.4/5-2.4.4.1/5-2.4.4.1.2/5-2.4.4.1.2:1.2/0003:0FD9:0093.0087/input/input305
+Jun 17 10:11:29 HOST kernel: hid-generic 0003:0FD9:0093.0087: input,hidraw8: USB HID v1.11 Device [Elgato Elgato Facecam MK.2 (USB2)] on usb-0000:10:00.3-2.4.4.1.2/input2
+Jun 17 10:51:13 HOST kernel: usb 5-2.4.4.1.2: Product: Elgato Facecam MK.2 (USB2)
+Jun 17 10:51:13 HOST kernel: usb 5-2.4.4.1.2: Manufacturer: Elgato
+Jun 17 10:51:14 HOST kernel: uvcvideo 5-2.4.4.1.2:1.0: Found UVC 1.00 device Elgato Facecam MK.2 (USB2) (0fd9:0093)
+Jun 17 10:51:14 HOST kernel: input: Elgato Elgato Facecam MK.2 (USB2) as /devices/pci0000:00/0000:00:08.1/0000:10:00.3/usb5/5-2/5-2.4/5-2.4.4/5-2.4.4.1/5-2.4.4.1.2/5-2.4.4.1.2:1.2/0003:0FD9:0093.008D/input/input318
+Jun 17 10:51:14 HOST kernel: hid-generic 0003:0FD9:0093.008D: input,hidraw8: USB HID v1.11 Device [Elgato Elgato Facecam MK.2 (USB2)] on usb-0000:10:00.3-2.4.4.1.2/input2
+Jun 17 10:51:14 HOST kernel: usb 5-2.4.4.1.3: Product: Elgato Wave:3
+Jun 17 10:51:14 HOST kernel: usb 5-2.4.4.1.3: Manufacturer: Elgato Systems
+Jun 17 19:07:01 HOST kernel: usb 5-2.4.4.1.2: Product: Elgato Facecam MK.2 (USB2)
+Jun 17 19:07:01 HOST kernel: usb 5-2.4.4.1.2: Manufacturer: Elgato
+Jun 17 19:07:01 HOST kernel: uvcvideo 5-2.4.4.1.2:1.0: Found UVC 1.00 device Elgato Facecam MK.2 (USB2) (0fd9:0093)
+Jun 17 19:07:01 HOST kernel: input: Elgato Elgato Facecam MK.2 (USB2) as /devices/pci0000:00/0000:00:08.1/0000:10:00.3/usb5/5-2/5-2.4/5-2.4.4/5-2.4.4.1/5-2.4.4.1.2/5-2.4.4.1.2:1.2/0003:0FD9:0093.0098/input/input344
+Jun 17 19:07:01 HOST kernel: hid-generic 0003:0FD9:0093.0098: input,hidraw8: USB HID v1.11 Device [Elgato Elgato Facecam MK.2 (USB2)] on usb-0000:10:00.3-2.4.4.1.2/input2
+Jun 17 19:07:01 HOST kernel: usb 5-2.4.4.1.3: Product: Elgato Wave:3
+Jun 17 19:07:01 HOST kernel: usb 5-2.4.4.1.3: Manufacturer: Elgato Systems

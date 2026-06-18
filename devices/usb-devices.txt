@@ -1,0 +1,245 @@
+
+T:  Bus=01 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=480  MxCh=12
+D:  Ver= 2.00 Cls=09(hub  ) Sub=00 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=1d6b ProdID=0002 Rev=07.00
+S:  Manufacturer=Linux 7.0.11-arch1-1 xhci-hcd
+S:  Product=xHCI Host Controller
+S:  SerialNumber=0000:0c:00.0
+C:  #Ifs= 1 Cfg#= 1 Atr=e0 MxPwr=0mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
+E:  Ad=81(I) Atr=03(Int.) MxPS=   4 Ivl=256ms
+
+T:  Bus=01 Lev=01 Prnt=01 Port=07 Cnt=01 Dev#=  2 Spd=480  MxCh= 0
+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=1b1c ProdID=0c1c Rev=01.00
+S:  Manufacturer=Corsair
+S:  Product=CORSAIR iCUE Commander CORE
+S:  SerialNumber=REDACTED_SERIAL_2
+C:  #Ifs= 2 Cfg#= 1 Atr=c0 MxPwr=100mA
+I:  If#= 0 Alt= 0 #EPs= 2 Cls=03(HID  ) Sub=00 Prot=00 Driver=usbhid
+E:  Ad=04(O) Atr=03(Int.) MxPS=  96 Ivl=1ms
+E:  Ad=84(I) Atr=03(Int.) MxPS=  96 Ivl=1ms
+I:  If#= 1 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=00 Driver=usbhid
+E:  Ad=83(I) Atr=03(Int.) MxPS=  96 Ivl=1ms
+
+T:  Bus=02 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=20000 MxCh= 5
+D:  Ver= 3.10 Cls=09(hub  ) Sub=00 Prot=03 MxPS= 9 #Cfgs=  1
+P:  Vendor=1d6b ProdID=0003 Rev=07.00
+S:  Manufacturer=Linux 7.0.11-arch1-1 xhci-hcd
+S:  Product=xHCI Host Controller
+S:  SerialNumber=0000:0c:00.0
+C:  #Ifs= 1 Cfg#= 1 Atr=e0 MxPwr=0mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
+E:  Ad=81(I) Atr=03(Int.) MxPS=   4 Ivl=256ms
+
+T:  Bus=03 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=480  MxCh=12
+D:  Ver= 2.00 Cls=09(hub  ) Sub=00 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=1d6b ProdID=0002 Rev=07.00
+S:  Manufacturer=Linux 7.0.11-arch1-1 xhci-hcd
+S:  Product=xHCI Host Controller
+S:  SerialNumber=0000:0e:00.0
+C:  #Ifs= 1 Cfg#= 1 Atr=e0 MxPwr=0mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
+E:  Ad=81(I) Atr=03(Int.) MxPS=   4 Ivl=256ms
+
+T:  Bus=03 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  2 Spd=480  MxCh= 0
+D:  Ver= 2.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=0489 ProdID=e0e2 Rev=01.00
+S:  Manufacturer=MediaTek Inc.
+S:  Product=Wireless_Device
+S:  SerialNumber=000000000
+C:  #Ifs= 3 Cfg#= 1 Atr=e0 MxPwr=100mA
+I:  If#= 0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=81(I) Atr=03(Int.) MxPS=  16 Ivl=125us
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:  If#= 1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=   0 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=   0 Ivl=1ms
+I:  If#= 2 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=0a(O) Atr=03(Int.) MxPS= 512 Ivl=125us
+E:  Ad=8a(I) Atr=03(Int.) MxPS= 512 Ivl=125us
+
+T:  Bus=03 Lev=01 Prnt=01 Port=07 Cnt=02 Dev#=  3 Spd=12   MxCh= 0
+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=0b05 ProdID=19af Rev=01.00
+S:  Manufacturer=AsusTek Computer Inc.
+S:  Product=AURA LED Controller
+S:  SerialNumber=REDACTED_SERIAL_3
+C:  #Ifs= 2 Cfg#= 1 Atr=a0 MxPwr=16mA
+I:  If#= 0 Alt= 0 #EPs= 0 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+I:  If#= 2 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=00 Driver=usbhid
+E:  Ad=82(I) Atr=03(Int.) MxPS=  32 Ivl=4ms
+
+T:  Bus=04 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=10000 MxCh= 6
+D:  Ver= 3.10 Cls=09(hub  ) Sub=00 Prot=03 MxPS= 9 #Cfgs=  1
+P:  Vendor=1d6b ProdID=0003 Rev=07.00
+S:  Manufacturer=Linux 7.0.11-arch1-1 xhci-hcd
+S:  Product=xHCI Host Controller
+S:  SerialNumber=0000:0e:00.0
+C:  #Ifs= 1 Cfg#= 1 Atr=e0 MxPwr=0mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
+E:  Ad=81(I) Atr=03(Int.) MxPS=   4 Ivl=256ms
+
+T:  Bus=05 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=480  MxCh= 2
+D:  Ver= 2.00 Cls=09(hub  ) Sub=00 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=1d6b ProdID=0002 Rev=07.00
+S:  Manufacturer=Linux 7.0.11-arch1-1 xhci-hcd
+S:  Product=xHCI Host Controller
+S:  SerialNumber=0000:10:00.3
+C:  #Ifs= 1 Cfg#= 1 Atr=e0 MxPwr=0mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
+E:  Ad=81(I) Atr=03(Int.) MxPS=   4 Ivl=256ms
+
+T:  Bus=05 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  2 Spd=480  MxCh= 4
+D:  Ver= 2.00 Cls=09(hub  ) Sub=00 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=1a40 ProdID=0101 Rev=01.11
+S:  Product=USB 2.0 Hub
+C:  #Ifs= 1 Cfg#= 1 Atr=e0 MxPwr=100mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
+E:  Ad=81(I) Atr=03(Int.) MxPS=   1 Ivl=256ms
+
+T:  Bus=05 Lev=02 Prnt=02 Port=03 Cnt=01 Dev#=  3 Spd=480  MxCh= 4
+D:  Ver= 2.00 Cls=09(hub  ) Sub=00 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=1a40 ProdID=0101 Rev=01.11
+S:  Product=USB 2.0 Hub
+C:  #Ifs= 1 Cfg#= 1 Atr=e0 MxPwr=100mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
+E:  Ad=81(I) Atr=03(Int.) MxPS=   1 Ivl=256ms
+
+T:  Bus=05 Lev=03 Prnt=03 Port=03 Cnt=01 Dev#= 67 Spd=480  MxCh= 4
+D:  Ver= 2.00 Cls=09(hub  ) Sub=00 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=05e3 ProdID=0608 Rev=89.32
+S:  Product=USB2.0 Hub
+C:  #Ifs= 1 Cfg#= 1 Atr=e0 MxPwr=100mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
+E:  Ad=81(I) Atr=03(Int.) MxPS=   1 Ivl=256ms
+
+T:  Bus=05 Lev=04 Prnt=67 Port=00 Cnt=01 Dev#= 68 Spd=480  MxCh= 4
+D:  Ver= 2.10 Cls=09(hub  ) Sub=00 Prot=02 MxPS=64 #Cfgs=  1
+P:  Vendor=2109 ProdID=2817 Rev=07.63
+S:  Manufacturer=VIA Labs, Inc.         
+S:  Product=USB2.0 Hub             
+S:  SerialNumber=000000000
+C:  #Ifs= 1 Cfg#= 1 Atr=e0 MxPwr=0mA
+I:  If#= 0 Alt= 1 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=02 Driver=hub
+E:  Ad=81(I) Atr=03(Int.) MxPS=   1 Ivl=256ms
+
+T:  Bus=05 Lev=05 Prnt=68 Port=00 Cnt=01 Dev#= 70 Spd=480  MxCh= 0
+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=342d ProdID=e3df Rev=01.03
+S:  Manufacturer=      
+S:  Product=GMMK 3 HE (100%)
+C:  #Ifs= 3 Cfg#= 1 Atr=a0 MxPwr=496mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=01 Prot=01 Driver=usbhid
+E:  Ad=81(I) Atr=03(Int.) MxPS=  64 Ivl=125us
+I:  If#= 1 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=01 Prot=01 Driver=usbhid
+E:  Ad=82(I) Atr=03(Int.) MxPS=  64 Ivl=125us
+I:  If#= 2 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=00 Driver=usbhid
+E:  Ad=83(I) Atr=03(Int.) MxPS=  64 Ivl=125us
+
+T:  Bus=05 Lev=05 Prnt=68 Port=01 Cnt=02 Dev#= 71 Spd=480  MxCh= 0
+D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=0fd9 ProdID=0093 Rev=02.00
+S:  Manufacturer=Elgato
+S:  Product=Elgato Facecam MK.2 (USB2)
+S:  SerialNumber=REDACTED_SERIAL_1
+C:  #Ifs= 3 Cfg#= 1 Atr=80 MxPwr=256mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=0e(video) Sub=01 Prot=00 Driver=uvcvideo
+E:  Ad=85(I) Atr=03(Int.) MxPS=   8 Ivl=16ms
+I:  If#= 1 Alt= 0 #EPs= 0 Cls=0e(video) Sub=02 Prot=00 Driver=uvcvideo
+I:  If#= 2 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=00 Driver=usbhid
+E:  Ad=84(I) Atr=03(Int.) MxPS=  64 Ivl=125us
+
+T:  Bus=05 Lev=05 Prnt=68 Port=02 Cnt=03 Dev#= 72 Spd=12   MxCh= 0
+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=0fd9 ProdID=0070 Rev=01.22
+S:  Manufacturer=Elgato Systems
+S:  Product=Elgato Wave:3
+S:  SerialNumber=WAVE3_SERIAL_REDACTED
+C:  #Ifs= 5 Cfg#= 1 Atr=80 MxPwr=100mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=01(audio) Sub=01 Prot=00 Driver=snd-usb-audio
+E:  Ad=83(I) Atr=03(Int.) MxPS=   2 Ivl=128ms
+I:  If#= 1 Alt= 1 #EPs= 2 Cls=01(audio) Sub=02 Prot=00 Driver=snd-usb-audio
+E:  Ad=01(O) Atr=05(Isoc) MxPS= 582 Ivl=1ms
+E:  Ad=81(I) Atr=11(Isoc) MxPS=   4 Ivl=1ms
+I:  If#= 2 Alt= 1 #EPs= 1 Cls=01(audio) Sub=02 Prot=00 Driver=snd-usb-audio
+E:  Ad=82(I) Atr=05(Isoc) MxPS= 291 Ivl=1ms
+I:  If#= 3 Alt= 0 #EPs= 0 Cls=ff(vend.) Sub=f0 Prot=00 Driver=(none)
+I:  If#= 4 Alt= 0 #EPs= 0 Cls=fe(app. ) Sub=01 Prot=01 Driver=(none)
+
+T:  Bus=05 Lev=05 Prnt=68 Port=03 Cnt=04 Dev#= 73 Spd=480  MxCh= 4
+D:  Ver= 2.10 Cls=09(hub  ) Sub=00 Prot=02 MxPS=64 #Cfgs=  1
+P:  Vendor=2109 ProdID=2817 Rev=07.64
+S:  Manufacturer=VIA Labs, Inc.         
+S:  Product=USB2.0 Hub             
+S:  SerialNumber=000000000
+C:  #Ifs= 1 Cfg#= 1 Atr=e0 MxPwr=0mA
+I:  If#= 0 Alt= 1 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=02 Driver=hub
+E:  Ad=81(I) Atr=03(Int.) MxPS=   1 Ivl=256ms
+
+T:  Bus=05 Lev=06 Prnt=73 Port=02 Cnt=01 Dev#= 74 Spd=12   MxCh= 0
+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=072f ProdID=223b Rev=01.15
+S:  Manufacturer=ACS
+S:  Product=ACR1252 Dual Reader
+C:  #Ifs= 2 Cfg#= 1 Atr=80 MxPwr=200mA
+I:  If#= 0 Alt= 0 #EPs= 3 Cls=0b(scard) Sub=00 Prot=00 Driver=(none)
+E:  Ad=01(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=81(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=84(I) Atr=03(Int.) MxPS=  64 Ivl=10ms
+I:  If#= 1 Alt= 0 #EPs= 3 Cls=0b(scard) Sub=00 Prot=00 Driver=(none)
+E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=83(I) Atr=03(Int.) MxPS=  64 Ivl=10ms
+
+T:  Bus=05 Lev=04 Prnt=67 Port=01 Cnt=02 Dev#= 69 Spd=12   MxCh= 0
+D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=093a ProdID=824a Rev=00.29
+S:  Manufacturer=GLORIOUS
+S:  Product=Model D 2 Wireless
+C:  #Ifs= 2 Cfg#= 1 Atr=a0 MxPwr=98mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=01 Prot=01 Driver=usbhid
+E:  Ad=81(I) Atr=03(Int.) MxPS=  64 Ivl=1ms
+I:  If#= 1 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=01 Prot=02 Driver=usbhid
+E:  Ad=82(I) Atr=03(Int.) MxPS=  64 Ivl=1ms
+
+T:  Bus=06 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=10000 MxCh= 2
+D:  Ver= 3.10 Cls=09(hub  ) Sub=00 Prot=03 MxPS= 9 #Cfgs=  1
+P:  Vendor=1d6b ProdID=0003 Rev=07.00
+S:  Manufacturer=Linux 7.0.11-arch1-1 xhci-hcd
+S:  Product=xHCI Host Controller
+S:  SerialNumber=0000:10:00.3
+C:  #Ifs= 1 Cfg#= 1 Atr=e0 MxPwr=0mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
+E:  Ad=81(I) Atr=03(Int.) MxPS=   4 Ivl=256ms
+
+T:  Bus=07 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=480  MxCh= 2
+D:  Ver= 2.00 Cls=09(hub  ) Sub=00 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=1d6b ProdID=0002 Rev=07.00
+S:  Manufacturer=Linux 7.0.11-arch1-1 xhci-hcd
+S:  Product=xHCI Host Controller
+S:  SerialNumber=0000:10:00.4
+C:  #Ifs= 1 Cfg#= 1 Atr=e0 MxPwr=0mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
+E:  Ad=81(I) Atr=03(Int.) MxPS=   4 Ivl=256ms
+
+T:  Bus=08 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=10000 MxCh= 2
+D:  Ver= 3.10 Cls=09(hub  ) Sub=00 Prot=03 MxPS= 9 #Cfgs=  1
+P:  Vendor=1d6b ProdID=0003 Rev=07.00
+S:  Manufacturer=Linux 7.0.11-arch1-1 xhci-hcd
+S:  Product=xHCI Host Controller
+S:  SerialNumber=0000:10:00.4
+C:  #Ifs= 1 Cfg#= 1 Atr=e0 MxPwr=0mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
+E:  Ad=81(I) Atr=03(Int.) MxPS=   4 Ivl=256ms
+
+T:  Bus=09 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=480  MxCh= 1
+D:  Ver= 2.00 Cls=09(hub  ) Sub=00 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=1d6b ProdID=0002 Rev=07.00
+S:  Manufacturer=Linux 7.0.11-arch1-1 xhci-hcd
+S:  Product=xHCI Host Controller
+S:  SerialNumber=0000:11:00.0
+C:  #Ifs= 1 Cfg#= 1 Atr=e0 MxPwr=0mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
+E:  Ad=81(I) Atr=03(Int.) MxPS=   4 Ivl=256ms

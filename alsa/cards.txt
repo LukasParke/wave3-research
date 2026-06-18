@@ -1,0 +1,8 @@
+ 0 [NVidia         ]: HDA-Intel - HDA NVidia
+                      HDA NVidia at 0xf6080000 irq 99
+ 1 [Generic        ]: HDA-Intel - HD-Audio Generic
+                      HD-Audio Generic at 0xf6e88000 irq 102
+ 2 [Generic_1      ]: HDA-Intel - HD-Audio Generic
+                      HD-Audio Generic at 0xf6e80000 irq 103
+ 3 [Wave3          ]: USB-Audio - Elgato Wave:3
+                      Elgato Systems Elgato Wave:3 at usb-0000:10:00.3-2.4.4.1.3, full speed
