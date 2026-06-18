@@ -24,10 +24,10 @@ Replace `usbmonN` with the bus number (e.g. `usbmon5`).
 2. Headphone mute on/off
 3. Headphone volume 0%, 50%, 100%
 4. Mic gain dial min/mid/max
-5. Clipguard on/off
-6. Low-cut filter on/off
-7. Direct monitor / monitor mix 0%, 50%, 100%
-8. Mute RGB color: red (`#ff0000`), green (`#00ff00`), blue (`#0000ff`), white, black
+5. **Clipguard on/off** (confirmed hardware feature inside the mic)
+6. Low-cut filter on/off (may be host-side DSP, capture anyway)
+7. **Direct monitor / monitor mix 0%, 50%, 100%** (confirmed hardware feature)
+8. **Mute RGB color**: red (`#ff0000`), green (`#00ff00`), blue (`#0000ff`), white, black
 9. Headphone RGB color (if available in UI)
 10. LED brightness / indicator brightness changes
 11. Start/stop audio playback and recording
