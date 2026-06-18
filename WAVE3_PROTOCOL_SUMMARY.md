@@ -88,7 +88,7 @@ These fields exist in Wave Link's session/settings layer.  They tell us what the
 
 | Feature | Type | Likely Location |
 |---------|------|-----------------|
-| `Clipguard` | boolean | Probably **host DSP** or hardware limiter toggle |
+| `Clipguard` | boolean | **Hardware** (Elgato confirms it runs inside the microphone) |
 | `LowCut` / `LowCut1Enabled` / `LowCut2Enabled` | boolean | **Host DSP** (filter in Wave Link) |
 | `MuteColorRGB` | RGB | **Device LED** (must be USB) |
 | `MicrophoneColorRGB` | RGB | Device LED |
@@ -218,9 +218,8 @@ From Undertone's implementation:
 1. **Vendor `bRequest` values** for reads/writes.
 2. **Property ID table** for RGB, direct monitor, clipguard, low-cut, level meters.
 3. **Data format** for each property (bool, u8, u16, RGB triple, float).
-4. Whether **Clipguard** and **Low-cut** are hardware toggles or host-side DSP in Wave Link.
+4. Whether **Low-cut** is a hardware toggle or host-side DSP in Wave Link. (Clipguard and direct monitor mix are confirmed hardware.)
 5. Whether the **level meters** are exposed via UAC peak meters on an unused terminal/unit, or only via vendor requests.
-6. Whether the **direct monitor mix** (mic ↔ playback blend heard in headphones) is a hardware control or software routing.
 
 ---
 

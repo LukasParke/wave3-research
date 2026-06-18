@@ -62,16 +62,20 @@ transfers**.
 Features expected to live here:
 
 * RGB / LED ring control
-* Direct monitor mix (mic ↔ playback blend in headphones)
-* Possibly Clipguard hardware limiter enable
+* Direct monitor mix (mic ↔ playback blend in headphones) — **hardware**
+* Clipguard anti-clip/limiter — **hardware**
 * Possibly input/playback level meters
+
+Elgato support documentation confirms that **Clipguard runs inside the
+Wave microphone** and works independent of software, and that the
+**Mic/PC monitor mix** can be adjusted from the hardware dial as well as
+from Wave Link. Both must therefore be controllable over USB.
 
 Features that appear to be **host-side DSP in Wave Link** rather than
 hardware USB controls (based on `applogic` strings):
 
 * Low-cut filter (`LowCutSettings`, frequency configurable)
 * Compressor / EQ / expander (`DSPSettingsArray`)
-* Some "Clipguard" implementations may also be host-side DSP
 
 This distinction is not yet confirmed; a live capture is required.
 
