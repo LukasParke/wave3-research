@@ -1,0 +1,80 @@
+.?AV?$TLWinCoreAudioInterfaceT@UIAudioCaptureClient@@@torilogic@@
+.?AV?$TLWinCoreAudioInterfaceT@UIAudioClient2@@@torilogic@@
+.?AV?$TLWinCoreAudioInterfaceT@UIAudioClient@@@torilogic@@
+.?AV?$TLWinCoreAudioInterfaceT@UIAudioClock2@@@torilogic@@
+.?AV?$TLWinCoreAudioInterfaceT@UIAudioClockAdjustment@@@torilogic@@
+.?AV?$TLWinCoreAudioInterfaceT@UIAudioClock@@@torilogic@@
+.?AV?$TLWinCoreAudioInterfaceT@UIAudioRenderClient@@@torilogic@@
+.?AV?$TLWinCoreAudioInterfaceT@UIMMDeviceCollection@@@torilogic@@
+.?AV?$TLWinCoreAudioInterfaceT@UIMMDeviceEnumerator@@@torilogic@@
+.?AV?$TLWinCoreAudioInterfaceT@UIMMDevice@@@torilogic@@
+.?AV?$TLWinCoreAudioInterfaceT@UIPropertyStore@@@torilogic@@
+.?AVTLWinCoreAudioCaptureClient@torilogic@@
+.?AVTLWinCoreAudioClient2@torilogic@@
+.?AVTLWinCoreAudioClient@torilogic@@
+.?AVTLWinCoreAudioClock2@torilogic@@
+.?AVTLWinCoreAudioClockAdjustment@torilogic@@
+.?AVTLWinCoreAudioClock@torilogic@@
+.?AVTLWinCoreAudioDeviceCallbackInterface@torilogic@@
+.?AVTLWinCoreAudioDeviceCollection@torilogic@@
+.?AVTLWinCoreAudioDeviceEnumerator@torilogic@@
+.?AVTLWinCoreAudioDevice@torilogic@@
+.?AVTLWinCoreAudioNotificationClient@torilogic@@
+.?AVTLWinCoreAudioRenderClient@torilogic@@
+.?AVTLWinCoreAudioRouter@torilogic@@
+mCaptureAudioClient.GetBufferSize failed with hr={}
+mCaptureAudioClient.GetDefaultDevicePeriodInSharedMode failed with hr={}
+mCaptureAudioClient.GetMixFormat failed with hr={}
+mCaptureAudioClient.Initialize failed with hr={}
+mCaptureAudioClient.SetEventHandle failed with hr={}
+mCaptureAudioClient.Start failed with hr={}
+mCaptureAudioClient.Stop failed with hr={}
+mCaptureAudioDevice.ActivateAudioClient failed with hr={}
+mRenderAudioClient.GetBufferSize failed with hr={}
+mRenderAudioClient.GetCurrentPadding failed with hr={}
+mRenderAudioClient.GetDefaultDevicePeriodInSharedMode failed with hr={}
+mRenderAudioClient.GetMixFormat failed with hr={}
+mRenderAudioClient.Initialize failed with hr={}
+mRenderAudioClient.SetEventHandle failed with hr={}
+mRenderAudioClient.Start failed with hr={}
+mRenderAudioClient.Stop failed with hr={}
+mRenderAudioDevice.ActivateAudioClient failed with hr={}
+TLWinCoreAudioCaptureClient::Create failed with hr={}
+TLWinCoreAudioClock::Create failed with hr={}
+TLWinCoreAudioRenderClient::Create failed with hr={}
+torilogic::TLWinCoreAudioCaptureClient::GetBuffer
+torilogic::TLWinCoreAudioCaptureClient::GetNextPacketSizeInSharedMode
+torilogic::TLWinCoreAudioCaptureClient::ReleaseBuffer
+torilogic::TLWinCoreAudioClient2::GetBufferSizeLimits
+torilogic::TLWinCoreAudioClient2::IsOffloadCapable
+torilogic::TLWinCoreAudioClient2::SetClientProperties
+torilogic::TLWinCoreAudioClient::GetBufferSize
+torilogic::TLWinCoreAudioClient::GetCurrentPadding
+torilogic::TLWinCoreAudioClient::GetDefaultDevicePeriodInSharedMode
+torilogic::TLWinCoreAudioClient::GetMaxStreamLatency
+torilogic::TLWinCoreAudioClient::GetMinimumDevicePeriodInExclusiveMode
+torilogic::TLWinCoreAudioClient::GetMixFormat
+torilogic::TLWinCoreAudioClient::GetService
+torilogic::TLWinCoreAudioClient::Initialize
+torilogic::TLWinCoreAudioClient::IsFormatSupportedInExclusiveMode
+torilogic::TLWinCoreAudioClient::IsFormatSupportedInSharedMode
+torilogic::TLWinCoreAudioClient::Reset
+torilogic::TLWinCoreAudioClient::SetCategory
+torilogic::TLWinCoreAudioClient::SetEventHandle
+torilogic::TLWinCoreAudioClient::Start
+torilogic::TLWinCoreAudioClient::Stop
+torilogic::TLWinCoreAudioClock2::GetDevicePosition
+torilogic::TLWinCoreAudioClockAdjustment::SetSampleRate
+torilogic::TLWinCoreAudioClock::GetCharacteristics
+torilogic::TLWinCoreAudioClock::GetFrequency
+torilogic::TLWinCoreAudioClock::GetPosition
+torilogic::TLWinCoreAudioDevice::Activate
+torilogic::TLWinCoreAudioDevice::ActivateInterface
+torilogic::TLWinCoreAudioDeviceCollection::GetCount
+torilogic::TLWinCoreAudioDeviceCollection::Item
+torilogic::TLWinCoreAudioDeviceEnumerator::Create
+torilogic::TLWinCoreAudioDeviceEnumerator::EnumAudioEndpoints
+torilogic::TLWinCoreAudioDeviceEnumerator::GetDefaultAudioEndpoint
+torilogic::TLWinCoreAudioDeviceEnumerator::GetDevice
+torilogic::TLWinCoreAudioDeviceEnumerator::RegisterEndpointNotification
+torilogic::TLWinCoreAudioDeviceEnumerator::UnregisterEndpointNotification

@@ -1,0 +1,80 @@
+0DoDownloadER35tagT_UsbClsDfu_FunctionalDescriptorPKhj
+0EndDfuProcEv
+0GetInterfaceSubClassERh
+0Wave3MK2Device4openEb
+0WaveXLRDockMK2DeviceE
+0 ( XLR Mic 1 ) ducking key signal 2 ( USB Aux In )
+10 ( Aux1 ) ducking key signal 2 ( USB Aux In )
+10 ( Aux1 Mix ) ducking key signal 2 ( USB Aux In )
+11 ( Aux2 ) ducking key signal 2 ( USB Aux In )
+11 ( Aux2 Mix ) ducking key signal 2 ( USB Aux In )
+19UsbDeviceEnumerator
+1SetAlternateInterfaceEh
+1VendorUSBBackendStrategy
+1VendorUSBBackendStrategy12protoVersionEPKNS_28VendorUSBLewittDeviceBackendERNS_23LewittDeviceVersionPairE
+1VendorUSBBackendStrategyE
+1 ( XLR Mic 2 ) ducking key signal 2 ( USB Aux In )
+20WaveXLRDockMK2DeviceENS_9allocatorIS2_EEEE
+22DfuInterfaceEnumerator
+22EnumerateDfuInterfacesERKN8Thesycon15TbUsbVidPidListE
+28GetUsbStringDescriptorStringEhiPcj
+2addConcreteDummyDeviceRKN3LWT16LewittDeviceConfENS_15WaveDevicesEnumENSt3__117basic_string_viewIcNS4_11char_traitsIcEEEENS4_4spanIKNS4_4pairINS_23LewittDeviceVersionPairENS9_IKNS_16PackedStructViewELm18446744073709551615EEEEELm18446744073709551615EEERNS4_6vectorINS_14LewittDeviceIDENS4_9allocatorISJ_EEEE
+2 ( USB Aux In ) ducking attack time in ms
+2 ( USB Aux In ) ducking attenuation in the active state in dB
+2 ( USB Aux In ) ducking key signal 0 ( XLR Mic 1 )
+2 ( USB Aux In ) ducking key signal 10 ( Aux1 )
+2 ( USB Aux In ) ducking key signal 10 ( Aux1 Mix )
+2 ( USB Aux In ) ducking key signal 11 ( Aux2 )
+2 ( USB Aux In ) ducking key signal 11 ( Aux2 Mix )
+2 ( USB Aux In ) ducking key signal 1 ( XLR Mic 2 )
+2 ( USB Aux In ) ducking key signal 2 ( USB Aux In )
+2 ( USB Aux In ) ducking key signal 3 ( Line-in )
+2 ( USB Aux In ) ducking key signal 4 ( System )
+2 ( USB Aux In ) ducking key signal 4 ( System Mix )
+2 ( USB Aux In ) ducking key signal 5 ( Music )
+2 ( USB Aux In ) ducking key signal 5 ( Music Mix )
+2 ( USB Aux In ) ducking key signal 6 ( Browser )
+2 ( USB Aux In ) ducking key signal 6 ( Browser Mix )
+2 ( USB Aux In ) ducking key signal 7 ( Voice Chat )
+2 ( USB Aux In ) ducking key signal 7 ( Voice Chat Mix )
+2 ( USB Aux In ) ducking key signal 8 ( SFX )
+2 ( USB Aux In ) ducking key signal 8 ( SFX Mix )
+2 ( USB Aux In ) ducking key signal 9 ( Game )
+2 ( USB Aux In ) ducking key signal 9 ( Game Mix )
+2 ( USB Aux In ) ducking release time in ms
+2 ( USB Aux In ) ducking threshold in dB
+2VendorUSBBackendStrategy
+2VendorUSBBackendStrategyE
+33GetCurrentConfigurationDescriptorEv
+3 ( Line-in ) ducking key signal 2 ( USB Aux In )
+4BaseWaveDevice
+4OpenER22DfuInterfaceEnumeratorj
+4readEPKNS_28VendorUSBLewittDeviceBackendERNS_8IMessageE
+4 ( System ) ducking key signal 2 ( USB Aux In )
+4 ( System Mix ) ducking key signal 2 ( USB Aux In )
+4USBGetProductStringIndexERh
+4Wave3MK2DeviceENS_9allocatorIS2_EEEE
+4WaveXLR
+5ExecuteDownloadER8DfuImagej
+5inDFUEv
+5IVendorUSBBackendStrategyE
+5 ( Music ) ducking key signal 2 ( USB Aux In )
+5 ( Music Mix ) ducking key signal 2 ( USB Aux In )
+5PxThreadCallbackInterfaceE
+5ResetEP8DfuImage
+5StrDfuProcStateE15tagDfuProcState
+5waveapi_getVerbosityLevelv
+5writeEPKNS_28VendorUSBLewittDeviceBackendERKNS_8IMessageE
+6 ( Browser ) ducking key signal 2 ( USB Aux In )
+6 ( Browser Mix ) ducking key signal 2 ( USB Aux In )
+{6CreateEPNS_25PxThreadCallbackInterfaceEPK22_opaque_pthread_attr_t
+6GetUsbLocationIdEjRj
+6LewittDeviceConf18isVIDPIDCompatibleEtt
+6PxThreadCallbackForwarderTI9DfuWorkerEE
+6QueryDfuFuncDescER35tagT_UsbClsDfu_FunctionalDescriptor
+6WaveXLR
+7GetInterfaceClassERh
+7MK2VendorUSBBackendStrategy
+7MK2VendorUSBBackendStrategyE
+7 ( Voice Chat ) ducking key signal 2 ( USB Aux In )
+7 ( Voice Chat Mix ) ducking key signal 2 ( USB Aux In )

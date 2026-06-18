@@ -1,0 +1,100 @@
+??0BaseWaveDevice@LWT@@QEAA@AEBULewittDeviceID@1@AEBULewittDeviceConf@1@$$QEAV?$unique_ptr@VILewittDeviceBackend@LWT@@U?$default_delete@VILewittDeviceBackend@LWT@@@std@@@std@@@Z
+??0LegacyWaveDevice@LWT@@QEAA@AEBULewittDeviceID@1@AEBULewittDeviceConf@1@$$QEAV?$unique_ptr@VILewittDeviceBackend@LWT@@U?$default_delete@VILewittDeviceBackend@LWT@@@std@@@std@@@Z
+??0LewittDeviceConf@LWT@@QEAA@$$QEAU01@@Z
+??0LewittDeviceConf@LWT@@QEAA@AEBU01@@Z
+??0LewittDeviceConf@LWT@@QEAA@V?$initializer_list@U?$pair@GG@std@@@std@@@Z
+??0LewittDeviceConf@LWT@@QEAA@V?$initializer_list@ULewittDeviceConf@LWT@@@std@@@Z
+??0LewittDeviceConf@LWT@@QEAA@XZ
+??0LewittDeviceDetectorThread@LWT@@QEAA@V?$function@$$A6AXULewittDeviceID@LWT@@_N@Z@std@@AEBULewittDeviceConf@1@@Z
+??0LewittDeviceFWHolder@LWT@@QEAA@$$QEAU01@@Z
+??0LewittDeviceFWHolder@LWT@@QEAA@$$QEAV?$vector@EV?$allocator@E@std@@@std@@@Z
+??0LewittDeviceFWHolder@LWT@@QEAA@AEBU01@@Z
+??0LewittDeviceFWHolder@LWT@@QEAA@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z
+??0LewittDeviceFWHolder@LWT@@QEAA@AEBV?$vector@EV?$allocator@E@std@@@std@@@Z
+??0LewittDevice@LWT@@QEAA@AEBULewittDeviceID@1@AEBULewittDeviceConf@1@$$QEAV?$unique_ptr@VILewittDeviceBackend@LWT@@U?$default_delete@VILewittDeviceBackend@LWT@@@std@@@std@@@Z
+??0LewittDeviceManager@LWT@@QEAA@$$QEAV01@@Z
+??0LewittDeviceManager@LWT@@QEAA@AEBULewittDeviceConf@1@@Z
+??0LewittDeviceManager@LWT@@QEAA@AEBV01@@Z
+??0Wave1Device@LWT@@QEAA@AEBULewittDeviceID@1@AEBULewittDeviceConf@1@$$QEAV?$unique_ptr@VILewittDeviceBackend@LWT@@U?$default_delete@VILewittDeviceBackend@LWT@@@std@@@std@@@Z
+??0Wave3Device@LWT@@QEAA@AEBULewittDeviceID@1@AEBULewittDeviceConf@1@$$QEAV?$unique_ptr@VILewittDeviceBackend@LWT@@U?$default_delete@VILewittDeviceBackend@LWT@@@std@@@std@@@Z
+??0Wave3MK2Device@LWT@@QEAA@AEBULewittDeviceID@1@AEBULewittDeviceConf@1@$$QEAV?$unique_ptr@VILewittDeviceBackend@LWT@@U?$default_delete@VILewittDeviceBackend@LWT@@@std@@@std@@@Z
+??0WaveNeoDevice@LWT@@QEAA@AEBULewittDeviceID@1@AEBULewittDeviceConf@1@$$QEAV?$unique_ptr@VILewittDeviceBackend@LWT@@U?$default_delete@VILewittDeviceBackend@LWT@@@std@@@std@@@Z
+??0WaveXLRDevice@LWT@@QEAA@AEBULewittDeviceID@1@AEBULewittDeviceConf@1@$$QEAV?$unique_ptr@VILewittDeviceBackend@LWT@@U?$default_delete@VILewittDeviceBackend@LWT@@@std@@@std@@@Z
+??0WaveXLRDockDevice@LWT@@QEAA@AEBULewittDeviceID@1@AEBULewittDeviceConf@1@$$QEAV?$unique_ptr@VILewittDeviceBackend@LWT@@U?$default_delete@VILewittDeviceBackend@LWT@@@std@@@std@@@Z
+??0WaveXLRDockMK2Device@LWT@@QEAA@AEBULewittDeviceID@1@AEBULewittDeviceConf@1@$$QEAV?$unique_ptr@VILewittDeviceBackend@LWT@@U?$default_delete@VILewittDeviceBackend@LWT@@@std@@@std@@@Z
+??0WaveXLRMK2Device@LWT@@QEAA@AEBULewittDeviceID@1@AEBULewittDeviceConf@1@$$QEAV?$unique_ptr@VILewittDeviceBackend@LWT@@U?$default_delete@VILewittDeviceBackend@LWT@@@std@@@std@@@Z
+??0WaveXLRProDevice@LWT@@QEAA@AEBULewittDeviceID@1@AEBULewittDeviceConf@1@$$QEAV?$unique_ptr@VILewittDeviceBackend@LWT@@U?$default_delete@VILewittDeviceBackend@LWT@@@std@@@std@@@Z
+0 ( XLR Mic 1 ) ducking attack time in ms
+0 ( XLR Mic 1 ) ducking attenuation in the active state in dB
+0 ( XLR Mic 1 ) ducking key signal 0 ( XLR Mic 1 )
+0 ( XLR Mic 1 ) ducking key signal 10 ( Aux1 )
+0 ( XLR Mic 1 ) ducking key signal 10 ( Aux1 Mix )
+0 ( XLR Mic 1 ) ducking key signal 11 ( Aux2 )
+0 ( XLR Mic 1 ) ducking key signal 11 ( Aux2 Mix )
+0 ( XLR Mic 1 ) ducking key signal 1 ( XLR Mic 2 )
+0 ( XLR Mic 1 ) ducking key signal 2 ( USB Aux In )
+0 ( XLR Mic 1 ) ducking key signal 3 ( Line-in )
+0 ( XLR Mic 1 ) ducking key signal 4 ( System )
+0 ( XLR Mic 1 ) ducking key signal 4 ( System Mix )
+0 ( XLR Mic 1 ) ducking key signal 5 ( Music )
+0 ( XLR Mic 1 ) ducking key signal 5 ( Music Mix )
+0 ( XLR Mic 1 ) ducking key signal 6 ( Browser )
+0 ( XLR Mic 1 ) ducking key signal 6 ( Browser Mix )
+0 ( XLR Mic 1 ) ducking key signal 7 ( Voice Chat )
+0 ( XLR Mic 1 ) ducking key signal 7 ( Voice Chat Mix )
+0 ( XLR Mic 1 ) ducking key signal 8 ( SFX )
+0 ( XLR Mic 1 ) ducking key signal 8 ( SFX Mix )
+0 ( XLR Mic 1 ) ducking key signal 9 ( Game )
+0 ( XLR Mic 1 ) ducking key signal 9 ( Game Mix )
+0 ( XLR Mic 1 ) ducking release time in ms
+0 ( XLR Mic 1 ) ducking threshold in dB
+10 ( Aux1 ) ducking key signal 0 ( XLR Mic 1 )
+10 ( Aux1 ) ducking key signal 1 ( XLR Mic 2 )
+10 ( Aux1 Mix ) ducking key signal 0 ( XLR Mic 1 )
+10 ( Aux1 Mix ) ducking key signal 1 ( XLR Mic 2 )
+11 ( Aux2 ) ducking key signal 0 ( XLR Mic 1 )
+11 ( Aux2 ) ducking key signal 1 ( XLR Mic 2 )
+11 ( Aux2 Mix ) ducking key signal 0 ( XLR Mic 1 )
+11 ( Aux2 Mix ) ducking key signal 1 ( XLR Mic 2 )
+??1LewittDeviceConf@LWT@@QEAA@XZ
+??1LewittDeviceDetectorThread@LWT@@QEAA@XZ
+??1LewittDeviceFWHolder@LWT@@QEAA@XZ
+??1LewittDevice@LWT@@UEAA@XZ
+??1LewittDeviceManager@LWT@@QEAA@XZ
+??1Wave1Device@LWT@@UEAA@XZ
+??1Wave3Device@LWT@@UEAA@XZ
+??1Wave3MK2Device@LWT@@UEAA@XZ
+??1WaveXLRDevice@LWT@@UEAA@XZ
+??1WaveXLRDockDevice@LWT@@UEAA@XZ
+??1WaveXLRDockMK2Device@LWT@@UEAA@XZ
+??1WaveXLRMK2Device@LWT@@UEAA@XZ
+??1WaveXLRProDevice@LWT@@UEAA@XZ
+1 ( XLR Mic 2 ) ducking attack time in ms
+1 ( XLR Mic 2 ) ducking attenuation in the active state in dB
+1 ( XLR Mic 2 ) ducking key signal 0 ( XLR Mic 1 )
+1 ( XLR Mic 2 ) ducking key signal 10 ( Aux1 )
+1 ( XLR Mic 2 ) ducking key signal 10 ( Aux1 Mix )
+1 ( XLR Mic 2 ) ducking key signal 11 ( Aux2 )
+1 ( XLR Mic 2 ) ducking key signal 11 ( Aux2 Mix )
+1 ( XLR Mic 2 ) ducking key signal 1 ( XLR Mic 2 )
+1 ( XLR Mic 2 ) ducking key signal 2 ( USB Aux In )
+1 ( XLR Mic 2 ) ducking key signal 3 ( Line-in )
+1 ( XLR Mic 2 ) ducking key signal 4 ( System )
+1 ( XLR Mic 2 ) ducking key signal 4 ( System Mix )
+1 ( XLR Mic 2 ) ducking key signal 5 ( Music )
+1 ( XLR Mic 2 ) ducking key signal 5 ( Music Mix )
+1 ( XLR Mic 2 ) ducking key signal 6 ( Browser )
+1 ( XLR Mic 2 ) ducking key signal 6 ( Browser Mix )
+1 ( XLR Mic 2 ) ducking key signal 7 ( Voice Chat )
+1 ( XLR Mic 2 ) ducking key signal 7 ( Voice Chat Mix )
+1 ( XLR Mic 2 ) ducking key signal 8 ( SFX )
+1 ( XLR Mic 2 ) ducking key signal 8 ( SFX Mix )
+1 ( XLR Mic 2 ) ducking key signal 9 ( Game )
+1 ( XLR Mic 2 ) ducking key signal 9 ( Game Mix )
+1 ( XLR Mic 2 ) ducking release time in ms
+1 ( XLR Mic 2 ) ducking threshold in dB
+2 ( USB Aux In ) ducking key signal 0 ( XLR Mic 1 )
+2 ( USB Aux In ) ducking key signal 1 ( XLR Mic 2 )
+3 ( Line-in ) ducking key signal 0 ( XLR Mic 1 )
+3 ( Line-in ) ducking key signal 1 ( XLR Mic 2 )
+??4LewittDeviceConf@LWT@@QEAAAEAU01@$$QEAU01@@Z

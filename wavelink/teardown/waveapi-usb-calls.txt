@@ -1,0 +1,14 @@
+/usb_host_playback/level/0
+/usb_host_playback/level/1
+/usb_host_recording/level/0
+/usb_host_recording/level/1
+/usb_outputs/0/limiter_bypassed
+/usb_outputs/0/source_select
+/usb_outputs/1/limiter_bypassed
+/usb_outputs/1/source_select
+/usb_outputs/2/limiter_bypassed
+/usb_outputs/2/source_select
+/usb_outputs/3/limiter_bypassed
+/usb_outputs/3/source_select
+/usb_outputs/limiter_bypassed
+/usb_outputs/source_select

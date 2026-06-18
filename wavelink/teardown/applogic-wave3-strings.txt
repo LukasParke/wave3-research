@@ -1,0 +1,12 @@
+CSharp_EWLWWaveDeviceProxy_IsWave3
+EWLWAttachToWave3MKIIMixer
+kPIDWave3
+kPIDWave3Dfu
+kPIDWave3MK2
+kPIDWave3MK2Dfu
+Wave3DeviceSettingsModel
+Wave3_DFU
+Wave3_MK2
+Wave3_MK2_DFU
+Wave3MK2Mapping
+Wave3MK2SettingsModel

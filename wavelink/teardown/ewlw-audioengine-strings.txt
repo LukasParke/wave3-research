@@ -1,0 +1,80 @@
+/input_gain
+/input_mute
+/input_volume
+/input_enabled
+/sample_recorder_enabled
+/mixer_inputs
+/hw_outputs
+/usb_outputs
+EWLW::EWLW_DEVICE_HANDLE const & is null
+std::vector< LWT::LewittDeviceID > const & is null
+LWT::LewittDeviceID const & is null
+EWLWLegacyUSBAudioDevice
+Error when opening a device: %s
+EWLW::EWLWLegacyDeviceManager::refresh
+Error in device communication: {}
+EWLW::EWLWLegacyUSBAudioDevice::tick
+/mixer/4/input_enabled/10
+Mixer 4 ( Aux Mix ) input 10 ( Wave Mic 3 ) enable
+/mixer/4/input_enabled/11
+Mixer 4 ( Aux Mix ) input 11 ( Wave Mic 4 ) enable
+Main volume fader for input 0 ( System Mix ) in dB
+Main volume fader for input 1 ( Music Mix ) in dB
+Main volume fader for input 2 ( Browser Mix ) in dB
+Main volume fader for input 3 ( Voice Chat Mix ) in dB
+Main volume fader for input 4 ( SFX Mix ) in dB
+Main volume fader for input 5 ( Game Mix ) in dB
+Main volume fader for input 6 ( Aux1 Mix ) in dB
+Main volume fader for input 7 ( Aux2 Mix ) in dB
+Main volume fader for input 8 ( Wave Mic 1 ) in dB
+Main volume fader for input 9 ( Wave Mic 2) in dB
+Main volume fader for input 10 ( Wave Mic 3 ) in dB
+Main volume fader for input 11 ( Wave Mic 4 ) in dB
+/input/0/level_dB/0
+Mixer input 0 ( System Mix ) level in dB 0 ( left )
+/input/0/level_dB/1
+Mixer input 0 ( System Mix ) level in dB 1 ( right )
+/input/1/level_dB/0
+Mixer input 1 ( Music Mix ) level in dB 0 ( left )
+/input/1/level_dB/1
+Mixer input 1 ( Music Mix ) level in dB 1 ( right )
+/input/2/level_dB/0
+Mixer input 2 ( Browser Mix ) level in dB 0 ( left )
+/input/2/level_dB/1
+Mixer input 2 ( Browser Mix ) level in dB 1 ( right )
+/input/3/level_dB/0
+Mixer input 3 ( Voice Chat Mix ) level in dB 0 ( left )
+/input/3/level_dB/1
+Mixer input 3 ( Voice Chat Mix ) level in dB 1 ( right )
+/input/4/level_dB/0
+Mixer input 4 ( SFX Mix ) level in dB 0 ( left )
+/input/4/level_dB/1
+Mixer input 4 ( SFX Mix ) level in dB 1 ( right )
+/input/5/level_dB/0
+Mixer input 5 ( Game Mix ) level in dB 0 ( left )
+/input/5/level_dB/1
+Mixer input 5 ( Game Mix ) level in dB 1 ( right )
+/input/6/level_dB/0
+Mixer input 6 ( Aux1 Mix ) level in dB 0 ( left )
+/input/6/level_dB/1
+Mixer input 6 ( Aux1 Mix ) level in dB 1 ( right )
+/input/7/level_dB/0
+Mixer input 7 ( Aux2 Mix ) level in dB 0 ( left )
+/input/7/level_dB/1
+Mixer input 7 ( Aux2 Mix ) level in dB 1 ( right )
+/input/8/level_dB/0
+Mixer input 8 ( Wave Mic 1 ) level in dB 0 ( left )
+/input/8/level_dB/1
+Mixer input 8 ( Wave Mic 1 ) level in dB 1 ( right )
+/input/9/level_dB/0
+Mixer input 9 ( Wave Mic 2 ) level in dB 0 ( left )
+/input/9/level_dB/1
+Mixer input 9 ( Wave Mic 2 ) level in dB 1 ( right )
+/input/10/level_dB/0
+Mixer input 10 ( Wave Mic 3 ) level in dB 0 ( left )
+/input/10/level_dB/1
+Mixer input 10 ( Wave Mic 3 ) level in dB 1 ( right )
+/input/11/level_dB/0
+Mixer input 11 ( Wave Mic 4 ) level in dB 0 ( left )
+/input/11/level_dB/1
+Mixer input 11 ( Wave Mic 4 ) level in dB 1 ( right )

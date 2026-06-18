@@ -1,0 +1,80 @@
+aborting download, current block={}
+   bcdUSB          {:#x}
+bInterfaceClass
+bInterfaceNumber
+bInterfaceProtocol
+bInterfaceSubClass
+bLength={} exceeds image data length {} bytes, ignore DFU file suffix
+ClaimUsbInterface
+ClaimUsbInterface failed, st={}
+ClassOrVendorOutRequest(XMOS_DFU_SELECTIMAGE) failed, st={}
+CloseUsbDfuDevice
+com.elgato.tlusbdfuapi
+CreateDfuDeviceFilter
+CreateDfuDeviceFilter failed, st={}
+CreateInterfaceIterator failed, st={}
+dEnumerateUsbDfuDevices
+descriptor header out of range
+descriptor={} is not valid
+Device Descriptor:
+device is not download cabable
+device is not upload cabable
+device reports unsupported DFU version {:#x}
+device will not detach, but issuing an USB reset is not supported
+DfuAbort
+DfuAbort failed, st={}
+DfuClrStatus
+DfuClrStatus failed, st={}
+dfuDNBUSY
+DfuDnload
+DfuDnload(block={}) failed, st={}
+dfuDNLOAD_IDLE
+dfuDNLOAD_SYNC
+DfuDnload(zero-length block={}) failed, st={}
+dfuERROR
+DFU functional descriptor not within DFU interface
+DfuGetState
+DfuGetState(1) failed, st={}
+DfuGetState(2) failed, st={}
+DfuGetStatus
+DfuGetStatus(block={}) failed, st={}
+DfuGetStatus(block={}) returned bStatus={:#X} ({})
+DfuGetStatus(block={}) returned dfuDNLOAD_SYNC
+DfuGetStatus(block={}) returned dfuERROR, bStatus={:#X} ({})
+DfuGetStatus(block={}) returned unexpected bState={:#X} ({}), bStatus={:#X} ({})
+DfuGetStatus() failed, st={}
+DfuGetStatus() returned bStatus={:#X} ({})
+DfuGetStatus() returned dfuERROR, bStatus={:#X} ({})
+DfuGetStatus() returned dfuMANIFEST_SYNC
+DfuGetStatus() returned unexpected bState={:#X} ({}), bStatus={:#X} ({})
+DFU library not licensed for USB VID={:#X} PID={:#X}
+dfuMANIFEST
+dfuMANIFEST_SYNC
+dfuMANIFEST_WAIT_RESET
+DfuProcedure
+DfuProcedure failed, st={}
+DfuUpload
+DfuUpload(block={}) failed, st={}
+dfuUPLOAD_IDLE
+DoDownload
+DoDownload failed, st={}
+DoUpload
+DoUpload failed, st={}
+Downloading {} bytes in blocks of {} bytes
+Downloading data block {} ({} bytes)
+EnsureDfuIDLE
+EnsureDfuIDLE failed, st={}
+EnumerateUsbDevices failed, st={}
+^EnumerateUsbDfuDevices
+EnumerateUsbDfuDevices
+FinishDfuProcImpl
+FinishDfuProcImpl failed, st={}
+Finished download, entering manifestation
+GetConfigurationDescriptor
+GetConfigurationDescriptor failed, st={}
+GetDescriptor
+GetDeviceDescriptor failed, st={}
+GetInterfaceClass failed, st={}
+GetInterfaceIterator
+GetInterfaceNumber failed, st={}
+GetInterfaceProtocol failed, st={}

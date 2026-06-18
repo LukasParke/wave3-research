@@ -1,0 +1,309 @@
+/clipguard_enable
+/direct_monitor
+/dspfx/equalizer/band/0/gain_dB
+/dspfx/equalizer/band/1/gain_dB
+/dspfx/equalizer/band/2/gain_dB
+/dspfx/equalizer/band/3/gain_dB
+/error/mic_mute_low_voltage
+/gain_meter_background
+/gain_reduction_value_indicator
+/gain_value_indicator
+/headphone1_connected
+/headphone1/hiz_enabled
+/headphone1/limiter_bypassed
+/headphone1/mute
+/headphone1/volume
+/headphone2_connected
+/headphone2/hiz_enabled
+/headphone2/limiter_bypassed
+/headphone2/mute
+/headphone2/volume
+/headphone_color_rgb/blue
+/headphone_color_rgb/green
+/headphone_color_rgb/red
+/headphone_detected
+/headphone_meter_background
+/headphone_mute
+/headphone_value_indicator
+/headphone_volume
+/limiter_bypassed
+/limiter_mode
+/line/gain_lock
+/line/limiter_bypassed
+/line/volume
+/lowcut1_enabled
+/lowcut2_enabled
+/lowcut_enable
+/lowcut_enabled
+/mic_clipping_counter
+/mic_det_disabled
+/mic_det_threshold
+/mic_det_threshold/0
+/mic_det_threshold/1
+/mic_det_value
+/mic_det_value/0
+/mic_det_value/1
+/microphone_color_rgb/blue
+/microphone_color_rgb/green
+/microphone_color_rgb/red
+/mic_select/0
+/mic_select/1
+/mixer/0/input_enabled/0
+/mixer/0/input_enabled/1
+/mixer/0/input_enabled/10
+/mixer/0/input_enabled/11
+/mixer/0/input_enabled/2
+/mixer/0/input_enabled/3
+/mixer/0/input_enabled/4
+/mixer/0/input_enabled/5
+/mixer/0/input_enabled/6
+/mixer/0/input_enabled/7
+/mixer/0/input_enabled/8
+/mixer/0/input_enabled/9
+/mixer/0/input_volume/0
+/mixer/0/input_volume/1
+/mixer/0/input_volume/10
+/mixer/0/input_volume/11
+/mixer/0/input_volume/2
+/mixer/0/input_volume/3
+/mixer/0/input_volume/4
+/mixer/0/input_volume/5
+/mixer/0/input_volume/6
+/mixer/0/input_volume/7
+/mixer/0/input_volume/8
+/mixer/0/input_volume/9
+/mixer/1/input_enabled/0
+/mixer/1/input_enabled/1
+/mixer/1/input_enabled/10
+/mixer/1/input_enabled/11
+/mixer/1/input_enabled/2
+/mixer/1/input_enabled/3
+/mixer/1/input_enabled/4
+/mixer/1/input_enabled/5
+/mixer/1/input_enabled/6
+/mixer/1/input_enabled/7
+/mixer/1/input_enabled/8
+/mixer/1/input_enabled/9
+/mixer/1/input_volume/0
+/mixer/1/input_volume/1
+/mixer/1/input_volume/10
+/mixer/1/input_volume/11
+/mixer/1/input_volume/2
+/mixer/1/input_volume/3
+/mixer/1/input_volume/4
+/mixer/1/input_volume/5
+/mixer/1/input_volume/6
+/mixer/1/input_volume/7
+/mixer/1/input_volume/8
+/mixer/1/input_volume/9
+/mixer/2/input_enabled/0
+/mixer/2/input_enabled/1
+/mixer/2/input_enabled/10
+/mixer/2/input_enabled/11
+/mixer/2/input_enabled/2
+/mixer/2/input_enabled/3
+/mixer/2/input_enabled/4
+/mixer/2/input_enabled/5
+/mixer/2/input_enabled/6
+/mixer/2/input_enabled/7
+/mixer/2/input_enabled/8
+/mixer/2/input_enabled/9
+/mixer/2/input_volume/0
+/mixer/2/input_volume/1
+/mixer/2/input_volume/10
+/mixer/2/input_volume/11
+/mixer/2/input_volume/2
+/mixer/2/input_volume/3
+/mixer/2/input_volume/4
+/mixer/2/input_volume/5
+/mixer/2/input_volume/6
+/mixer/2/input_volume/7
+/mixer/2/input_volume/8
+/mixer/2/input_volume/9
+/mixer/3/input_enabled/0
+/mixer/3/input_enabled/1
+/mixer/3/input_enabled/10
+/mixer/3/input_enabled/11
+/mixer/3/input_enabled/2
+/mixer/3/input_enabled/3
+/mixer/3/input_enabled/4
+/mixer/3/input_enabled/5
+/mixer/3/input_enabled/6
+/mixer/3/input_enabled/7
+/mixer/3/input_enabled/8
+/mixer/3/input_enabled/9
+/mixer/3/input_volume/0
+/mixer/3/input_volume/1
+/mixer/3/input_volume/10
+/mixer/3/input_volume/11
+/mixer/3/input_volume/2
+/mixer/3/input_volume/3
+/mixer/3/input_volume/4
+/mixer/3/input_volume/5
+/mixer/3/input_volume/6
+/mixer/3/input_volume/7
+/mixer/3/input_volume/8
+/mixer/3/input_volume/9
+/mixer/4/input_enabled/0
+/mixer/4/input_enabled/1
+/mixer/4/input_enabled/10
+/mixer/4/input_enabled/11
+/mixer/4/input_enabled/2
+/mixer/4/input_enabled/3
+/mixer/4/input_enabled/4
+/mixer/4/input_enabled/5
+/mixer/4/input_enabled/6
+/mixer/4/input_enabled/7
+/mixer/4/input_enabled/8
+/mixer/4/input_enabled/9
+/mixer/4/input_volume/0
+/mixer/4/input_volume/1
+/mixer/4/input_volume/10
+/mixer/4/input_volume/11
+/mixer/4/input_volume/2
+/mixer/4/input_volume/3
+/mixer/4/input_volume/4
+/mixer/4/input_volume/5
+/mixer/4/input_volume/6
+/mixer/4/input_volume/7
+/mixer/4/input_volume/8
+/mixer/4/input_volume/9
+Mixer input/output 0 ( XLR1 pre FX ) level in dB 0 ( left )
+Mixer input/output 0 ( XLR1 pre FX ) level in dB 1 ( right )
+Mixer input/output 10 ( USB Aux In ducking ) level in dB 0 ( left )
+Mixer input/output 10 ( USB Aux In ducking ) level in dB 1 ( right )
+Mixer input/output 11 ( Line-in ) level in dB 0 ( left )
+Mixer input/output 11 ( Line-in ) level in dB 1 ( right )
+Mixer input/output 12 ( Line-in post VST ) level in dB 0 ( left )
+Mixer input/output 12 ( Line-in post VST ) level in dB 1 ( right )
+Mixer input/output 13 ( Line-in ducking ) level in dB 0 ( left )
+Mixer input/output 13 ( Line-in ducking ) level in dB 1 ( right )
+Mixer input/output 14 ( System ) level in dB 0 ( left )
+Mixer input/output 14 ( System ) level in dB 1 ( right )
+Mixer input/output 14 ( System Mix ) level in dB 0 ( left )
+Mixer input/output 14 ( System Mix ) level in dB 1 ( right )
+Mixer input/output 15 ( System ducking ) level in dB 0 ( left )
+Mixer input/output 15 ( System ducking ) level in dB 1 ( right )
+Mixer input/output 15 ( System Mix ducking ) level in dB 0 ( left )
+Mixer input/output 15 ( System Mix ducking ) level in dB 1 ( right )
+Mixer input/output 16 ( Music ) level in dB 0 ( left )
+Mixer input/output 16 ( Music ) level in dB 1 ( right )
+Mixer input/output 16 ( Music Mix ) level in dB 0 ( left )
+Mixer input/output 16 ( Music Mix ) level in dB 1 ( right )
+Mixer input/output 17 ( Music ducking ) level in dB 0 ( left )
+Mixer input/output 17 ( Music ducking ) level in dB 1 ( right )
+Mixer input/output 17 ( Music Mix ducking ) level in dB 0 ( left )
+Mixer input/output 17 ( Music Mix ducking ) level in dB 1 ( right )
+Mixer input/output 18 ( Browser ) level in dB 0 ( left )
+Mixer input/output 18 ( Browser ) level in dB 1 ( right )
+Mixer input/output 18 ( Browser Mix ) level in dB 0 ( left )
+Mixer input/output 18 ( Browser Mix ) level in dB 1 ( right )
+Mixer input/output 19 ( Browser Mix ducking ) level in dB 0 ( left )
+Mixer input/output 19 ( Browser Mix ducking ) level in dB 1 ( right )
+Mixer input/output 1 ( XLR1 post DSP ) level in dB 0 ( left )
+Mixer input/output 1 ( XLR1 post DSP ) level in dB 1 ( right )
+Mixer input/output 20 ( Voice Chat ) level in dB 0 ( left )
+Mixer input/output 20 ( Voice Chat ) level in dB 1 ( right )
+Mixer input/output 20 ( Voice Chat Mix ) level in dB 0 ( left )
+Mixer input/output 20 ( Voice Chat Mix ) level in dB 1 ( right )
+Mixer input/output 21 ( Voice Chat ducking ) level in dB 0 ( left )
+Mixer input/output 21 ( Voice Chat ducking ) level in dB 1 ( right )
+Mixer input/output 21 ( Voice Chat Mix ducking ) level in dB 0 ( left )
+Mixer input/output 21 ( Voice Chat Mix ducking ) level in dB 1 ( right )
+Mixer input/output 22 ( SFX ) level in dB 0 ( left )
+Mixer input/output 22 ( SFX ) level in dB 1 ( right )
+Mixer input/output 22 ( SFX Mix ) level in dB 0 ( left )
+Mixer input/output 22 ( SFX Mix ) level in dB 1 ( right )
+Mixer input/output 23 ( SFX ducking ) level in dB 0 ( left )
+Mixer input/output 23 ( SFX ducking ) level in dB 1 ( right )
+Mixer input/output 23 ( SFX Mix ducking ) level in dB 0 ( left )
+Mixer input/output 23 ( SFX Mix ducking ) level in dB 1 ( right )
+Mixer input/output 24 ( Game ) level in dB 0 ( left )
+Mixer input/output 24 ( Game ) level in dB 1 ( right )
+Mixer input/output 24 ( Game Mix ) level in dB 0 ( left )
+Mixer input/output 24 ( Game Mix ) level in dB 1 ( right )
+Mixer input/output 25 ( Game ducking ) level in dB 0 ( left )
+Mixer input/output 25 ( Game ducking ) level in dB 1 ( right )
+Mixer input/output 25 ( Game Mix ducking ) level in dB 0 ( left )
+Mixer input/output 25 ( Game Mix ducking ) level in dB 1 ( right )
+Mixer input/output 26 ( Aux1 ) level in dB 0 ( left )
+Mixer input/output 26 ( Aux1 ) level in dB 1 ( right )
+Mixer input/output 26 ( Aux1 Mix ) level in dB 0 ( left )
+Mixer input/output 26 ( Aux1 Mix ) level in dB 1 ( right )
+Mixer input/output 27 ( Aux1 ducking ) level in dB 0 ( left )
+Mixer input/output 27 ( Aux1 ducking ) level in dB 1 ( right )
+Mixer input/output 28 ( Aux2 ) level in dB 0 ( left )
+Mixer input/output 28 ( Aux2 ) level in dB 1 ( right )
+Mixer input/output 28 ( Aux2 Mix ) level in dB 0 ( left )
+Mixer input/output 28 ( Aux2 Mix ) level in dB 1 ( right )
+Mixer input/output 29 ( Aux2 ducking ) level in dB 0 ( left )
+Mixer input/output 29 ( Aux2 ducking ) level in dB 1 ( right )
+Mixer input/output 2 ( XLR1 post VST ) level in dB 0 ( left )
+Mixer input/output 2 ( XLR1 post VST ) level in dB 1 ( right )
+Mixer input/output 30 ( Monitor Mix ) level in dB 0 ( left )
+Mixer input/output 30 ( Monitor Mix ) level in dB 1 ( right )
+Mixer input/output 30 ( Personal Mix ) level in dB 0 ( left )
+Mixer input/output 30 ( Personal Mix ) level in dB 1 ( right )
+Mixer input/output 31 ( Chat Mix ) level in dB 0 ( left )
+Mixer input/output 31 ( Chat Mix ) level in dB 1 ( right )
+Mixer input/output 31 ( Stream Mix ) level in dB 0 ( left )
+Mixer input/output 31 ( Stream Mix ) level in dB 1 ( right )
+Mixer input/output 32 ( Mix C ) level in dB 0 ( left )
+Mixer input/output 32 ( Mix C ) level in dB 1 ( right )
+Mixer input/output 32 ( Stream Mix ) level in dB 0 ( left )
+Mixer input/output 32 ( Stream Mix ) level in dB 1 ( right )
+Mixer input/output 33 ( Mix D ) level in dB 0 ( left )
+Mixer input/output 33 ( Mix D ) level in dB 1 ( right )
+Mixer input/output 33 ( Record Mix ) level in dB 0 ( left )
+Mixer input/output 33 ( Record Mix ) level in dB 1 ( right )
+Mixer input/output 34 ( Aux Mix ) level in dB 0 ( left )
+Mixer input/output 34 ( Aux Mix ) level in dB 1 ( right )
+Mixer input/output 34 ( mix E ) level in dB 0 ( left )
+Mixer input/output 34 ( mix E ) level in dB 1 ( right )
+Mixer input/output 3 ( XLR1 ducking ) level in dB 0 ( left )
+Mixer input/output 3 ( XLR1 ducking ) level in dB 1 ( right )
+Mixer input/output 4 ( XLR2 pre FX ) level in dB 0 ( left )
+Mixer input/output 4 ( XLR2 pre FX ) level in dB 1 ( right )
+Mixer input/output 5 ( XLR2 post DSP ) level in dB 0 ( left )
+Mixer input/output 5 ( XLR2 post DSP ) level in dB 1 ( right )
+Mixer input/output 6 ( XLR2 post VST ) level in dB 0 ( left )
+Mixer input/output 6 ( XLR2 post VST ) level in dB 1 ( right )
+Mixer input/output 7 ( XLR2 ducking ) level in dB 0 ( left )
+Mixer input/output 7 ( XLR2 ducking ) level in dB 1 ( right )
+Mixer input/output 8 ( USB Aux In ) level in dB 0 ( left )
+Mixer input/output 8 ( USB Aux In ) level in dB 1 ( right )
+Mixer input/output 9 ( USB Aux In post VST ) level in dB 0 ( left )
+Mixer input/output 9 ( USB Aux In post VST ) level in dB 1 ( right )
+/mute_background
+/mute_background_brightness
+/mute_color_rgb/blue
+/mute_color_rgb/green
+/mute_color_rgb/red
+/mute_enabled
+/usb/gain_lock
+/usb/limiter_bypassed
+/usb_outputs/0/limiter_bypassed
+/usb_outputs/1/limiter_bypassed
+/usb_outputs/2/limiter_bypassed
+/usb_outputs/3/limiter_bypassed
+/usb_outputs/limiter_bypassed
+/volume_select
+/xlr1/clipguard_enabled
+/xlr1/dspfx/equalizer/band/0/gain_dB
+/xlr1/dspfx/equalizer/band/1/gain_dB
+/xlr1/dspfx/equalizer/band/2/gain_dB
+/xlr1/dspfx/equalizer/band/3/gain_dB
+/xlr1/gain_lock
+/xlr1/limiter_bypassed
+/xlr1/limiter_mode
+/xlr1/lowcut_enabled
+/xlr1/mic_detection_disabled
+/xlr2/dspfx/equalizer/band/0/gain_dB
+/xlr2/dspfx/equalizer/band/1/gain_dB
+/xlr2/dspfx/equalizer/band/2/gain_dB
+/xlr2/dspfx/equalizer/band/3/gain_dB
+/xlr2/gain_lock
+/xlr2/limiter_bypassed
+/xlr2/limiter_mode
+/xlr2/lowcut_enabled
+/xlr2/mic_detection_disabled

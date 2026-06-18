@@ -1,0 +1,2 @@
+4772a5cc8c1924d0b0901edea3de1bb2e88064e69f16fb8cf3889609a58ce828  windows/Elgato.WaveLink_3.0.0.2388_x64.msix
+c85d30e09818f5b76b2c618b2c08e9d602bde364c3b57841da2dc8c1b08c83a9  mac/ElgatoWaveLink-3.0.0.1999.dmg

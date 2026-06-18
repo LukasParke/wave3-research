@@ -1,0 +1,7 @@
+/line/gain_lock
+/line/limiter_bypassed
+/line/volume
+/line/vst_enabled
+/usb/gain_lock
+/usb/limiter_bypassed
+/usb/vst_enabled

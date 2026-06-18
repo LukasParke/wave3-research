@@ -1,0 +1,12 @@
+EWLW::EWLWLegacyThesyconBackend::configureASIOInterface
+Failed to get ASIO instance count with status 0x%08X
+TUSBAUDIO_ClearPreferredASIODevice
+TUSBAUDIO_GetASIOInstanceAllowed
+TUSBAUDIO_GetASIOInstanceCount
+TUSBAUDIO_GetASIOInstanceDetails
+TUSBAUDIO_GetASIOInstanceInfo
+TUSBAUDIO_GetASIORelation
+TUSBAUDIO_SetASIOBufferPreferredSize
+TUSBAUDIO_SetPreferredASIODevice
+Wave Link ASIO
+Wave Link Virtual ASIO

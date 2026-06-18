@@ -1,0 +1,11 @@
+??0Wave3Device@LWT@@QEAA@AEBULewittDeviceID@1@AEBULewittDeviceConf@1@$$QEAV?$unique_ptr@VILewittDeviceBackend@LWT@@U?$default_delete@VILewittDeviceBackend@LWT@@@std@@@std@@@Z
+??0Wave3MK2Device@LWT@@QEAA@AEBULewittDeviceID@1@AEBULewittDeviceConf@1@$$QEAV?$unique_ptr@VILewittDeviceBackend@LWT@@U?$default_delete@VILewittDeviceBackend@LWT@@@std@@@std@@@Z
+??1Wave3Device@LWT@@UEAA@XZ
+??1Wave3MK2Device@LWT@@UEAA@XZ
+??_7Wave3Device@LWT@@6B@
+??_7Wave3MK2Device@LWT@@6B@
+.?AV?$_Ref_count_obj2@VWave3MK2Device@LWT@@@std@@
+.?AVWave3Device@LWT@@
+.?AVWave3MK2Device@LWT@@
+?open@Wave3Device@LWT@@UEAAH_N@Z
+?open@Wave3MK2Device@LWT@@UEAAH_N@Z

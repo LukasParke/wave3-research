@@ -1,0 +1,80 @@
+$Identifiable13WaveLinkMacOSMc
+$s13WaveLinkMacOS12PickableItemP
+$s13WaveLinkMacOS17AppStateSchedulerP
+$s13WaveLinkMacOS17IconRepresentableP
+$s13WaveLinkMacOS17JsonRpcControllerP
+$s13WaveLinkMacOS9ScheduledP
+0@WaveLinkMacOS
+13WaveLinkMacOSE2ids6UInt32Vv
+13WaveLinkMacOSE8rawValue
+15WaveLinkVirtualC6PluginV
+2. The [Wave Link Plugin](%@) for Stream Deck is installed.
+3WaveLinkMacOSE
+,3WaveLinkMacOSE2
+3WaveLinkMacOSSfRszAA19AmplitudeDecibelTagORs_rlE10normalizedyACySfAFGSfFZ
+=3WaveLinkMacOSSQRzlE4safe
+83WaveLinkMacOSE2idSSv
+8Identifiable13WaveLinkMacOSMc
+9SY13WaveLinkMacOSMc
+A newer version of the Wave Link Audio Driver is ready to go.
+App is not sandboxed, extending default cache directory with bundle identifier.
+Automatically start Wave Link when you log in to your Mac.
+Bundle identifier exists but is zero length, using main bundle executable name.
+com.corsair.wavelink.AudioPlayerUIModel
+com.elgato.coreaudio.property.publisher.emit
+com.elgato.devicekit
+com.elgato.deviceKit.audio
+com.elgato.ElgatoMacUpdate
+com.elgato.marketplace.authorization
+com.elgato.StreamDeck
+com.elgato.studio
+com.elgato.telemetry.BatchSender
+com.elgato.telemetry.DataMaster
+com.elgato.telemetry.HTTPTransport
+com.elgato.telemetry.MockSentry
+com.elgato.telemetry.MockTransport
+com.elgato.telemetry.SentryTracker
+com.elgato.telemetry.sessionEndedGracefully
+com.elgato.telemetry.SessionManager
+com.elgato.telemetry.TelemetryStore
+com.elgato.telemetry.UserIdentity
+com.elgato.tracking.distinctId
+com.elgato.tracking.userId
+com.elgato.WaveLink
+com.elgato.WaveLink3
+com.elgato.WaveLink3.App
+com.elgato.WaveLink3.debug
+com.elgato.WaveLink3.DriverManager
+com.elgato.WaveLink3.effect
+com.elgato.WaveLink3.InitialMixerConfigurationService
+com.elgato.WaveLink3.Marketplace
+com.elgato.WaveLink3.Marketplace.Auth
+com.elgato.WaveLink3.Marketplace.Progress
+com.elgato.WaveLink3.Marketplace.URLHandler
+com.elgato.WaveLink3.Marketplace.VariantResolver
+com.elgato.WaveLink3.MessageManager
+com.elgato.WaveLink3.SessionTracker
+com.elgato.WaveLink3-spki
+com.elgato.WaveLink3-spks
+com.elgato.WaveLink3.StreamDeck
+com.elgato.WaveLink3VirtualAudio
+com.elgato.WaveLink3.WLEngine
+com.elgato.wavelink3.wlmixer
+com.elgato.WaveLink3.WLMixerApple
+com.elgato.WaveLink.CoreAudioDevice
+com.elgato.WaveLink.ThirdPartyDeviceManager
+Control Wave Link with Stream Deck
+Elgato WaveLink Marketplace
+Enable phantom power in the Wave Link app when using a condenser microphone. The 48V LED will light up to confirm it
+Exporting your Wave Link configuration is supported for these devices: Stream Deck, Stream Deck Mini, Stream Deck XL, Stream Deck Plus, Stream Deck Neo, Stream Deck PlusXL.
+ gain in Wave Link
+Install the Wave Link plugin from Marketplace to control your mic and channels: add apps, adjust levels, mute sources, toggle effects, and monitor everything in real time.
+isWaveLinkPluginConnected()
+@j@WaveLinkMacOS
+mixer.export.streamdeck.prerequisite.waveLinkPlugin
+ monitoring mix in Wave Link
+No bundle identifier found, cannot create cache directory.
+No bundle identifier found, using main bundle executable name.
+ output in Wave Link
+ P	4WaveLinkMacOS
+,Q13WaveLinkMacOSMc

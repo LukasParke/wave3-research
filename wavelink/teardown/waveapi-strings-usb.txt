@@ -1,0 +1,80 @@
+Device in DFU mode
+Device: {}, VID: {:#06x}, PID: {:#06x}, SN: {}, FW {:02d}.{}.{}, DFU
+0 ( XLR Mic 1 ) ducking key signal 2 ( USB Aux In )
+1 ( XLR Mic 2 ) ducking key signal 2 ( USB Aux In )
+2 ( USB Aux In ) ducking threshold in dB
+2 ( USB Aux In ) ducking attenuation in the active state in dB
+2 ( USB Aux In ) ducking attack time in ms
+2 ( USB Aux In ) ducking release time in ms
+2 ( USB Aux In ) ducking key signal 0 ( XLR Mic 1 )
+2 ( USB Aux In ) ducking key signal 1 ( XLR Mic 2 )
+2 ( USB Aux In ) ducking key signal 2 ( USB Aux In )
+2 ( USB Aux In ) ducking key signal 3 ( Line-in )
+2 ( USB Aux In ) ducking key signal 4 ( System )
+2 ( USB Aux In ) ducking key signal 5 ( Music )
+2 ( USB Aux In ) ducking key signal 6 ( Browser )
+2 ( USB Aux In ) ducking key signal 7 ( Voice Chat )
+2 ( USB Aux In ) ducking key signal 8 ( SFX )
+2 ( USB Aux In ) ducking key signal 9 ( Game )
+2 ( USB Aux In ) ducking key signal 10 ( Aux1 )
+2 ( USB Aux In ) ducking key signal 11 ( Aux2 )
+3 ( Line-in ) ducking key signal 2 ( USB Aux In )
+4 ( System ) ducking key signal 2 ( USB Aux In )
+5 ( Music ) ducking key signal 2 ( USB Aux In )
+6 ( Browser ) ducking key signal 2 ( USB Aux In )
+7 ( Voice Chat ) ducking key signal 2 ( USB Aux In )
+8 ( SFX ) ducking key signal 2 ( USB Aux In )
+9 ( Game ) ducking key signal 2 ( USB Aux In )
+10 ( Aux1 ) ducking key signal 2 ( USB Aux In )
+11 ( Aux2 ) ducking key signal 2 ( USB Aux In )
+/usbin_connected
+USB Aux is connected
+Mixer 0 ( Personal Mix ) fader for input 2 ( USB Aux In ) in dB
+Mixer 0 ( Personal Mix ) input 2 ( USB Aux In ) enable
+Mixer 0 ( Personal Mix ) FX select for input 2 ( USB Aux In )
+Mixer 1 ( Chat Mix ) fader for input 2 ( USB Aux In ) in dB
+Mixer 1 ( Chat Mix ) input 2 ( USB Aux In ) enable
+Mixer 1 ( Chat Mix ) FX select for input 2 ( USB Aux In )
+Mixer 2 ( Stream Mix ) fader for input 2 ( USB Aux In ) in dB
+Mixer 2 ( Stream Mix ) input 2 ( USB Aux In ) enable
+Mixer 2 ( Stream Mix ) FX select for input 2 ( USB Aux In )
+Mixer 3 ( Record Mix ) fader for input 2 ( USB Aux In ) in dB
+Mixer 3 ( Record Mix ) input 2 ( USB Aux In ) enable
+Mixer 3 ( Record Mix ) FX select for input 2 ( USB Aux In )
+Mixer 4 ( Aux Mix ) fader for input 2 ( USB Aux In ) in dB
+Mixer 4 ( Aux Mix ) input 2 ( USB Aux In ) enable
+Mixer 4 ( Aux Mix ) FX select for input 2 ( USB Aux In )
+HW audio output 2 ( USB Aux Out ) source select:
+/usb_outputs/0/source_select
+) USB audio output 0 ( XLR Mic 1 ) source select:
+/usb_outputs/0/limiter_bypassed
+) USB audio output 0 ( XLR Mic 1 ) limiter bypassed
+/usb_outputs/1/source_select
+) USB audio output 1 ( XLR Mic 2 ) source select:
+/usb_outputs/1/limiter_bypassed
+) USB audio output 1 ( XLR Mic 2 ) limiter bypassed
+/usb_outputs/2/source_select
+) USB audio output 2 ( USB in ) source select:
+/usb_outputs/2/limiter_bypassed
+) USB audio output 2 ( USB in ) limiter bypassed
+/usb_outputs/3/source_select
+) USB audio output 3 ( Line-in ) source select:
+/usb_outputs/3/limiter_bypassed
+) USB audio output 3 ( Line-in ) limiter bypassed
+/usb/vst_enabled
+USB Aux vst insert enabled
+/usb/limiter_bypassed
+USB Aux Out limiter bypass
+Ducker 2 ( USB Aux In ) attenuation in dB
+Ducker 2 ( USB Aux In ) key signal level in dB
+Ducker 2 ( USB Aux In ) output level in dB 0 ( left )
+Ducker 2 ( USB Aux In ) output level in dB 1 ( right )
+Mixer input/output 8 ( USB Aux In ) level in dB 0 ( left )
+Mixer input/output 8 ( USB Aux In ) level in dB 1 ( right )
+Mixer input/output 9 ( USB Aux In post VST ) level in dB 0 ( left )
+Mixer input/output 9 ( USB Aux In post VST ) level in dB 1 ( right )
+Mixer input/output 10 ( USB Aux In ducking ) level in dB 0 ( left )
+Mixer input/output 10 ( USB Aux In ducking ) level in dB 1 ( right )
+/usb/mute
+USB Aux In (aux host output/playback) mute
+USB Aux In (aux host output/playback) vst insert enabled

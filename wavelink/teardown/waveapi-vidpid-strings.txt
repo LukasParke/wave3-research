@@ -1,0 +1,15 @@
+.?AV?$pid_formatter@Unull_scoped_padder@details@spdlog@@@details@spdlog@@
+.?AV?$pid_formatter@Vscoped_padder@details@spdlog@@@details@spdlog@@
+.?AVTUsbAudioApiDll@@
+Device: {}, VID: {:#06x}, PID: {:#06x}, SN: {}, API: {}.{}, FW {:02d}.{}.{}
+Device: {}, VID: {:#06x}, PID: {:#06x}, SN: {}, FW {:02d}.{}.{}, DFU
+?isVIDPIDCompatible@LewittDeviceConf@LWT@@QEBA_NGG@Z
+MIC Serial number, 12character ASCII string, also in the USB descriptors
+MIC Serial number, 14character ASCII string, also in the USB descriptors
+Passcode for the production data.
+Serial number, 14character ASCII string, also in the USB descriptors
+Serial number, same as iSerialNumber
+Serial number to be written.
+/version/serial
+VID={:#06x}, PID={:#06x}
+VID: {:#06x}, PID: {:#06x}, SN: {}

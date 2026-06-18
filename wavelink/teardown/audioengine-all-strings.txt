@@ -1,0 +1,120 @@
+??0BaseWaveDevice@LWT@@QEAA@AEBULewittDeviceID@1@AEBULewittDeviceConf@1@$$QEAV?$unique_ptr@VILewittDeviceBackend@LWT@@U?$default_delete@VILewittDeviceBackend@LWT@@@std@@@std@@@Z
+??0LewittDeviceConf@LWT@@QEAA@V?$initializer_list@U?$pair@GG@std@@@std@@@Z
+??0LewittDeviceConf@LWT@@QEAA@V?$initializer_list@ULewittDeviceConf@LWT@@@std@@@Z
+??0LewittDeviceFWHolder@LWT@@QEAA@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z
+??0LewittDevice@LWT@@QEAA@AEBULewittDeviceID@1@AEBULewittDeviceConf@1@$$QEAV?$unique_ptr@VILewittDeviceBackend@LWT@@U?$default_delete@VILewittDeviceBackend@LWT@@@std@@@std@@@Z
+??0LewittDeviceManager@LWT@@QEAA@AEBULewittDeviceConf@1@@Z
+??1BaseWaveDevice@LWT@@UEAA@XZ
+??8LWT@@YA_NAEBULewittDeviceID@0@0@Z
+??9LWT@@YA_NAEBULewittDeviceID@0@0@Z
+AllocateBuffer() failed, st={}
+AllocateBuffer failed with error {}
+AllocateStringBuffer() failed, st={}
+AllocateStringBuffer() failed with st={}
+An invalid buffer size was specified.
+An invalid device configuration was detected.
+An invalid input buffer size was specified.
+An invalid output buffer size was specified.
+An unexpected response was received from the device.
+AUDCLNT_E_BUFFER_ERROR
+AUDCLNT_E_BUFFER_OPERATION_PENDING
+AUDCLNT_E_BUFFER_SIZE_ERROR
+AUDCLNT_E_BUFFER_SIZE_NOT_ALIGNED
+AUDCLNT_E_BUFFER_TOO_LARGE
+AUDCLNT_E_DEVICE_IN_USE
+AUDCLNT_E_DEVICE_INVALIDATED
+AUDCLNT_E_INCORRECT_BUFFER_SIZE
+AUDCLNT_E_INVALID_DEVICE_PERIOD
+AUDCLNT_S_BUFFER_EMPTY
+AudioDeviceNotificationInterface::Notification::DeviceAdded
+AudioDeviceNotificationInterface::Notification::DevicePropertyChanged
+AudioDeviceNotificationInterface::Notification::DeviceRemoved
+AudioDeviceNotificationInterface::Notification::DeviceRoleChanged
+AudioDeviceNotificationInterface::Notification::DeviceStateChanged
+AudioDeviceType::Capture
+AudioDeviceType::Render
+.?AV?$_Ref_count_obj2@VEWLWHardwareMixerHelperWaveXLRPro@EWLW@@@std@@
+.?AV?$_Ref_count_obj2@VEWLWSoftwareMixerHelperWaveXLRPro@EWLW@@@std@@
+.?AV?$_Ref_count_obj2@VLewittDevice@LWT@@@std@@
+.?AV?$_Ref_count_obj2@VWaveEmulatedDevice@WaveEmulated@EWLW@@@std@@
+.?AV?$_Ref_count_resource@PEAVLewittDevice@LWT@@V<lambda_1>@?1??Refresh@EWLWAudioEngineApi@EWLW@@QEAA?AVElgatoResult@Elgato@@XZ@@std@@
+.?AV?$TLWinCoreAudioInterfaceT@UIMMDeviceCollection@@@torilogic@@
+.?AV?$TLWinCoreAudioInterfaceT@UIMMDeviceEnumerator@@@torilogic@@
+.?AV?$TLWinCoreAudioInterfaceT@UIMMDevice@@@torilogic@@
+.?AVAudioDeviceEnumeratorImpl@torilogic@@
+.?AVBaseWaveDevice@LWT@@
+.?AVEWLWLegacyUSBAudioDevice@EWLW@@
+.?AVEWLWSoftwareMixerHelperWaveXLRPro@EWLW@@
+.?AVILewittDeviceBackend@LWT@@
+.?AVLewittDeviceAPI@LWT@@
+.?AVLewittDevice@LWT@@
+.?AVTLWinCoreAudioDeviceCallbackInterface@torilogic@@
+.?AVTLWinCoreAudioDeviceCollection@torilogic@@
+.?AVTLWinCoreAudioDeviceEnumerator@torilogic@@
+.?AVTLWinCoreAudioDevice@torilogic@@
+.?AVTUsbAudioApiDll@@
+.?AVWaveEmulatedDevice@WaveEmulated@EWLW@@
+?backendptr@LewittDevice@LWT@@QEBAPEAVILewittDeviceBackend@2@XZ
+bitsPerSample must be a multiple of 8.
+Candidate Device, VID={:#x}, PID={:#x}, SN={}!
+capture devicePeriod={}.{:04} milliseconds
+capture MixFormat channelCount={} sampleRate={} sampleSize={}
+?close@BaseWaveDevice@LWT@@UEAAHXZ
+CO_E_INIT_RPC_CHANNEL
+CO_E_INIT_TLS_CHANNEL_CONTROL
+CO_E_INIT_TLS_SET_CHANNEL_CONTROL
+Couldn't find device for handle
+CR: buffer too small.
+CR: device has reqs.
+CR: device interface active.
+CR: device not there.
+CR: invalid device ID.
+CR: invalid device node.
+CR: no such device interface.
+CR: no such logical device.
+CSharp_delete_EWLW_DEVICE_HANDLE
+CSharp_delete_EWLW_DEVICE_HANDLE_LIST
+CSharp_delete_EWLWWaveDeviceProxy
+CSharp_delete_LewittDeviceID
+CSharp_delete_LewittDeviceIDList
+CSharp_delete_LewittDeviceInfo
+CSharp_delete_LewittDeviceVersionPair
+CSharp_delete_LewittDeviceVersionTriple
+CSharp_ElgatoUSBVendorID_get
+CSharp_EWLWAudioEngineApi_CloseDevice
+CSharp_EWLWAudioEngineApi_GetAttachedDevices
+CSharp_EWLWAudioEngineApi_GetDetachedDevices
+CSharp_EWLWAudioEngineApi_GetDeviceInfo
+CSharp_EWLWAudioEngineApi_GetOpenDeviceHandles
+CSharp_EWLWAudioEngineApi_IsDeviceOpen
+CSharp_EWLW_DEVICE_HANDLE_handle_get
+CSharp_EWLW_DEVICE_HANDLE_handle_set
+CSharp_EWLW_DEVICE_HANDLE_isLegacyDevice_get
+CSharp_EWLW_DEVICE_HANDLE_isLegacyDevice_set
+CSharp_EWLW_DEVICE_HANDLE_LIST_Clear
+CSharp_EWLW_DEVICE_HANDLE_LIST_deleteIter
+CSharp_EWLW_DEVICE_HANDLE_LIST_equals
+CSharp_EWLW_DEVICE_HANDLE_LIST_eraseIter
+CSharp_EWLW_DEVICE_HANDLE_LIST_getFirstIter
+CSharp_EWLW_DEVICE_HANDLE_LIST_getItem
+CSharp_EWLW_DEVICE_HANDLE_LIST_getLastIter
+CSharp_EWLW_DEVICE_HANDLE_LIST_getNextIter
+CSharp_EWLW_DEVICE_HANDLE_LIST_getPrevIter
+CSharp_EWLW_DEVICE_HANDLE_LIST_insertNode
+CSharp_EWLW_DEVICE_HANDLE_LIST_push_back
+CSharp_EWLW_DEVICE_HANDLE_LIST_push_front
+CSharp_EWLW_DEVICE_HANDLE_LIST_RemoveFirst
+CSharp_EWLW_DEVICE_HANDLE_LIST_RemoveLast
+CSharp_EWLW_DEVICE_HANDLE_LIST_setItem
+CSharp_EWLW_DEVICE_HANDLE_LIST_size
+CSharp_EWLW_DEVICE_HANDLE_tag_get
+CSharp_EWLW_DEVICE_HANDLE_tag_set
+CSharp_EWLWWaveDeviceProxy_GetBoolValueForKey
+CSharp_EWLWWaveDeviceProxy_GetFloatValueForKey
+CSharp_EWLWWaveDeviceProxy_GetIntValueForKey
+CSharp_EWLWWaveDeviceProxy_InitMixerForApplicationMode
+CSharp_EWLWWaveDeviceProxy_IsEmulatedDevice
+CSharp_EWLWWaveDeviceProxy_IsWave1
+CSharp_EWLWWaveDeviceProxy_IsWave3
+CSharp_EWLWWaveDeviceProxy_IsWaveNeo
+CSharp_EWLWWaveDeviceProxy_IsWaveXLR
