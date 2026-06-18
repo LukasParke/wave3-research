@@ -1,0 +1,7 @@
+-- OBSOLETE: WirePlumber 0.4 style rule.
+--
+-- For WirePlumber 0.5+ (Arch, Fedora 43+, Ubuntu 24.10+), use instead:
+--   * wireplumber.conf.d/50-elgato-wave3.conf
+--   * scripts/elgato-wave3.lua
+--
+-- This file is kept only as a reference for older distributions.

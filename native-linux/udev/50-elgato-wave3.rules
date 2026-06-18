@@ -1,0 +1,6 @@
+# Elgato Wave:3 — grant users in the "audio" group access to all USB interfaces
+# including the vendor-specific interface used by wave3-daemon.
+SUBSYSTEM=="usb", ATTR{idVendor}=="0fd9", ATTR{idProduct}=="0070", MODE="0660", GROUP="audio", TAG+="uaccess"
+
+# Also match DFU mode PID if the device enters firmware update mode
+SUBSYSTEM=="usb", ATTR{idVendor}=="0fd9", ATTR{idProduct}=="0071", MODE="0660", GROUP="audio", TAG+="uaccess"

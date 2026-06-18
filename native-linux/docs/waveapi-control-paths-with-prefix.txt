@@ -1,0 +1,6 @@
+/version/api/major
+/version/api/minor
+/version/fw/major
+/version/fw/minor
+/version/fw/patch
+/version/serial

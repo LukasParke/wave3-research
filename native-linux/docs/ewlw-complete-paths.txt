@@ -1,0 +1,4 @@
+/trigger/event
+/version/fw/major
+/version/fw/minor
+/version/fw/patch

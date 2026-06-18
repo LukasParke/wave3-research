@@ -254,7 +254,88 @@ report/            File manifest
 
 See [`report/file-manifest.txt`](report/file-manifest.txt) for the complete list.
 
-## 11. Reproduction Commands
+## 11. Native Linux Control (new)
+
+A working native control stack has been added under [`native-linux/`](native-linux/):
+
+* `wave3-daemon` — C/GDBus daemon that controls the Wave:3 from userspace
+  using only `libusb` and the session bus. No kernel module or driver
+  detach is required.
+* `wave3ctl` — shell CLI that talks to the daemon.
+
+### How it works
+
+The Wave:3's microphone mute, microphone gain, headphone mute and
+headphone volume are exposed through standard USB Audio Class 1.0
+feature units:
+
+| Control | Feature Unit entity | Selector |
+|---------|---------------------|----------|
+| Mic mute | 6 | 1 (MUTE) |
+| Mic gain | 6 | 2 (VOLUME) — read-only, dial-controlled |
+| HP mute | 5 | 1 (MUTE) |
+| HP volume | 5 | 2 (VOLUME) |
+
+`snd-usb-audio` owns AudioControl interface 0, so userspace UAC requests
+with `wIndex = (entity << 8) | 0` are rejected. By routing the same
+requests through the unclaimed vendor interface 3,
+`wIndex = (entity << 8) | 3`, the kernel allows the transfer and the
+firmware still accepts it.
+
+### Verified on this device
+
+* HP volume range: **-60.0 dB … 0.0 dB**
+* Mic gain range: **0.0 dB … 40.0 dB**
+* Software control works for: mic mute, headphone mute, headphone volume
+* Mic gain is read-only via UAC (physical dial)
+
+### Quick start
+
+```bash
+cd native-linux
+./install.sh
+sudo install -Dm644 udev/50-elgato-wave3.rules /etc/udev/rules.d/
+sudo udevadm control --reload-rules
+sudo udevadm trigger --subsystem-match=usb --attr-match=idVendor=0fd9 --attr-match=idProduct=0070
+systemctl --user enable --now wave3-daemon
+wave3ctl status
+wave3ctl mute toggle
+wave3ctl volume 75
+```
+
+See [`native-linux/README.md`](native-linux/README.md) for full details.
+
+## 12. Reverse-Engineering Summary
+
+A separate protocol investigation produced the following findings; see
+[`WAVE3_PROTOCOL_SUMMARY.md`](WAVE3_PROTOCOL_SUMMARY.md) for the complete
+reference.
+
+* **Standard UAC controls are fully working** from Linux via `libusb`
+  using `wIndex = (entity << 8) | 3` through the unclaimed vendor
+  interface 3. Verified controls: mic mute, mic gain (read-only dial),
+  headphone mute, headphone volume.
+* **Proprietary vendor interface** (`0xFF/0xF0`, no endpoints) is used
+  by Wave Link for RGB/LED control, direct monitor mix, and possibly
+  hardware limiter/level meters. The exact USB encoding is **not**
+  recoverable from static analysis alone.
+* **Static analysis** of Wave Link 3.0 identified 309 logical control
+  paths and app-level session fields (Clipguard, LowCut, MuteColorRGB,
+  HeadphoneColorRGB, etc.). Low-cut/EQ/compressor appear to be host-side
+  DSP in Wave Link; LED colors and direct monitor are likely hardware
+  controls.
+* **Fuzzing** of interface 3 produced no responses to generic vendor
+  request patterns. A live `usbmon` capture from Wave Link in a Windows
+  VM is required to decode the remaining protocol.
+* **PipeWire topology** for Wave Link parity was improved using patterns
+  from the [Undertone](https://github.com/polariscli/Undertone) project:
+  `wave3-source` renamed ALSA capture node, custom `wave3-sink` for
+  headphones, and a `wave3-null-sink` to keep the mic awake.
+
+The native control implementation lives under
+[`native-linux/`](native-linux/).
+
+## 13. Reproduction Commands
 
 The data above was gathered with the following commands (run as the local user):
 

@@ -1,6 +1,38 @@
 # Elgato Wave:3 Native Linux Support — Investigation & Implementation Plan
 
-**Status:** Planning phase — all raw materials are present in this repository.  
+**Status:** Core implementation complete and verified on the physical device.  
+**Protocol summary:** See [`WAVE3_PROTOCOL_SUMMARY.md`](WAVE3_PROTOCOL_SUMMARY.md) for the complete, consolidated reference.  
+**Host environment:** Linux only. All investigation, reverse engineering, and testing were done from the existing Linux host.  
+**Goal:** Build a native, first-class Linux integration for the Elgato Wave:3.
+
+## Results Summary
+
+* The Wave:3's core controls (mic mute, headphone mute, headphone volume)
+  are standard **USB Audio Class 1.0** feature units, not proprietary
+  vendor commands.
+* `snd-usb-audio` owns AudioControl interface 0 and blocks userspace UAC
+  transfers, but the same transfers can be routed through the unclaimed
+  vendor interface 3 (`wIndex = (entity << 8) | 3`) and the firmware
+  accepts them.
+* A native **C/GDBus daemon** (`wave3-daemon`) and **CLI** (`wave3ctl`)
+  have been built and tested live on the connected Wave:3.
+* Mic gain is read-only via UAC because it is controlled by the physical
+  dial; headphone volume and both mutes can be set from software.
+* PipeWire/WirePlumber integration was improved using patterns from the
+  [Undertone](https://github.com/polariscli/Undertone) project:
+  `wave3-source` rename, custom `wave3-sink`, and `wave3-null-sink` to
+  keep the mic awake.
+* Advanced features (RGB, Clipguard, low-cut, direct monitor, level meters)
+  still require decoding of the proprietary vendor protocol on interface 3.
+  Static analysis identified the logical feature names and 309 control paths,
+  but the exact USB encoding requires a live `usbmon` capture from Wave Link
+  in a Windows VM.
+
+See [`native-linux/README.md`](native-linux/README.md) for the working
+control stack.
+
+---
+
 **Host environment:** Linux only. No switching to Windows or macOS is required for testing; all reverse engineering, capture, and development will be done from the existing Linux host using VMs, static analysis, and Linux-native tools.  
 **Goal:** Build a native, first-class Linux integration for the Elgato Wave:3 by extracting the vendor USB control protocol from the official Wave Link applications and bridging it into the standard Linux audio stack (ALSA / PipeWire).
 
@@ -485,16 +517,32 @@ The project is complete when:
 
 ---
 
-## 7. Next Immediate Action (All From Linux)
+## 7. Completed
 
-1. Set up a Windows VM under QEMU/KVM on the Linux host and passthrough the Wave:3 composite device.
-2. Load `usbmon` and start Wireshark on the host-side `usbmon` interface for the Wave:3 bus.
-3. Install Wave Link 3.0 inside the Windows VM using the already-downloaded `wavelink/windows/Elgato.WaveLink_3.0.0.2388_x64.msix`.
-4. Record a baseline capture of Wave Link enumerating the Wave:3 and changing the five highest-value settings:
-   - Microphone gain
-   - Headphone volume
-   - Mute toggle
-   - Clipguard toggle
-   - Low-cut toggle
-5. Import the capture into this repo under `native-linux/captures/` and begin correlating packets with control paths.
-6. In parallel, begin static analysis of `waveapi.dll` in Ghidra/rizin to identify the property lookup table and request encoding functions.
+- [x] Enumerated the Wave:3 audio system.
+- [x] Downloaded and statically tore down Wave Link 3.0 for Windows and macOS.
+- [x] Identified the 309 shared cross-platform control paths and the UAC feature-unit layout.
+- [x] Discovered and verified the `wIndex = (entity << 8) | 3` userspace workaround.
+- [x] Built, compiled, and live-tested `wave3-daemon` and `wave3ctl`.
+- [x] Documented install, udev, systemd, and D-Bus integration.
+- [x] Vendored the upstream `wave3ctl` kernel-module solution as a fallback.
+- [x] Created ALSA UCM profile, PipeWire virtual sinks, WirePlumber auto-start rule, GTK4 GUI, Arch PKGBUILD, and integration tests.
+- [x] Reviewed the [Undertone](https://github.com/polariscli/Undertone) project and adopted its proven PipeWire topology (`wave3-source`, `wave3-sink`, `wave3-null-sink`).
+- [x] Created a comprehensive protocol summary at [`WAVE3_PROTOCOL_SUMMARY.md`](WAVE3_PROTOCOL_SUMMARY.md).
+
+## 8. Blocked / Remaining Work
+
+1. **Vendor protocol for advanced features** (blocked on user-provided capture)
+   - Set up a Windows 10/11 VM with Wave:3 USB passthrough.
+   - Capture `usbmon` traffic while toggling RGB, Clipguard, low-cut, and direct monitor in Wave Link.
+   - Correlate captures with the static control-path table to decode the vendor request format.
+   - The assistant cannot create VMs, load `usbmon`, or detach USB devices without root; the user must run the capture.
+
+2. **Daemon enhancements** (pending vendor protocol decode)
+   - Implement real vendor-feature methods (RGB, Clipguard, low-cut, direct monitor, level meters).
+   - Add `libusb_hotplug_register_callback` for plug/unplug events.
+   - Add level-meter polling and D-Bus signals once the meter source is known.
+
+3. **Validation of PipeWire/WirePlumber integration**
+   - Restart WirePlumber with the new 0.5 config and verify `wave3-source`, `wave3-sink`, and `wave3-null-sink` appear.
+   - Verify app routing through virtual mix sinks works end-to-end.

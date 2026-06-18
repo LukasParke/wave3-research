@@ -1,0 +1,124 @@
+#!/usr/bin/env bash
+# wave3ctl — CLI for the native Wave:3 D-Bus daemon
+
+set -euo pipefail
+
+DEST=org.wave3.Daemon
+OBJ=/org/wave3/Daemon
+IFACE=org.wave3.Daemon
+
+usage() {
+    cat <<'EOF'
+Usage: wave3ctl <command> [arg]
+
+  status                 Show current device state
+  mute [on|off|toggle]   Set/toggle microphone mute
+  hpmute [on|off]        Set headphone mute
+  volume <0-100>         Set headphone volume percent
+  clipguard [on|off]     Set Clipguard (vendor protocol)
+  lowcut [on|off]        Set low-cut filter (vendor protocol)
+  directmonitor <0.0-1.0> Set direct monitor mix (vendor protocol)
+  mute-color <rgb>       Set mute-ring RGB, e.g. 0xff0000 (vendor protocol)
+  hp-color <rgb>         Set headphone RGB (vendor protocol)
+  monitor                Watch state changes (Ctrl-C to stop)
+
+Examples:
+  wave3ctl status
+  wave3ctl mute toggle
+  wave3ctl volume 75
+  wave3ctl clipguard on
+EOF
+}
+
+call() {
+    gdbus call --session --dest "$DEST" --object-path "$OBJ" --method "$IFACE.$1" "${@:2}"
+}
+
+print_state() {
+    local state
+    state=$(call GetState)
+    # gdbus returns: ((false, false, uint32 38, uint32 85, uint32 15, uint32 9, false, false, 0.0, 0, 0, 0.0, 0.0),)
+    state="${state#((}"; state="${state%),)}"
+    state="${state//uint32 /}"
+    IFS=', ' read -r mic_mute hp_mute mic_gain_pct hp_vol_pct mic_gain_db hp_vol_db clipguard lowcut direct_monitor mute_rgb hp_rgb in_level pb_level <<< "$state"
+    printf 'Mic:       %s (%s%% / %sdB)\n' \
+        "$([ "$mic_mute" = true ] && echo MUTED || echo LIVE)" \
+        "$mic_gain_pct" "$mic_gain_db"
+    printf 'Headphone: %s (%s%% / %sdB)\n' \
+        "$([ "$hp_mute" = true ] && echo MUTED || echo ON)" \
+        "$hp_vol_pct" "$hp_vol_db"
+    printf 'Clipguard: %s  Low-cut: %s  DirectMon: %s\n' \
+        "$([ "$clipguard" = true ] && echo ON || echo OFF)" \
+        "$([ "$lowcut" = true ] && echo ON || echo OFF)" \
+        "$direct_monitor"
+    printf 'Mute RGB: %s  HP RGB: %s  Levels: %s/%s dB\n' \
+        "$mute_rgb" "$hp_rgb" "$in_level" "$pb_level"
+}
+
+case "${1:-}" in
+    status|"")
+        print_state
+        ;;
+    mute)
+        case "${2:-toggle}" in
+            on|true|1) call SetMicMute true >/dev/null ;;
+            off|false|0) call SetMicMute false >/dev/null ;;
+            toggle) call ToggleMicMute >/dev/null ;;
+            *) usage; exit 1 ;;
+        esac
+        print_state
+        ;;
+    hpmute)
+        case "${2:-}" in
+            on|true|1) call SetHpMute true >/dev/null ;;
+            off|false|0) call SetHpMute false >/dev/null ;;
+            *) usage; exit 1 ;;
+        esac
+        print_state
+        ;;
+    volume)
+        [ -n "${2:-}" ] || { usage; exit 1; }
+        call SetHpVolume "${2}" >/dev/null
+        print_state
+        ;;
+    clipguard)
+        case "${2:-}" in
+            on|true|1) call SetClipguard true >/dev/null ;;
+            off|false|0) call SetClipguard false >/dev/null ;;
+            *) usage; exit 1 ;;
+        esac
+        print_state
+        ;;
+    lowcut)
+        case "${2:-}" in
+            on|true|1) call SetLowCut true >/dev/null ;;
+            off|false|0) call SetLowCut false >/dev/null ;;
+            *) usage; exit 1 ;;
+        esac
+        print_state
+        ;;
+    directmonitor|monitor-mix)
+        [ -n "${2:-}" ] || { usage; exit 1; }
+        call SetDirectMonitor "${2}" >/dev/null
+        print_state
+        ;;
+    mute-color)
+        [ -n "${2:-}" ] || { usage; exit 1; }
+        call SetMuteColor "${2}" >/dev/null
+        print_state
+        ;;
+    hp-color)
+        [ -n "${2:-}" ] || { usage; exit 1; }
+        call SetHeadphoneColor "${2}" >/dev/null
+        print_state
+        ;;
+    monitor)
+        gdbus monitor --session --dest "$DEST" --object-path "$OBJ"
+        ;;
+    -h|--help|help)
+        usage
+        ;;
+    *)
+        usage; exit 1
+        ;;
+esac

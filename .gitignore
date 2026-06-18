@@ -1,0 +1,33 @@
+# Build artifacts
+*.o
+*.ko
+*.mod
+*.mod.c
+*.mod.o
+*.cmd
+Module.symvers
+modules.order
+*.ko.xz
+*.ko.zst
+
+# Binaries
+wave3-daemon
+probe_wave3
+fuzz_vendor
+fuzz_vendor_smart
+test_windex_trick
+test_windex_set
+test_windex_hp
+test_mic_gain_only
+restore_defaults
+
+# Captures (keep README.md)
+native-linux/captures/*.pcapng
+native-linux/captures/*.pcap
+native-linux/captures/*.txt
+!native-linux/captures/README.md
+
+# Editor / OS
+*.swp
+*~
+.DS_Store

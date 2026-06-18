@@ -1,0 +1,4 @@
+[D-BUS Service]
+Name=org.wave3.Daemon
+Exec=%h/.local/bin/wave3-daemon
+SystemdService=wave3-daemon.service

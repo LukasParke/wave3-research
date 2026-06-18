@@ -1,0 +1,43 @@
+# Maintainer: Your Name <you@example.com>
+pkgname=wave3-daemon
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="Native Linux control daemon for the Elgato Wave:3 microphone"
+arch=('x86_64')
+url="https://github.com/yourusername/wave3-daemon"
+license=('MIT')
+depends=('libusb' 'glib2' 'pipewire' 'wireplumber' 'python' 'python-dbus' 'gtk4')
+optdepends=('wireshark-cli: for usbmon capture')
+source=("wave3-daemon-$pkgver.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+    cd "$srcdir/wave3-daemon-$pkgver/native-linux/src"
+    make
+}
+
+package() {
+    cd "$srcdir/wave3-daemon-$pkgver/native-linux"
+
+    install -Dm755 src/wave3-daemon "$pkgdir/usr/bin/wave3-daemon"
+    install -Dm755 bin/wave3ctl "$pkgdir/usr/bin/wave3ctl"
+    install -Dm755 gui/wave3-applet.py "$pkgdir/usr/bin/wave3-applet"
+
+    install -Dm644 systemd/wave3-daemon.service "$pkgdir/usr/lib/systemd/user/wave3-daemon.service"
+    install -Dm644 udev/50-elgato-wave3.rules "$pkgdir/usr/lib/udev/rules.d/50-elgato-wave3.rules"
+
+    install -Dm644 dbus/org.wave3.Daemon.service "$pkgdir/usr/share/dbus-1/services/org.wave3.Daemon.service"
+    install -Dm644 dbus/org.wave3.Daemon-system.conf "$pkgdir/etc/dbus-1/system.d/org.wave3.Daemon.conf"
+
+    install -Dm644 alsa-ucm/Elgato\ Wave\ 3.conf "$pkgdir/usr/share/alsa/ucm2/conf.d/Elgato Wave 3/Elgato Wave 3.conf"
+    install -Dm644 alsa-ucm/HiFi.conf "$pkgdir/usr/share/alsa/ucm2/conf.d/Elgato Wave 3/HiFi.conf"
+
+    # WirePlumber 0.5+
+    install -Dm644 wireplumber/wireplumber.conf.d/50-elgato-wave3.conf "$pkgdir/etc/wireplumber/wireplumber.conf.d/50-elgato-wave3.conf"
+    install -Dm644 wireplumber/scripts/elgato-wave3.lua "$pkgdir/usr/share/wireplumber/scripts/elgato-wave3.lua"
+
+    install -Dm644 pipewire/pipewire.conf.d/wave3-mix-sinks.conf "$pkgdir/etc/pipewire/pipewire.conf.d/wave3-mix-sinks.conf"
+
+    install -Dm644 README.md "$pkgdir/usr/share/doc/$pkgname/README.md"
+    install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

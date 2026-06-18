@@ -1,0 +1,31 @@
+[Unit]
+Description=Elgato Wave:3 native control daemon
+Documentation=https://github.com/USER/wave3-audio-report
+After=pipewire.service wireplumber.service dbus.service
+Wants=pipewire.service wireplumber.service
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/wave3-daemon
+Restart=on-failure
+RestartSec=5
+
+# Environment
+Environment="G_MESSAGES_DEBUG=all"
+
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+
+# Required paths
+ReadWritePaths=%t/pipewire-0
+ReadWritePaths=%t/dbus-1
+ReadWritePaths=%h/.local/share/dbus-1
+
+[Install]
+WantedBy=default.target
