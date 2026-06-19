@@ -41,10 +41,11 @@ print_state() {
     local state
     state=$(call GetState)
     # gdbus returns: ((false, false, uint32 38, uint32 85, uint32 15, uint32 9,
-    #                  false, false, 0.0, uint32 0, -150.0, uint32 255, -150.0),)
+    #                  false, false, 0.0, uint32 0, -150.0, uint32 255, -150.0,
+    #                  uint32 1, uint32 0),)
     state="${state#((}"; state="${state%),)}"
     state="${state//uint32 /}"
-    IFS=', ' read -r mic_mute hp_mute mic_gain_pct hp_vol_pct mic_gain_db hp_vol_db clipguard lowcut direct_monitor mute_rgb in_level brightness pb_level <<< "$state"
+    IFS=', ' read -r mic_mute hp_mute mic_gain_pct hp_vol_pct mic_gain_db hp_vol_db clipguard lowcut direct_monitor mute_rgb in_level brightness pb_level indicator_rgb dial_mode dial_value <<< "$state"
     printf 'Mic:       %s (%s%% / %sdB)\n' \
         "$([ "$mic_mute" = true ] && echo MUTED || echo LIVE)" \
         "$mic_gain_pct" "$mic_gain_db"
@@ -55,8 +56,10 @@ print_state() {
         "$([ "$clipguard" = true ] && echo ON || echo OFF)" \
         "$([ "$lowcut" = true ] && echo ON || echo OFF)" \
         "$direct_monitor"
-    printf 'Mute RGB: %s  Brightness: %s  Levels: %s/%s dB\n' \
-        "$mute_rgb" "$brightness" "$in_level" "$pb_level"
+    printf 'Mute RGB: %s  Indicator: %s  Brightness: %s\n' \
+        "$mute_rgb" "$indicator_rgb" "$brightness"
+    printf 'Dial mode: %s  Dial value: %s  Levels: %s/%s dB\n' \
+        "$dial_mode" "$dial_value" "$in_level" "$pb_level"
 }
 
 case "${1:-}" in

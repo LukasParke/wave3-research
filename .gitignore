@@ -27,6 +27,8 @@ restore_defaults
 auto_probe
 device_info
 watch_state
+poll_observatory
+analyze_observatory.py
 
 # Captures (keep README.md)
 native-linux/captures/*.pcapng

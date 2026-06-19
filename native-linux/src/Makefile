@@ -4,7 +4,7 @@ CFLAGS  += -O2 -Wall -Wextra $(shell pkg-config --cflags glib-2.0 gio-2.0 libusb
 LDLIBS  += $(shell pkg-config --libs glib-2.0 gio-2.0 libusb-1.0) -lm
 
 BIN      = wave3-daemon
-TOOLS    = probe_wave3 restore_defaults cfg_probe watch_state device_info auto_probe
+TOOLS    = probe_wave3 restore_defaults cfg_probe watch_state device_info auto_probe poll_observatory
 FUZZERS  = fuzz_vendor fuzz_vendor_smart
 PROBES   = probe_vendor_ids probe_vendor_targeted probe_vendor_targeted2
 

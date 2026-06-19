@@ -27,7 +27,8 @@ def main():
     print(f"GetState: {state}")
 
     mic_mute, hp_mute, mic_gain_pct, hp_vol_pct, mic_gain_db, hp_vol_db, \
-        clipguard, lowcut, direct_monitor, mute_rgb, in_level, brightness, pb_level = state
+        clipguard, lowcut, direct_monitor, mute_rgb, in_level, brightness, pb_level, \
+        indicator_rgb, dial_mode, dial_value = state
 
     assert isinstance(mic_mute, (bool, dbus.Boolean)), "mic_mute must be bool"
     assert 0 <= mic_gain_pct <= 100, "mic gain percent out of range"
@@ -35,6 +36,9 @@ def main():
     assert 0 <= direct_monitor <= 1, "direct monitor out of range"
     assert 0 <= mute_rgb <= 0xFFFFFF, "mute RGB out of range"
     assert 0 <= brightness <= 255, "brightness out of range"
+    assert 1 <= dial_mode <= 3, "dial mode out of range"
+    assert 0 <= dial_value <= 0xFFFF, "dial value out of range"
+    assert 0 <= indicator_rgb <= 0xFFFFFF, "indicator RGB out of range"
     print("PASS: GetState returns sane values")
 
     original_hp_vol = hp_vol_pct
@@ -76,6 +80,12 @@ def main():
     assert int(state7[11]) == 128, f"brightness did not change: {state7[11]}"
     print("PASS: SetBrightness works")
     proxy.SetBrightness(original_brightness)  # restore
+
+    dial_mode = proxy.GetDialMode()
+    dial_value = proxy.GetDialValue()
+    assert 1 <= int(dial_mode) <= 3, "GetDialMode out of range"
+    assert 0 <= int(dial_value) <= 0xFFFF, "GetDialValue out of range"
+    print("PASS: GetDialMode/GetDialValue work")
 
     # Low-cut is host-side DSP on first-gen Wave:3
     try:

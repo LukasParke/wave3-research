@@ -44,15 +44,21 @@
 #define WAVE3_INFO_WVALUE   0x000A   /* 51-byte device info */
 
 /* Wave:3 config block layout (16 bytes) */
+#define CFG_DIAL_VALUE_LO   0   /* current dial value, low byte */
+#define CFG_DIAL_VALUE_HI   1   /* current dial value, high byte */
 #define CFG_MIC_MUTE        4
 #define CFG_CLIPGUARD       5
+#define CFG_DIAL_FLAG       7   /* 0x80 toggles with HP volume changes */
 #define CFG_HP_VOLUME       8   /* signed 8-bit dB attenuation */
 #define CFG_HP_MUTE         9
-#define CFG_MUTE_R          10
-#define CFG_MUTE_G          11
-#define CFG_HP_CONNECTED    12  /* read-only device state */
-#define CFG_MUTE_B          13
-#define CFG_MONITOR_MIX     14  /* 0 = mic only, 255 = PC only */
+#define CFG_INDICATOR_R     10  /* RGB ring feedback */
+#define CFG_INDICATOR_G     11  /* also monitor mix value when in mix mode */
+#define CFG_DIAL_MODE       12  /* 1=mic gain, 2=hp volume, 3=monitor mix */
+#define CFG_INDICATOR_B     13
+#define CFG_MUTE_R          CFG_INDICATOR_R
+#define CFG_MUTE_G          CFG_INDICATOR_G
+#define CFG_MUTE_B          CFG_INDICATOR_B
+#define CFG_MONITOR_MIX     14  /* 0 = mic only, 255 = PC only (software mix) */
 #define CFG_BRIGHTNESS      15
 
 typedef struct {
@@ -73,7 +79,10 @@ typedef struct {
     gboolean lowcut;
     gdouble  direct_monitor;
     guint32  mute_rgb;
+    guint32  indicator_rgb;
     guint32  brightness;
+    guint    dial_mode;
+    gint16   dial_value;
     gdouble  input_level_db;
     gdouble  playback_level_db;
 
@@ -142,7 +151,7 @@ static gint16 pct_to_raw(int pct, gint16 lo, gint16 hi)
 
 static GVariant *wave3_build_state(Wave3Daemon *d)
 {
-    return g_variant_new("(bbuuuubbdudud)",
+    return g_variant_new("(bbuuuubbdududduu)",
                          d->mic_mute,
                          d->hp_mute,
                          (guint)pct_from_raw(d->mic_gain, d->mic_gain_min, d->mic_gain_max),
@@ -153,14 +162,16 @@ static GVariant *wave3_build_state(Wave3Daemon *d)
                          d->lowcut,
                          d->direct_monitor,
                          d->mute_rgb,
-                         d->brightness,
                          d->input_level_db,
-                         d->playback_level_db);
+                         d->brightness,
+                         d->playback_level_db,
+                         d->dial_mode,
+                         (guint)d->dial_value);
 }
 
 static GVariant *wave3_build_state_outer(Wave3Daemon *d)
 {
-    return g_variant_new("((bbuuuubbdudud))",
+    return g_variant_new("((bbuuuubbdududduu))",
                          d->mic_mute,
                          d->hp_mute,
                          (guint)pct_from_raw(d->mic_gain, d->mic_gain_min, d->mic_gain_max),
@@ -171,9 +182,11 @@ static GVariant *wave3_build_state_outer(Wave3Daemon *d)
                          d->lowcut,
                          d->direct_monitor,
                          d->mute_rgb,
-                         d->brightness,
                          d->input_level_db,
-                         d->playback_level_db);
+                         d->brightness,
+                         d->playback_level_db,
+                         d->dial_mode,
+                         (guint)d->dial_value);
 }
 
 static gboolean wave3_refresh(Wave3Daemon *d)
@@ -213,8 +226,21 @@ static gboolean wave3_refresh(Wave3Daemon *d)
                            ((guint32)cfg[CFG_MUTE_B]);
         if (mute_rgb != d->mute_rgb) { d->mute_rgb = mute_rgb; changed = TRUE; }
 
+        guint32 indicator_rgb = ((guint32)cfg[CFG_INDICATOR_R] << 16) |
+                                ((guint32)cfg[CFG_INDICATOR_G] << 8) |
+                                ((guint32)cfg[CFG_INDICATOR_B]);
+        if (indicator_rgb != d->indicator_rgb) { d->indicator_rgb = indicator_rgb; changed = TRUE; }
+
         guint32 brightness = cfg[CFG_BRIGHTNESS];
         if (brightness != d->brightness) { d->brightness = brightness; changed = TRUE; }
+
+        guint dial_mode = cfg[CFG_DIAL_MODE];
+        if (dial_mode < 1) dial_mode = 1;
+        if (dial_mode > 3) dial_mode = 3;
+        if (dial_mode != d->dial_mode) { d->dial_mode = dial_mode; changed = TRUE; }
+
+        gint16 dial_value = (gint16)((cfg[CFG_DIAL_VALUE_HI] << 8) | cfg[CFG_DIAL_VALUE_LO]);
+        if (dial_value != d->dial_value) { d->dial_value = dial_value; changed = TRUE; }
 
         /* level meters */
         unsigned char meter[8];
@@ -393,7 +419,8 @@ static void handle_method_call(G_GNUC_UNUSED GDBusConnection *conn,
     if (g_strcmp0(method_name, "SetDirectMonitor") == 0) {
         gdouble v;
         g_variant_get(parameters, "(d)", &v);
-        v = CLAMP(v, 0.0, 1.0);
+        if (v < 0.0) v = 0.0;
+        if (v > 1.0) v = 1.0;
         unsigned char cfg[16];
         int r = wave3_cfg_read(d, cfg);
         if (r != 16) goto usb_err;
@@ -471,6 +498,21 @@ static void handle_method_call(G_GNUC_UNUSED GDBusConnection *conn,
         return;
     }
 
+    if (g_strcmp0(method_name, "GetDialMode") == 0) {
+        g_dbus_method_invocation_return_value(inv, g_variant_new("(u)", d->dial_mode));
+        return;
+    }
+
+    if (g_strcmp0(method_name, "GetDialValue") == 0) {
+        g_dbus_method_invocation_return_value(inv, g_variant_new("(u)", (guint)d->dial_value));
+        return;
+    }
+
+    if (g_strcmp0(method_name, "GetIndicatorColor") == 0) {
+        g_dbus_method_invocation_return_value(inv, g_variant_new("(u)", d->indicator_rgb));
+        return;
+    }
+
     g_dbus_method_invocation_return_error(inv, G_DBUS_ERROR,
                                           G_DBUS_ERROR_UNKNOWN_METHOD,
                                           "Unknown method %s", method_name);
@@ -512,6 +554,12 @@ static GVariant *handle_get_property(G_GNUC_UNUSED GDBusConnection *conn,
         return g_variant_new_uint32(d->brightness);
     if (g_strcmp0(property_name, "HeadphoneColor") == 0)
         return g_variant_new_uint32(0);
+    if (g_strcmp0(property_name, "DialMode") == 0)
+        return g_variant_new_uint32(d->dial_mode);
+    if (g_strcmp0(property_name, "DialValue") == 0)
+        return g_variant_new_uint32((guint)d->dial_value);
+    if (g_strcmp0(property_name, "IndicatorColor") == 0)
+        return g_variant_new_uint32(d->indicator_rgb);
 
     g_set_error(error, G_DBUS_ERROR, G_DBUS_ERROR_UNKNOWN_PROPERTY,
                 "Unknown property %s", property_name);
@@ -529,7 +577,7 @@ static const gchar *introspection_xml =
     "<node>"
     "  <interface name='org.wave3.Daemon'>"
     "    <method name='GetState'>"
-    "      <arg type='(bbuuuubbdudud)' name='state' direction='out'/>"
+    "      <arg type='(bbuuuubbdududduu)' name='state' direction='out'/>"
     "    </method>"
     "    <method name='SetMicMute'>"
     "      <arg type='b' name='muted' direction='in'/>"
@@ -594,8 +642,17 @@ static const gchar *introspection_xml =
     "    <method name='GetPlaybackLevel'>"
     "      <arg type='d' name='db' direction='out'/>"
     "    </method>"
+    "    <method name='GetDialMode'>"
+    "      <arg type='u' name='mode' direction='out'/>"
+    "    </method>"
+    "    <method name='GetDialValue'>"
+    "      <arg type='u' name='value' direction='out'/>"
+    "    </method>"
+    "    <method name='GetIndicatorColor'>"
+    "      <arg type='u' name='rgb' direction='out'/>"
+    "    </method>"
     "    <signal name='StateChanged'>"
-    "      <arg type='(bbuuuubbdudud)' name='state'/>"
+    "      <arg type='(bbuuuubbdududduu)' name='state'/>"
     "    </signal>"
     "    <property name='MicMute' type='b' access='read'/>"
     "    <property name='HpMute' type='b' access='read'/>"
@@ -607,6 +664,9 @@ static const gchar *introspection_xml =
     "    <property name='MuteColor' type='u' access='read'/>"
     "    <property name='Brightness' type='u' access='read'/>"
     "    <property name='HeadphoneColor' type='u' access='read'/>"
+    "    <property name='DialMode' type='u' access='read'/>"
+    "    <property name='DialValue' type='u' access='read'/>"
+    "    <property name='IndicatorColor' type='u' access='read'/>"
     "  </interface>"
     "</node>";
 
@@ -678,12 +738,12 @@ int main(int argc, char **argv)
     }
 
     if (wave3_get_range(d, HP_FU, &d->hp_vol_min, &d->hp_vol_max, &(gint16){0}) < 0) {
-        d->hp_vol_min = -73 * 256;
+        d->hp_vol_min = -60 * 256;
         d->hp_vol_max = 0;
     }
     if (wave3_get_range(d, MIC_FU, &d->mic_gain_min, &d->mic_gain_max, &(gint16){0}) < 0) {
         d->mic_gain_min = 0;
-        d->mic_gain_max = 24 * 256;
+        d->mic_gain_max = 40 * 256;
     }
 
     wave3_refresh(d);

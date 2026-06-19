@@ -90,53 +90,51 @@ request type (`0xA1`/`0x21`) for live control.**
 ### Config block layout (16 bytes)
 
 The Wave:3 config block (`wValue = 0x0000`) contains the hardware
-settings. Most offsets are now mapped:
+settings. The full layout is now mapped:
 
 | Offset | Size | Field | Notes |
 |--------|------|-------|-------|
-| 0 | u8 | **checksum / flags** | writable, but likely part of a firmware checksum or validation pair with offset 1 |
-| 1 | u8 | **checksum / validation** | firmware normalizes this value; invalid writes cause offset 0 to reset to `0x00` |
-| 2 | u8 | **unused / reserved** | writable, no visible effect |
-| 3 | u8 | **unused / reserved** | writable, no visible effect |
+| 0 | u8 | **Dial value low byte** | reflects the current dial position in the active mode |
+| 1 | u8 | **Dial value high byte** | little-endian with offset 0; mic gain 0–40 dB, HP volume 0 to -128 dB, monitor mix 0–100 |
+| 2 | u8 | **unknown / reserved** | writable, no visible effect |
+| 3 | u8 | **unknown / reserved** | writable, no visible effect |
 | 4 | u8 | **Mic mute** | `0x00` = live, `0x01` = muted |
-| 5 | u8 | **Clipguard** | `0x00` = off, `0x01` = on (same offset as Wave XLR) |
-| 6 | u8 | **unused / reserved** | writable, no visible effect |
-| 7 | u8 | **unused / reserved** | writable, no visible effect; not low-cut |
+| 5 | u8 | **Clipguard** | `0x00` = off, `0x01` = on |
+| 6 | u8 | **unknown / reserved** | writable, no visible effect |
+| 7 | u8 | **Dial flag** | toggles `0x00 <-> 0x80` while adjusting HP volume; sign/fraction flag for the displayed value |
 | 8 | s8 | **Headphone volume** | signed dB attenuation (`0x00` = 0 dB, `0xF7` ≈ -9 dB, `0xC4` ≈ -60 dB) |
 | 9 | u8 | **Headphone mute** | `0x00` = on, `0x01` = muted |
-| 10 | u8 | **Mute color R** | RGB red channel for the mute-ring LED |
-| 11 | u8 | **Mute color G** | RGB green channel; also appears in monitor-mix indicator |
-| 12 | u8 | **Device state** | **read-only**; accepts only `0x01`, `0x02`, `0x03`; observed `0x03` (likely headphone connected + dial status) |
-| 13 | u8 | **Mute color B** | RGB blue channel |
-| 14 | u8 | **Direct monitor mix** | `0x00` = microphone only, `0xFF` = PC playback only, linear in between |
+| 10 | u8 | **Indicator / mute-ring R** | RGB red channel for ring feedback |
+| 11 | u8 | **Indicator / mute-ring G** | RGB green channel; also the physical monitor-mix value (0–100) in mix mode |
+| 12 | u8 | **Dial mode** | `0x01` = mic gain, `0x02` = headphone volume, `0x03` = monitor mix |
+| 13 | u8 | **Indicator / mute-ring B** | RGB blue channel |
+| 14 | u8 | **Software direct monitor mix** | `0x00` = microphone only, `0xFF` = PC playback only, linear in between; independent of the dial |
 | 15 | u8 | **LED/indicator brightness** | `0x00` = off, `0xFF` = maximum |
 
-**Confirmed hardware controls:**
+**Hardware controls implemented:**
 
 * Mic mute (offset 4)
 * Headphone mute (offset 9)
 * Headphone volume (offset 8, signed dB attenuation)
 * Clipguard (offset 5)
-* Direct monitor mix (offset 14, 0–255)
 * Mute-ring RGB color (offsets 10/11/13)
 * LED brightness (offset 15)
+* Direct monitor mix (offset 14) — writable from software
+
+**Physical dial state (read-only):**
+
+* Dial mode (offset 12)
+* Dial value (offsets 0/1, little-endian)
+* Indicator RGB (offsets 10/11/13) — temporary ring feedback
 
 **Host-side only:**
 
 * **Low-cut filter** — not present in the Wave:3 config block. This is a
-  software DSP effect applied by Wave Link (confirmed by Elgato
-  documentation and the absence of any byte that toggles it).
+  software DSP effect applied by Wave Link.
 
-**Checksum/validation:** offsets 0 and 1 behave like a firmware
-validation pair. Offset 1 is normalized by the device, and invalid
-values cause offset 0 to reset to `0x00`. They are not user features.
-
-**Unused/reserved:** offsets 2, 3, 6, 7 accept arbitrary writes but
-produce no observable change. They may be used by other firmware
-variants or future devices.
-
-**Read-only state:** offset 12 reflects device state (likely headphone
-connection + dial mode); exact bit meanings are not decoded.
+**Still unknown:** offsets 2, 3, 6. They accept arbitrary writes but
+produce no observable change; likely reserved for other firmware
+variants. Headphone connection state is not exposed in this config block.
 
 ### Meter block (`wValue = 0x0001`)
 
@@ -176,13 +174,15 @@ returned as the tuple:
  mic_gain_pct, hp_vol_pct, mic_gain_db, hp_vol_db,
  clipguard, lowcut,
  direct_monitor, mute_rgb, input_level_db,
- brightness, playback_level_db)
+ brightness, playback_level_db,
+ indicator_rgb, dial_mode, dial_value)
 ```
 
 Methods include `SetMicMute`, `ToggleMicMute`, `SetHpMute`,
 `SetHpVolume`, `SetClipguard`, `SetDirectMonitor`, `SetMuteColor`,
-`SetBrightness`, `GetInputLevel`, `GetPlaybackLevel`, plus getters for
-all fields. `SetLowCut` and `SetHeadphoneColor` return
+`SetBrightness`, `GetInputLevel`, `GetPlaybackLevel`, `GetDialMode`,
+`GetDialValue`, `GetIndicatorColor`, plus getters for all fields.
+`SetLowCut` and `SetHeadphoneColor` return
 `G_IO_ERROR_NOT_SUPPORTED` because the first-gen Wave:3 has neither
 hardware low-cut nor a headphone-color LED.
 

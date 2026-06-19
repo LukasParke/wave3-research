@@ -30,21 +30,21 @@ uses the same encoding.
 
 | Offset | Field | Notes |
 |--------|-------|-------|
-| 0 | **Checksum / flags** | part of firmware validation pair with offset 1 |
-| 1 | **Checksum / validation** | firmware normalizes; invalid writes reset offset 0 |
+| 0 | **Dial value low byte** | current dial position in the active mode |
+| 1 | **Dial value high byte** | little-endian with offset 0; mic gain 0–40 dB, HP volume 0 to -128 dB, monitor mix 0–100 |
 | 2 | **Unused / reserved** | writable, no visible effect |
 | 3 | **Unused / reserved** | writable, no visible effect |
 | 4 | **Mic mute** | `0x00` live, `0x01` muted |
 | 5 | **Clipguard** | `0x00` off, `0x01` on |
 | 6 | **Unused / reserved** | writable, no visible effect |
-| 7 | **Unused / reserved** | writable, no visible effect |
+| 7 | **Dial flag** | toggles `0x00 <-> 0x80` while adjusting HP volume |
 | 8 | **Headphone volume** | signed dB attenuation (`0x00` = 0 dB) |
 | 9 | **Headphone mute** | `0x00` on, `0x01` muted |
-| 10 | **Mute color R** | RGB red channel |
-| 11 | **Mute color G** | RGB green channel |
-| 12 | **Device state** | read-only (headphone connected + dial status) |
-| 13 | **Mute color B** | RGB blue channel |
-| 14 | **Direct monitor mix** | `0x00` = mic only, `0xFF` = PC only |
+| 10 | **Indicator / mute-ring R** | RGB red channel for ring feedback |
+| 11 | **Indicator / mute-ring G** | RGB green channel; also monitor-mix value in mix mode |
+| 12 | **Dial mode** | `0x01` = mic gain, `0x02` = headphone volume, `0x03` = monitor mix |
+| 13 | **Indicator / mute-ring B** | RGB blue channel |
+| 14 | **Direct monitor mix** | `0x00` = mic only, `0xFF` = PC only (software, independent of dial) |
 | 15 | **LED brightness** | `0x00` off, `0xFF` maximum |
 
 See `docs/protocol-notes.md` for details.
@@ -214,13 +214,16 @@ From a live test on the connected Wave:3:
 ## What requires further mapping
 
 All user-facing hardware controls on the first-generation Wave:3 are now
-implemented. The only remaining unknowns are:
+implemented, including:
 
-* Config offsets 0 and 1 — firmware checksum/validation pair, not user
-  features.
-* Config offsets 2, 3, 6, 7 — writable but unused on this firmware.
-* Config offset 12 — read-only device state (likely headphone connection +
-  dial mode); exact bit meanings not decoded.
+* mic mute, headphone mute, headphone volume
+* Clipguard, direct monitor mix, LED brightness
+* mute-ring RGB color
+
+The physical dial state (mode, value, indicator RGB) is exposed as
+read-only D-Bus state. The only remaining unknowns are:
+
+* Config offsets 2, 3, 6 — writable but unused on this firmware.
 * Meter full-scale calibration for the `uint32` input/playback levels.
 
 Mixer routing, compressor, equalizer, and low-cut filter are handled in

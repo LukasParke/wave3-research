@@ -41,6 +41,7 @@ install -Dm755 src/cfg_probe "$BIN_DIR/wave3-cfg-probe"
 install -Dm755 src/watch_state "$BIN_DIR/wave3-watch-state"
 install -Dm755 src/device_info "$BIN_DIR/wave3-device-info"
 install -Dm755 src/auto_probe "$BIN_DIR/wave3-auto-probe"
+install -Dm755 src/poll_observatory "$BIN_DIR/wave3-poll-observatory"
 ok "Binaries installed"
 
 info "Installing systemd user service..."

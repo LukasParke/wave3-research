@@ -4,7 +4,7 @@
 **Device:** Elgato Wave:3 USB condenser microphone  
 **USB IDs:** `VID 0x0fd9`, `PID 0x0070`  
 **Date:** 2026-06-19  
-**Status:** Standard UAC controls and proprietary class config block fully working. All hardware-controllable features on the first-gen Wave:3 are mapped; only unused/unknown bytes remain.
+**Status:** Standard UAC controls and proprietary class config block fully working. All hardware-controllable features on the first-gen Wave:3 are mapped; only reserved bytes remain.
 
 ---
 
@@ -126,21 +126,21 @@ IDs (`0x0000`, `0x0001`, `0x000A`).**
 
 | Offset | Size | Field | Notes |
 |--------|------|-------|-------|
-| 0 | u8 | unknown | writable, no visible effect |
-| 1 | u8 | unknown / validation | writable; values `>= 0x40` cause offset 0 to reset to `0x00` |
-| 2 | u8 | unknown | writable, no visible effect |
-| 3 | u8 | unknown | writable, no visible effect |
+| 0 | u8 | **Dial value low byte** | current dial position in the active mode |
+| 1 | u8 | **Dial value high byte** | little-endian with offset 0; mic gain 0–40 dB, HP volume 0 to -128 dB, monitor mix 0–100 |
+| 2 | u8 | **unknown / reserved** | writable, no visible effect |
+| 3 | u8 | **unknown / reserved** | writable, no visible effect |
 | 4 | u8 | **Mic mute** | `0x00` = live, `0x01` = muted |
 | 5 | u8 | **Clipguard** | `0x00` = off, `0x01` = on |
-| 6 | u8 | unknown | writable, no visible effect |
-| 7 | u8 | unknown | writable, no visible effect |
+| 6 | u8 | **unknown / reserved** | writable, no visible effect |
+| 7 | u8 | **Dial flag** | toggles `0x00 <-> 0x80` while adjusting HP volume; sign/fraction flag for displayed value |
 | 8 | s8 | **Headphone volume** | signed dB attenuation (`0x00` = 0 dB, `0xF7` ≈ -9 dB, `0xC4` ≈ -60 dB) |
 | 9 | u8 | **Headphone mute** | `0x00` = on, `0x01` = muted |
-| 10 | u8 | **Mute color R** | RGB red channel for the mute-ring LED |
-| 11 | u8 | **Mute color G** | RGB green channel |
-| 12 | u8 | **Device state** | **read-only**; only `0x01`, `0x02`, `0x03` accepted; observed `0x03` (likely headphone connected + dial status) |
-| 13 | u8 | **Mute color B** | RGB blue channel |
-| 14 | u8 | **Direct monitor mix** | `0x00` = microphone only, `0xFF` = PC playback only, linear scale |
+| 10 | u8 | **Indicator / mute-ring R** | RGB red channel for ring feedback |
+| 11 | u8 | **Indicator / mute-ring G** | RGB green channel; also physical monitor-mix value (0–100) in mix mode |
+| 12 | u8 | **Dial mode** | `0x01` = mic gain, `0x02` = headphone volume, `0x03` = monitor mix |
+| 13 | u8 | **Indicator / mute-ring B** | RGB blue channel |
+| 14 | u8 | **Software direct monitor mix** | `0x00` = microphone only, `0xFF` = PC playback only, linear scale; independent of the dial |
 | 15 | u8 | **LED brightness** | `0x00` = off, `0xFF` = maximum |
 
 **Hardware controls implemented:**
@@ -149,16 +149,22 @@ IDs (`0x0000`, `0x0001`, `0x000A`).**
 * Headphone mute (offset 9)
 * Headphone volume (offset 8)
 * Clipguard (offset 5)
-* Direct monitor mix (offset 14)
-* Mute-ring RGB color (offsets 10/11/13)
+* Mute-ring / indicator RGB color (offsets 10/11/13)
 * LED brightness (offset 15)
+* Software direct monitor mix (offset 14)
+
+**Physical dial state (read-only):**
+
+* Dial mode (offset 12)
+* Dial value (offsets 0/1)
+* Indicator RGB (offsets 10/11/13)
 
 **Host-side only:**
 
 * **Low-cut filter** — not present in the Wave:3 config block; Wave Link applies this in software DSP.
 * **Headphone color LED** — first-gen Wave:3 has no such LED; `SetHeadphoneColor` returns `G_IO_ERROR_NOT_SUPPORTED`.
 
-**Still unknown:** offsets 0, 1, 2, 3, 6, 7. They accept arbitrary writes but produce no observable change. Offset 12 is read-only device state.
+**Still unknown:** offsets 2, 3, 6. They accept arbitrary writes but produce no observable change; likely reserved for other firmware variants. Headphone connection state is not exposed in this config block.
 
 ### 3.4 Meter Block (`wValue = 0x0001`)
 
@@ -213,6 +219,15 @@ requests and avoid arbitrary ID scans.**
 * An automated byte-probe (`native-linux/src/auto_probe.c`) wrote ten
 values to every config offset and read them back. Results produced the
 layout table above.
+* A physical observatory script (`native-linux/src/poll_observatory.c`)
+  logged the config block at 20 Hz while the user cycled dial modes and
+  adjusted values. It confirmed:
+  * offsets 0/1 form a 16-bit little-endian dial value
+  * offset 12 is dial mode (`1`, `2`, `3`)
+  * offset 7 toggles `0x80` during HP-volume adjustment
+  * offset 11 doubles as the monitor-mix value (0–100)
+  * offset 4 toggles with the capacitive mute pad
+  * offset 9 auto-sets when HP volume reaches minimum
 
 ---
 
@@ -277,6 +292,11 @@ From Undertone's implementation:
 | UAC daemon (C/GDBus) | `native-linux/src/wave3-daemon.c` | Working |
 | Automated config probe | `native-linux/src/auto_probe.c` | Working |
 | Config probe helper | `native-linux/src/cfg_probe.c` | Working |
+| Live observatory logger | `native-linux/src/poll_observatory.c` | Working |
+| Config probe helper | `native-linux/src/cfg_probe.c` | Working |
+| Live state watcher | `native-linux/src/watch_state.c` | Working |
+| Device info reader | `native-linux/src/device_info.c` | Working |
+| Observatory logger | `native-linux/src/poll_observatory.c` | Working |
 | Shell CLI | `native-linux/bin/wave3ctl` | Working |
 | udev rules | `native-linux/udev/50-elgato-wave3.rules` | Installed |
 | systemd service | `native-linux/systemd/wave3-daemon.service` | Installed |
@@ -296,13 +316,9 @@ From Undertone's implementation:
 
 ## 7. Remaining Unknowns
 
-1. **Offsets 0 and 1** appear to be a firmware checksum/validation pair;
-   they are not user features.
-2. **Offsets 2, 3, 6, 7** are writable but unused on this firmware; they
-   may be reserved for other device variants.
-3. **Offset 12** is read-only device state (likely headphone connection +
-   dial mode); exact bit meanings are not decoded.
-4. **Meter scale** — the full-scale reference for the `uint32` input/playback
+1. **Offsets 2, 3, 6** are writable but unused on this firmware; they may be
+   reserved for other device variants.
+2. **Meter scale** — the full-scale reference for the `uint32` input/playback
    level values has not been calibrated.
 
 These unknowns do not block any user-facing feature; all hardware controls
