@@ -147,7 +147,7 @@ static gint16 pct_to_raw(int pct, gint16 lo, gint16 hi)
 
 static GVariant *wave3_build_state(Wave3Daemon *d)
 {
-    return g_variant_new("(bbuuuubbddudd)",
+    return g_variant_new("(bbuuuubbdudud)",
                          d->mic_mute,
                          d->hp_mute,
                          (guint)pct_from_raw(d->mic_gain, d->mic_gain_min, d->mic_gain_max),
@@ -158,14 +158,14 @@ static GVariant *wave3_build_state(Wave3Daemon *d)
                          d->lowcut,
                          d->direct_monitor,
                          d->mute_rgb,
-                         d->hp_rgb,
                          d->input_level_db,
+                         d->hp_rgb,
                          d->playback_level_db);
 }
 
 static GVariant *wave3_build_state_outer(Wave3Daemon *d)
 {
-    return g_variant_new("((bbuuuubbddudd))",
+    return g_variant_new("((bbuuuubbdudud))",
                          d->mic_mute,
                          d->hp_mute,
                          (guint)pct_from_raw(d->mic_gain, d->mic_gain_min, d->mic_gain_max),
@@ -176,8 +176,8 @@ static GVariant *wave3_build_state_outer(Wave3Daemon *d)
                          d->lowcut,
                          d->direct_monitor,
                          d->mute_rgb,
-                         d->hp_rgb,
                          d->input_level_db,
+                         d->hp_rgb,
                          d->playback_level_db);
 }
 
@@ -466,7 +466,7 @@ static const gchar *introspection_xml =
     "<node>"
     "  <interface name='org.wave3.Daemon'>"
     "    <method name='GetState'>"
-    "      <arg type='(bbuuuubbddudd)' name='state' direction='out'/>"
+    "      <arg type='(bbuuuubbdudud)' name='state' direction='out'/>"
     "    </method>"
     "    <method name='SetMicMute'>"
     "      <arg type='b' name='muted' direction='in'/>"
@@ -525,7 +525,7 @@ static const gchar *introspection_xml =
     "      <arg type='d' name='db' direction='out'/>"
     "    </method>"
     "    <signal name='StateChanged'>"
-    "      <arg type='(bbuuuubbddudd)' name='state'/>"
+    "      <arg type='(bbuuuubbdudud)' name='state'/>"
     "    </signal>"
     "    <property name='MicMute' type='b' access='read'/>"
     "    <property name='HpMute' type='b' access='read'/>"

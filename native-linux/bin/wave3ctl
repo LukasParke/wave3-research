@@ -37,10 +37,10 @@ call() {
 print_state() {
     local state
     state=$(call GetState)
-    # gdbus returns: ((false, false, uint32 38, uint32 85, uint32 15, uint32 9, false, false, 0.0, 0, 0, 0.0, 0.0),)
+    # gdbus returns: ((false, false, uint32 38, uint32 85, uint32 15, uint32 9, false, false, 0.0, uint32 0, -150.0, uint32 0, -150.0),)
     state="${state#((}"; state="${state%),)}"
     state="${state//uint32 /}"
-    IFS=', ' read -r mic_mute hp_mute mic_gain_pct hp_vol_pct mic_gain_db hp_vol_db clipguard lowcut direct_monitor mute_rgb hp_rgb in_level pb_level <<< "$state"
+    IFS=', ' read -r mic_mute hp_mute mic_gain_pct hp_vol_pct mic_gain_db hp_vol_db clipguard lowcut direct_monitor mute_rgb in_level hp_rgb pb_level <<< "$state"
     printf 'Mic:       %s (%s%% / %sdB)\n' \
         "$([ "$mic_mute" = true ] && echo MUTED || echo LIVE)" \
         "$mic_gain_pct" "$mic_gain_db"
