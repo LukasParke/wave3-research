@@ -13,6 +13,7 @@ modules.order
 # Binaries
 wave3-daemon
 probe_wave3
+cfg_probe
 probe_vendor_ids
 probe_vendor_targeted
 probe_vendor_targeted2
