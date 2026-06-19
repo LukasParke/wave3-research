@@ -22,11 +22,14 @@
   [Undertone](https://github.com/polariscli/Undertone) project:
   `wave3-source` rename, custom `wave3-sink`, and `wave3-null-sink` to
   keep the mic awake.
-* Advanced features (RGB, Clipguard, low-cut, direct monitor, level meters)
-  still require decoding of the proprietary vendor protocol on interface 3.
-  Static analysis identified the logical feature names and 309 control paths,
-  but the exact USB encoding requires a live `usbmon` capture from Wave Link
-  in a Windows VM.
+* The proprietary class-based protocol on interface 3 was decoded down to
+  three live IDs (`wValue = 0x0000` config block, `0x0001` meter, `0x000A`
+  device info) using the same trick discovered by `rikkichy/openwave`.
+* Mic mute, headphone mute, headphone volume, and level meters are now
+  implemented via the 16-byte config block.
+* Advanced features (RGB, Clipguard, low-cut, direct monitor) still require
+  mapping the remaining config bytes. This can be done by physically
+  observing each byte or by a live Wave Link `usbmon` capture.
 
 See [`native-linux/README.md`](native-linux/README.md) for the working
 control stack.
@@ -60,35 +63,40 @@ The Wave Link applications use a shared low-level library (`waveapi.dll` / `Wave
    - Does the protocol use `libusb` control transfers (`libusb_control_transfer`) or bulk transfers?
    - What are the exact request type, request ID, value, index, and payload lengths?
 
-2. **Message framing and encoding**
-   - Is there a packet header, length field, CRC, or checksum?
-   - Is the payload little-endian, big-endian, or a custom binary format?
-   - Are strings sent as length-prefixed UTF-8 / UTF-16?
-   - Is there a command/response transaction ID or sequence number?
+2. **Message framing and encoding (resolved)**
+   - The protocol uses standard USB class control transfers
+     (`bmRequestType = 0xA1` for GET, `0x21` for SET,
+     `bRequest = 0x85` / `0x05`).
+   - Payloads are fixed-length little-endian binary blocks:
+     16-byte config, 8-byte meter, 51-byte device info.
+   - No header, CRC, or sequence number is used.
 
-3. **Property addressing scheme**
-   - The applications expose 309 string control paths (e.g. `/gain`, `/clipguard_enable`).
-   - Are these paths sent literally over USB, or mapped to 16-bit / 32-bit property IDs?
-   - The presence of `EWLWAudioEngineApi_GetLookupTable` strongly suggests a path→ID lookup table exists. Extract it from the binaries.
-   - Are properties grouped into categories (input, output, mixer, dspfx, RGB, version, etc.)?
+3. **Property addressing scheme (resolved for known IDs)**
+   - The live Wave:3 only exposes three `wValue` IDs:
+     `0x0000` config block, `0x0001` meter, `0x000A` device info.
+   - The 309 logical paths map onto bytes inside the 16-byte config block
+     (and possibly onto bits within those bytes). The exact byte for each
+     path is still being mapped.
 
-4. **Data types and scales**
-   - Booleans: single byte `0x00`/`0x01`? bitfields?
-   - Volumes/gains: fixed-point? dB? linear 0–255? 0–1000? signed/unsigned 16-bit?
-   - RGB colors: packed 24-bit `RRGGBB`? separate bytes? little-endian?
-   - Enumerations: numeric indices or string constants?
+4. **Data types and scales (partially resolved)**
+   - Booleans are single bytes (`0x00`/`0x01`).
+   - Headphone volume is a signed 8-bit dB attenuation (0 dB = max,
+     -60 dB = min, 1 dB steps).
+   - Mic gain remains read-only via standard UAC (physical dial).
+   - RGB colors and other scalar types are still unknown.
 
-5. **Transaction semantics**
-   - Is every `Set` acknowledged with a response?
-   - Does the device push asynchronous notifications on change (e.g. tap-to-mute, dial events)?
-   - Is there a heartbeat or keep-alive message?
-   - What happens if two hosts try to open the device simultaneously?
+5. **Transaction semantics (resolved)**
+   - Every `Set` returns the number of bytes written as the USB control
+     transfer status; no separate response packet.
+   - The daemon polls the config block at 10 Hz; no async interrupt or
+     heartbeat message is required for the first-gen Wave:3.
+   - Concurrent open from two hosts will fail at `libusb_claim_interface`.
 
 6. **Device initialization / handshake**
-   - What control transfers occur immediately after `Set Configuration` / interface claim?
-   - Is there a device-unlock or session-establishment sequence?
-   - What does `VendorUSBBackendStrategy::protoVersion` exchange look like?
-   - Does the device require a specific USB configuration or altsetting to accept vendor commands?
+   - No special handshake is required for the first-gen Wave:3. The class
+     control transfers succeed immediately after claiming interface 3.
+   - The device info request (`wValue=0x000A`) can be read at any time and
+     returns API/firmware version and serial number.
 
 ### 1.2 Map every observable Wave:3 setting to its control path and USB payload
 
@@ -529,20 +537,30 @@ The project is complete when:
 - [x] Created ALSA UCM profile, PipeWire virtual sinks, WirePlumber auto-start rule, GTK4 GUI, Arch PKGBUILD, and integration tests.
 - [x] Reviewed the [Undertone](https://github.com/polariscli/Undertone) project and adopted its proven PipeWire topology (`wave3-source`, `wave3-sink`, `wave3-null-sink`).
 - [x] Created a comprehensive protocol summary at [`WAVE3_PROTOCOL_SUMMARY.md`](WAVE3_PROTOCOL_SUMMARY.md).
+- [x] Decoded the class-based vendor protocol on interface 3
+  (`bmRequestType=0xA1/0x21`, `bRequest=0x85/0x05`, `wIndex=0x3303`).
+- [x] Identified the three live `wValue` IDs (`0x0000` config, `0x0001` meter,
+  `0x000A` device info) and the 16-byte config block layout.
+- [x] Implemented mic mute, headphone mute, headphone volume, and level-meter
+  polling through the config block in `wave3-daemon`.
+- [x] Added `uac_set.c` helper for controlled live UAC set tests.
 
 ## 8. Blocked / Remaining Work
 
-1. **Vendor protocol for advanced features** (blocked on user-provided capture)
-   - Set up a Windows 10/11 VM with Wave:3 USB passthrough.
-   - Capture `usbmon` traffic while toggling RGB, Clipguard, low-cut, and direct monitor in Wave Link.
-   - Correlate captures with the static control-path table to decode the vendor request format.
-   - The assistant cannot create VMs, load `usbmon`, or detach USB devices without root; the user must run the capture.
+1. **Config byte mapping for advanced features**
+   - Identify which byte(s) control clipguard, direct monitor mix, low-cut,
+     RGB/LED brightness, and dial mode.
+   - The fastest path is a Wave Link `usbmon` capture from a Windows VM;
+     alternatively, physically toggle each byte and observe the device.
 
-2. **Daemon enhancements** (pending vendor protocol decode)
-   - Implement real vendor-feature methods (RGB, Clipguard, low-cut, direct monitor, level meters).
+2. **Daemon enhancements** (pending byte mapping)
+   - Implement real `SetClipguard`, `SetLowCut`, `SetDirectMonitor`,
+     `SetMuteColor`, and `SetHeadphoneColor` by writing the correct config
+     byte(s).
    - Add `libusb_hotplug_register_callback` for plug/unplug events.
-   - Add level-meter polling and D-Bus signals once the meter source is known.
+   - Calibrate the input/playback meter scale.
 
 3. **Validation of PipeWire/WirePlumber integration**
-   - Restart WirePlumber with the new 0.5 config and verify `wave3-source`, `wave3-sink`, and `wave3-null-sink` appear.
+   - Restart WirePlumber with the new 0.5 config and verify `wave3-source`,
+     `wave3-sink`, and `wave3-null-sink` appear.
    - Verify app routing through virtual mix sinks works end-to-end.
