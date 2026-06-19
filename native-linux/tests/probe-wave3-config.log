@@ -1,16 +1,11 @@
 === Wave:3 Config Byte Mapper ===
 Building cfg_probe...
-OK.\n
+OK.
+
 --- Baseline config ---
 RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe read 
-claim interface 3 failed: LIBUSB_ERROR_BUSY
-=== Wave:3 Config Byte Mapper ===
-Building cfg_probe...
-OK.\n
---- Baseline config ---
-RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe read 
-config: 00 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
-Baseline: 00 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+config: 01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+Baseline: 01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
 
 What color is the ring LED right now? (e.g. blue, red, white, off)
 > ANSWER: white
@@ -22,19 +17,506 @@ What does the dial control when you turn it? (mic gain / headphone volume / moni
 > ANSWER: monitor mix
 
 Do you have Wave Link available to confirm current settings? (yes/no)
-> ANSWER: no
+> ANSWER: n
 
 ========================================
 Testing config byte offset 0
 Watch for: Any LED change, any audio change, or device mode change
 ========================================
+
 --- Setting offset 0 to 0x01 ---
 RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe write 0 0x01
-before: 00 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+before: 01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
 write offset 0 = 0x01 -> r=16
 after:  01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
 
 Offset 0 = 0x01. What did you observe? (none / describe)
-> ANSWER: none
+> ANSWER: Nothing happened
 RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe restore 
-no snapshot; run 'read' first
+restore snapshot -> r=16
+after:  01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+
+After restore, did the device return to baseline? (yes/no / describe)
+> ANSWER: Yes? Nothing happened
+
+--- Setting offset 0 to 0x02 ---
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe write 0 0x02
+before: 01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+write offset 0 = 0x02 -> r=16
+after:  02 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+
+Offset 0 = 0x02. What did you observe? (none / describe)
+> ANSWER: nothing
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe restore 
+restore snapshot -> r=16
+after:  01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+
+After restore, did the device return to baseline? (yes/no / describe)
+> ANSWER: yes?
+
+========================================
+Testing config byte offset 1
+Watch for: Any LED change or feature enable/disable behavior
+========================================
+
+--- Setting offset 1 to 0x00 ---
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe write 1 0x00
+before: 01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+write offset 1 = 0x00 -> r=16
+after:  01 00 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+
+Offset 1 = 0x00. What did you observe? (none / describe)
+> ANSWER: nothing
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe restore 
+restore snapshot -> r=16
+after:  01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+
+After restore, did the device return to baseline? (yes/no / describe)
+> ANSWER: yes?
+
+--- Setting offset 1 to 0xFF ---
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe write 1 0xFF
+before: 01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+write offset 1 = 0xff -> r=16
+after:  00 00 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+
+Offset 1 = 0xFF. What did you observe? (none / describe)
+> ANSWER: nothing
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe restore 
+restore snapshot -> r=16
+after:  01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+
+After restore, did the device return to baseline? (yes/no / describe)
+> ANSWER: yes?
+
+========================================
+Testing config byte offset 2
+Watch for: Any LED change or dial behavior change
+========================================
+
+--- Setting offset 2 to 0x01 ---
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe write 2 0x01
+before: 01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+write offset 2 = 0x01 -> r=16
+after:  01 01 01 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+
+Offset 2 = 0x01. What did you observe? (none / describe)
+> ANSWER: nothing
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe restore 
+restore snapshot -> r=16
+after:  01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+
+After restore, did the device return to baseline? (yes/no / describe)
+> ANSWER: yes?
+
+--- Setting offset 2 to 0xFF ---
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe write 2 0xFF
+before: 01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+write offset 2 = 0xff -> r=16
+after:  01 01 ff 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+
+Offset 2 = 0xFF. What did you observe? (none / describe)
+> ANSWER: nothing
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe restore 
+restore snapshot -> r=16
+after:  01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+
+After restore, did the device return to baseline? (yes/no / describe)
+> ANSWER: yes?
+
+========================================
+Testing config byte offset 3
+Watch for: Any LED change or dial behavior change
+========================================
+
+--- Setting offset 3 to 0x01 ---
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe write 3 0x01
+before: 01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+write offset 3 = 0x01 -> r=16
+after:  01 01 00 01 00 00 00 00 f7 00 00 00 03 00 01 01 
+
+Offset 3 = 0x01. What did you observe? (none / describe)
+> ANSWER: nothing
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe restore 
+restore snapshot -> r=16
+after:  01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+
+After restore, did the device return to baseline? (yes/no / describe)
+> ANSWER: yes?
+
+--- Setting offset 3 to 0xFF ---
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe write 3 0xFF
+before: 01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+write offset 3 = 0xff -> r=16
+after:  01 01 00 ff 00 00 00 00 f7 00 00 00 03 00 01 01 
+
+Offset 3 = 0xFF. What did you observe? (none / describe)
+> ANSWER: nothing
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe restore 
+restore snapshot -> r=16
+after:  01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+
+After restore, did the device return to baseline? (yes/no / describe)
+> ANSWER: yes?
+
+========================================
+Testing config byte offset 5
+Watch for: Clipguard behavior — tap mute hard or make a loud noise; does the LED/clip indicator behave differently?
+========================================
+
+--- Setting offset 5 to 0x01 ---
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe write 5 0x01
+before: 01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+write offset 5 = 0x01 -> r=16
+after:  01 01 00 00 00 01 00 00 f7 00 00 00 03 00 01 01 
+
+Offset 5 = 0x01. What did you observe? (none / describe)
+> ANSWER: nothing
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe restore 
+restore snapshot -> r=16
+after:  01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+
+After restore, did the device return to baseline? (yes/no / describe)
+> ANSWER: yes?
+
+--- Setting offset 5 to 0x00 ---
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe write 5 0x00
+before: 01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+write offset 5 = 0x00 -> r=16
+after:  01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+
+Offset 5 = 0x00. What did you observe? (none / describe)
+> ANSWER: nothing
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe restore 
+restore snapshot -> r=16
+after:  01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+
+After restore, did the device return to baseline? (yes/no / describe)
+> ANSWER: yes?
+
+========================================
+Testing config byte offset 6
+Watch for: Direct monitor mix — listen to headphones while speaking and playing PC audio
+========================================
+
+--- Setting offset 6 to 0x00 ---
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe write 6 0x00
+before: 01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+write offset 6 = 0x00 -> r=16
+after:  01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+
+Offset 6 = 0x00. What did you observe? (none / describe)
+> ANSWER: nothing
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe restore 
+restore snapshot -> r=16
+after:  01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+
+After restore, did the device return to baseline? (yes/no / describe)
+> ANSWER: yes?
+
+--- Setting offset 6 to 0x40 ---
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe write 6 0x40
+before: 01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+write offset 6 = 0x40 -> r=16
+after:  01 01 00 00 00 00 40 00 f7 00 00 00 03 00 01 01 
+
+Offset 6 = 0x40. What did you observe? (none / describe)
+> ANSWER: nothing
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe restore 
+restore snapshot -> r=16
+after:  01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+
+After restore, did the device return to baseline? (yes/no / describe)
+> ANSWER: yes?
+
+--- Setting offset 6 to 0x80 ---
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe write 6 0x80
+before: 01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+write offset 6 = 0x80 -> r=16
+after:  01 01 00 00 00 00 80 00 f7 00 00 00 03 00 01 01 
+
+Offset 6 = 0x80. What did you observe? (none / describe)
+> ANSWER: nothing
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe restore 
+restore snapshot -> r=16
+after:  01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+
+After restore, did the device return to baseline? (yes/no / describe)
+> ANSWER: yes?
+
+--- Setting offset 6 to 0xFF ---
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe write 6 0xFF
+before: 01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+write offset 6 = 0xff -> r=16
+after:  01 01 00 00 00 00 ff 00 f7 00 00 00 03 00 01 01 
+
+Offset 6 = 0xFF. What did you observe? (none / describe)
+> ANSWER: nothing
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe restore 
+restore snapshot -> r=16
+after:  01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+
+After restore, did the device return to baseline? (yes/no / describe)
+> ANSWER: yes?
+
+========================================
+Testing config byte offset 7
+Watch for: Direct monitor mix or RGB/LED change
+========================================
+
+--- Setting offset 7 to 0x01 ---
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe write 7 0x01
+before: 01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+write offset 7 = 0x01 -> r=16
+after:  01 01 00 00 00 00 00 01 f7 00 00 00 03 00 01 01 
+
+Offset 7 = 0x01. What did you observe? (none / describe)
+> ANSWER: nothing
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe restore 
+restore snapshot -> r=16
+after:  01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+
+After restore, did the device return to baseline? (yes/no / describe)
+> ANSWER: yes?
+
+--- Setting offset 7 to 0xFF ---
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe write 7 0xFF
+before: 01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+write offset 7 = 0xff -> r=16
+after:  01 01 00 00 00 00 00 ff f7 00 00 00 03 00 01 01 
+
+Offset 7 = 0xFF. What did you observe? (none / describe)
+> ANSWER: nothing
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe restore 
+restore snapshot -> r=16
+after:  01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+
+After restore, did the device return to baseline? (yes/no / describe)
+> ANSWER: yes?
+
+========================================
+Testing config byte offset 10
+Watch for: Mute-ring RGB red channel — mute the mic and look at the ring color
+========================================
+
+--- Setting offset 10 to 0xFF ---
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe write 10 0xFF
+before: 01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+write offset 10 = 0xff -> r=16
+after:  01 01 00 00 00 00 00 00 f7 00 ff 00 03 00 01 01 
+
+Offset 10 = 0xFF. What did you observe? (none / describe)
+> ANSWER: nothing
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe restore 
+restore snapshot -> r=16
+after:  01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+
+After restore, did the device return to baseline? (yes/no / describe)
+> ANSWER: yes?
+
+========================================
+Testing config byte offset 11
+Watch for: Mute-ring RGB green channel — mute the mic and look at the ring color
+========================================
+
+--- Setting offset 11 to 0xFF ---
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe write 11 0xFF
+before: 01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+write offset 11 = 0xff -> r=16
+after:  01 01 00 00 00 00 00 00 f7 00 00 ff 03 00 01 01 
+
+Offset 11 = 0xFF. What did you observe? (none / describe)
+> ANSWER: The monitor mix light indicating the mix level is seemingly gone
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe restore 
+restore snapshot -> r=16
+after:  01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+
+After restore, did the device return to baseline? (yes/no / describe)
+> ANSWER: Its back!
+
+========================================
+Testing config byte offset 13
+Watch for: Mute-ring RGB blue or brightness — mute the mic and look at the ring color
+========================================
+
+--- Setting offset 13 to 0xFF ---
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe write 13 0xFF
+before: 01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+write offset 13 = 0xff -> r=16
+after:  01 01 00 00 00 00 00 00 f7 00 00 00 03 ff 01 01 
+
+Offset 13 = 0xFF. What did you observe? (none / describe)
+> ANSWER: nothing
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe restore 
+restore snapshot -> r=16
+after:  01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+
+After restore, did the device return to baseline? (yes/no / describe)
+> ANSWER: yes?
+
+========================================
+Testing config byte offset 14
+Watch for: Dial mode — turn the dial; what does it control now?
+========================================
+
+--- Setting offset 14 to 0x00 ---
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe write 14 0x00
+before: 01 01 00 00 01 00 00 00 f7 00 00 00 03 00 01 01 
+write offset 14 = 0x00 -> r=16
+after:  01 01 00 00 01 00 00 00 f7 00 00 00 03 00 00 01 
+
+Offset 14 = 0x00. What did you observe? (none / describe)
+> ANSWER: The monitor mix went all the way to the other side
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe restore 
+restore snapshot -> r=16
+after:  01 01 00 00 01 00 00 00 f7 00 00 00 03 00 01 01 
+
+After restore, did the device return to baseline? (yes/no / describe)
+> ANSWER: and it went back
+
+--- Setting offset 14 to 0x01 ---
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe write 14 0x01
+before: 01 01 00 00 01 00 00 00 f7 00 00 00 03 00 01 01 
+write offset 14 = 0x01 -> r=16
+after:  01 01 00 00 01 00 00 00 f7 00 00 00 03 00 01 01 
+
+Offset 14 = 0x01. What did you observe? (none / describe)
+> ANSWER: nothing
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe restore 
+restore snapshot -> r=16
+after:  01 01 00 00 01 00 00 00 f7 00 00 00 03 00 01 01 
+
+After restore, did the device return to baseline? (yes/no / describe)
+> ANSWER: after the restore it went to muted, but I think that was because I changed the mute setting between tests
+
+--- Setting offset 14 to 0x02 ---
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe write 14 0x02
+before: 01 01 00 00 01 00 00 00 f7 00 00 00 03 00 01 01 
+write offset 14 = 0x02 -> r=16
+after:  01 01 00 00 01 00 00 00 f7 00 00 00 03 00 02 01 
+
+Offset 14 = 0x02. What did you observe? (none / describe)
+> ANSWER: nothing
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe restore 
+restore snapshot -> r=16
+after:  01 01 00 00 01 00 00 00 f7 00 00 00 03 00 01 01 
+
+After restore, did the device return to baseline? (yes/no / describe)
+> ANSWER: yes?
+
+========================================
+Testing config byte offset 15
+Watch for: LED/indicator brightness change
+========================================
+
+--- Setting offset 15 to 0x00 ---
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe write 15 0x00
+before: 01 01 00 00 01 00 00 00 f7 00 00 00 03 00 01 01 
+write offset 15 = 0x00 -> r=16
+after:  01 01 00 00 01 00 00 00 f7 00 00 00 03 00 01 00 
+
+Offset 15 = 0x00. What did you observe? (none / describe)
+> ANSWER: I can't tell if its dimmer or not, but maybe?
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe restore 
+restore snapshot -> r=16
+after:  01 01 00 00 01 00 00 00 f7 00 00 00 03 00 01 01 
+
+After restore, did the device return to baseline? (yes/no / describe)
+> ANSWER: maybe?
+
+--- Setting offset 15 to 0x80 ---
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe write 15 0x80
+before: 01 01 00 00 01 00 00 00 f7 00 00 00 03 00 01 01 
+write offset 15 = 0x80 -> r=16
+after:  01 01 00 00 01 00 00 00 f7 00 00 00 03 00 01 80 
+
+Offset 15 = 0x80. What did you observe? (none / describe)
+> ANSWER: nothing
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe restore 
+restore snapshot -> r=16
+after:  01 01 00 00 01 00 00 00 f7 00 00 00 03 00 01 01 
+
+After restore, did the device return to baseline? (yes/no / describe)
+> ANSWER: yes?
+
+--- Setting offset 15 to 0xFF ---
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe write 15 0xFF
+before: 01 01 00 00 01 00 00 00 f7 00 00 00 03 00 01 01 
+write offset 15 = 0xff -> r=16
+after:  01 01 00 00 01 00 00 00 f7 00 00 00 03 00 01 ff 
+
+Offset 15 = 0xFF. What did you observe? (none / describe)
+> ANSWER: nothing
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe restore 
+restore snapshot -> r=16
+after:  01 01 00 00 01 00 00 00 f7 00 00 00 03 00 01 01 
+
+After restore, did the device return to baseline? (yes/no / describe)
+> ANSWER: yes?
+
+========================================
+RGB combination test (if single bytes did nothing)
+========================================
+Setting offsets 10=0xFF, 11=0x00, 13=0x00 (force red)
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe write 10 0xFF
+before: 01 01 00 00 01 00 00 00 f7 00 00 00 03 00 01 01 
+write offset 10 = 0xff -> r=16
+after:  01 01 00 00 01 00 00 00 f7 00 ff 00 03 00 01 01 
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe write 11 0x00
+before: 01 01 00 00 01 00 00 00 f7 00 ff 00 03 00 01 01 
+write offset 11 = 0x00 -> r=16
+after:  01 01 00 00 01 00 00 00 f7 00 ff 00 03 00 01 01 
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe write 13 0x00
+before: 01 01 00 00 01 00 00 00 f7 00 ff 00 03 00 01 01 
+write offset 13 = 0x00 -> r=16
+after:  01 01 00 00 01 00 00 00 f7 00 ff 00 03 00 01 01 
+
+With the mic muted, what color is the ring LED now?
+> ANSWER: red
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe restore 
+restore snapshot -> r=16
+after:  01 01 00 00 01 00 00 00 f7 00 ff 00 03 00 01 01 
+
+Setting offsets 10=0x00, 11=0xFF, 13=0x00 (force green)
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe write 10 0x00
+before: 01 01 00 00 01 00 00 00 f7 00 ff 00 03 00 01 01 
+write offset 10 = 0x00 -> r=16
+after:  01 01 00 00 01 00 00 00 f7 00 00 00 03 00 01 01 
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe write 11 0xFF
+before: 01 01 00 00 01 00 00 00 f7 00 00 00 03 00 01 01 
+write offset 11 = 0xff -> r=16
+after:  01 01 00 00 01 00 00 00 f7 00 00 ff 03 00 01 01 
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe write 13 0x00
+before: 01 01 00 00 01 00 00 00 f7 00 00 ff 03 00 01 01 
+write offset 13 = 0x00 -> r=16
+after:  01 01 00 00 01 00 00 00 f7 00 00 ff 03 00 01 01 
+
+With the mic muted, what color is the ring LED now?
+> ANSWER: red
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe restore 
+restore snapshot -> r=16
+after:  01 01 00 00 01 00 00 00 f7 00 00 ff 03 00 01 01 
+
+Setting offsets 10=0x00, 11=0x00, 13=0xFF (force blue)
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe write 10 0x00
+before: 01 01 00 00 01 00 00 00 f7 00 00 ff 03 00 01 01 
+write offset 10 = 0x00 -> r=16
+after:  01 01 00 00 01 00 00 00 f7 00 00 ff 03 00 01 01 
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe write 11 0x00
+before: 01 01 00 00 01 00 00 00 f7 00 00 ff 03 00 01 01 
+write offset 11 = 0x00 -> r=16
+after:  01 01 00 00 01 00 00 00 f7 00 00 00 03 00 01 01 
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe write 13 0xFF
+before: 01 01 00 00 01 00 00 00 f7 00 00 00 03 00 01 01 
+write offset 13 = 0xff -> r=16
+after:  01 01 00 00 01 00 00 00 f7 00 00 00 03 ff 01 01 
+
+With the mic muted, what color is the ring LED now?
+> ANSWER: red
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe restore 
+restore snapshot -> r=16
+after:  01 01 00 00 01 00 00 00 f7 00 00 00 03 00 01 01 
+
+========================================
+Probe session complete. Log saved to: /home/USER/wave3-audio-report/native-linux/tests/probe-wave3-config.log
+Please upload /home/USER/wave3-audio-report/native-linux/tests/probe-wave3-config.log so I can map the bytes.
