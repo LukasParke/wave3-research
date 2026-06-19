@@ -6,27 +6,37 @@ detach**, and **no Windows/macOS software** for the core controls.
 
 ## Key discovery
 
-The Wave:3 exposes standard USB Audio Class 1.0 feature units for:
+The Wave:3 exposes standard USB Audio Class 1.0 feature units for the
+microphone gain dial (Feature Unit entity 6).  All other hardware
+controls live in a 16-byte proprietary **config block** accessed through
+endpoint-0 class control transfers on the unclaimed vendor interface 3:
 
-* Microphone mute (Feature Unit entity 6, selector 1)
-* Microphone gain (Feature Unit entity 6, selector 2) — **read-only,
-  controlled by the physical dial**
-* Headphone mute (Feature Unit entity 5, selector 1)
-* Headphone volume (Feature Unit entity 5, selector 2)
+| Request | `bmRequestType` | `bRequest` | `wValue` | `wIndex` | `wLength` | Purpose |
+|---------|-----------------|------------|----------|----------|-----------|---------|
+| Read config | `0xA1` | `0x85` | `0x0000` | `0x3303` | 16 | Config block |
+| Write config | `0x21` | `0x05` | `0x0000` | `0x3303` | 16 | Config block |
+| Read meter | `0xA1` | `0x85` | `0x0001` | `0x3303` | 8 | Level meter |
+| Read info | `0xA1` | `0x85` | `0x000A` | `0x3303` | 51 | Device info |
 
-On Linux `snd-usb-audio` owns AudioControl interface 0, so userspace
-control transfers with `wIndex = (entity << 8) | 0` are rejected with
-`LIBUSB_ERROR_IO`.
-
-**The workaround:** route the same UAC requests through the unclaimed
-vendor interface 3 by setting `wIndex = (entity << 8) | 3`. The kernel
-allows the transfer because interface 3 is not claimed by any driver,
-and the firmware accepts it because it only looks at the entity/selector
-high byte.
+**The `wIndex` trick:** `0x3303` routes the request through the
+unclaimed vendor interface 3 in the kernel's eyes, while the firmware
+sees entity `0x33`.  This avoids detaching `snd-usb-audio`.
 
 This trick was first published for the Elgato Wave XLR by
-[rikkichy/openwave](https://github.com/rikkichy/openwave) and works
-identically on the Wave:3.
+[rikkichy/openwave](https://github.com/rikkichy/openwave); the Wave:3
+uses the same encoding.
+
+### Config block layout (16 bytes)
+
+| Offset | Field | Notes |
+|--------|-------|-------|
+| 4 | **Mic mute** | `0x00` live, `0x01` muted |
+| 8 | **Headphone volume** | signed dB attenuation (`0x00` = 0 dB) |
+| 9 | **Headphone mute** | `0x00` on, `0x01` muted |
+| 14 | **Dial mode / volume select** | writable; meaning still being mapped |
+
+The remaining bytes are unknown or read-only.  See
+`docs/protocol-notes.md` for details.
 
 ## What is implemented
 
@@ -187,30 +197,29 @@ From a live test on the connected Wave:3:
 * Mic gain is read-only via UAC (hardware dial controls it)
 * Mute, headphone mute and headphone volume can be set from software
 
-## What requires the proprietary vendor protocol
+## What requires further mapping
 
-The vendor control interface (interface 3, `bInterfaceClass 0xFF`,
-`bInterfaceSubClass 0xF0`) is used by Elgato Wave Link for advanced
-features:
+The same class-based config block on interface 3 is used by Elgato Wave
+Link for advanced features.  The logical paths are known from static
+analysis:
 
 * RGB/mute-light color (`/leds/*`)
 * Clipguard (`/config/clipguard_enable`)
 * Low-cut filter (`/config/lowcut_enable`)
-* Direct monitor mix (`/config/direct_monitor`)
+* Direct monitor mix (`/config/direct_monitor`, `/moninor_mix/level/*`)
 * Mixer routing (`/mixer/*`)
-* Live level meters (`/input/*/level_dB/*`)
+* Indicator/background brightness
 
 Static analysis suggests that **low-cut filter**, **compressor**, and
-**EQ** may actually be host-side DSP in Wave Link rather than hardware
-controls. LED colors and direct monitor mix are almost certainly
-hardware USB controls. See `docs/protocol-notes.md` for the full
-breakdown.
+**EQ** may be host-side DSP in Wave Link rather than hardware controls.
+LED colors, direct monitor mix, and clipguard are almost certainly
+hardware controls stored in the remaining config bytes.
 
 The D-Bus API and GUI already expose these as methods, but the
-underlying USB encoding is filled with placeholder IDs. To complete
-them, a live `usbmon` capture from Wave Link running in a Windows VM
-is required. The static analysis in `wavelink/` identified the logical
-control paths; see `docs/protocol-notes.md`.
+underlying byte offsets are not yet confirmed.  To complete them, either
+physically observe each config byte or capture Wave Link in a Windows VM
+with `usbmon`.  See `docs/protocol-notes.md` and
+`docs/wave3-descriptor-paths.md`.
 
 ## Related projects
 

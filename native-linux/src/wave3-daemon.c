@@ -38,14 +38,18 @@
 
 #define POLL_MS 100
 
-/* Vendor protocol property IDs (placeholders; see docs/protocol-notes.md) */
-#define PROP_ID_CLIPGUARD   0x0001
-#define PROP_ID_LOWCUT      0x0002
-#define PROP_ID_DIRECT_MON  0x0003
-#define PROP_ID_MUTE_RGB    0x0004
-#define PROP_ID_HP_RGB      0x0005
-#define PROP_ID_IN_LEVEL_L  0x0006
-#define PROP_ID_IN_LEVEL_R  0x0007
+/* Vendor/class control interface (interface 3, endpoint 0) */
+#define WAVE3_CFG_WVALUE    0x0000   /* 16-byte config block */
+#define WAVE3_METER_WVALUE  0x0001   /* 8-byte meter block */
+#define WAVE3_INFO_WVALUE   0x000A   /* 51-byte device info */
+
+/* Wave:3 config block layout (16 bytes) */
+#define CFG_MIC_MUTE        4
+#define CFG_HP_VOLUME       8   /* signed 8-bit dB attenuation */
+#define CFG_HP_MUTE         9
+#define CFG_HP_CONNECTED    12  /* read-only? */
+#define CFG_VOLUME_SELECT   14  /* 0/1/2 dial mode */
+#define CFG_UNKNOWN_15      15
 
 typedef struct {
     libusb_context *ctx;
@@ -76,6 +80,12 @@ typedef struct {
 } Wave3Daemon;
 
 static Wave3Daemon g_daemon;
+
+/* forward declarations for config helpers */
+static int wave3_cfg_read(Wave3Daemon *d, unsigned char *cfg);
+static int wave3_cfg_write(Wave3Daemon *d, const unsigned char *cfg);
+static int wave3_meter_read(Wave3Daemon *d, unsigned char *meter);
+static gdouble level_to_db(uint32_t raw);
 
 /* ── UAC helpers ───────────────────────────────────────────────────────── */
 
@@ -174,31 +184,40 @@ static GVariant *wave3_build_state_outer(Wave3Daemon *d)
 static gboolean wave3_refresh(Wave3Daemon *d)
 {
     unsigned char buf[8];
+    unsigned char cfg[16];
     gboolean changed = FALSE;
     int r;
 
-    r = wave3_uac_get(d, MIC_FU, UAC_MUTE, 0, buf, 1);
-    if (r == 1) {
-        gboolean v = buf[0] ? TRUE : FALSE;
-        if (v != d->mic_mute) { d->mic_mute = v; changed = TRUE; }
-    }
-
+    /* mic gain is still read via standard UAC (physical dial) */
     r = wave3_uac_get(d, MIC_FU, UAC_VOLUME, 0, buf, 2);
     if (r == 2) {
         gint16 v = (gint16)((buf[1] << 8) | buf[0]);
         if (v != d->mic_gain) { d->mic_gain = v; changed = TRUE; }
     }
 
-    r = wave3_uac_get(d, HP_FU, UAC_MUTE, 0, buf, 1);
-    if (r == 1) {
-        gboolean v = buf[0] ? TRUE : FALSE;
-        if (v != d->hp_mute) { d->hp_mute = v; changed = TRUE; }
-    }
+    r = wave3_cfg_read(d, cfg);
+    if (r == 16) {
+        gboolean mic_mute = cfg[CFG_MIC_MUTE] ? TRUE : FALSE;
+        if (mic_mute != d->mic_mute) { d->mic_mute = mic_mute; changed = TRUE; }
 
-    r = wave3_uac_get(d, HP_FU, UAC_VOLUME, 0, buf, 2);
-    if (r == 2) {
-        gint16 v = (gint16)((buf[1] << 8) | buf[0]);
-        if (v != d->hp_volume) { d->hp_volume = v; changed = TRUE; }
+        gboolean hp_mute = cfg[CFG_HP_MUTE] ? TRUE : FALSE;
+        if (hp_mute != d->hp_mute) { d->hp_mute = hp_mute; changed = TRUE; }
+
+        /* cfg[8] is signed dB attenuation; scale to 1/256 dB for the state API */
+        gint16 hp_vol = (gint8)cfg[CFG_HP_VOLUME] * 256;
+        if (hp_vol != d->hp_volume) { d->hp_volume = hp_vol; changed = TRUE; }
+
+        /* level meters */
+        unsigned char meter[8];
+        r = wave3_meter_read(d, meter);
+        if (r == 8) {
+            uint32_t left  = (uint32_t)(meter[0] | (meter[1] << 8) | (meter[2] << 16) | (meter[3] << 24));
+            uint32_t right = (uint32_t)(meter[4] | (meter[5] << 8) | (meter[6] << 16) | (meter[7] << 24));
+            gdouble in_db = level_to_db(left);
+            if (fabs(in_db - d->input_level_db) > 0.5) { d->input_level_db = in_db; changed = TRUE; }
+            gdouble pb_db = level_to_db(right);
+            if (fabs(pb_db - d->playback_level_db) > 0.5) { d->playback_level_db = pb_db; changed = TRUE; }
+        }
     }
 
     return changed;
@@ -218,42 +237,35 @@ static void wave3_dbus_emit_state(Wave3Daemon *d)
                                   NULL);
 }
 
-/* ── vendor protocol stubs (to be filled after usbmon capture) ──────────── */
+/* ── class config/meter helpers ───────────────────────────────────────── */
 
-static int wave3_vendor_get_bool(Wave3Daemon *d, guint16 prop_id, gboolean *out)
+static int wave3_cfg_read(Wave3Daemon *d, unsigned char *cfg)
 {
-    (void)d; (void)prop_id; (void)out;
-    return -1; /* not implemented */
+    return libusb_control_transfer(d->dev, 0xA1, 0x85, WAVE3_CFG_WVALUE,
+                                   (0x33 << 8) | WAVE3_IFACE,
+                                   cfg, 16, 1000);
 }
 
-static int wave3_vendor_set_bool(Wave3Daemon *d, guint16 prop_id, gboolean val)
+static int wave3_cfg_write(Wave3Daemon *d, const unsigned char *cfg)
 {
-    (void)d; (void)prop_id; (void)val;
-    return -1; /* not implemented */
+    return libusb_control_transfer(d->dev, 0x21, 0x05, WAVE3_CFG_WVALUE,
+                                   (0x33 << 8) | WAVE3_IFACE,
+                                   (unsigned char *)cfg, 16, 1000);
 }
 
-static int wave3_vendor_get_double(Wave3Daemon *d, guint16 prop_id, gdouble *out)
+static int wave3_meter_read(Wave3Daemon *d, unsigned char *meter)
 {
-    (void)d; (void)prop_id; (void)out;
-    return -1; /* not implemented */
+    return libusb_control_transfer(d->dev, 0xA1, 0x85, WAVE3_METER_WVALUE,
+                                   (0x33 << 8) | WAVE3_IFACE,
+                                   meter, 8, 1000);
 }
 
-static int wave3_vendor_set_double(Wave3Daemon *d, guint16 prop_id, gdouble val)
+static gdouble level_to_db(uint32_t raw)
 {
-    (void)d; (void)prop_id; (void)val;
-    return -1; /* not implemented */
-}
-
-static int wave3_vendor_get_rgb(Wave3Daemon *d, guint16 prop_id, guint32 *out)
-{
-    (void)d; (void)prop_id; (void)out;
-    return -1; /* not implemented */
-}
-
-static int wave3_vendor_set_rgb(Wave3Daemon *d, guint16 prop_id, guint32 val)
-{
-    (void)d; (void)prop_id; (void)val;
-    return -1; /* not implemented */
+    if (raw == 0) return -INFINITY;
+    /* full-scale reference observed in firmware meter; may need calibration */
+    double fs = 0x80000000u;
+    return 20.0 * log10(raw / fs);
 }
 
 /* ── D-Bus method handlers ─────────────────────────────────────────────── */
@@ -268,7 +280,6 @@ static void handle_method_call(G_GNUC_UNUSED GDBusConnection *conn,
                                gpointer user_data)
 {
     Wave3Daemon *d = user_data;
-    unsigned char buf[8];
 
     if (g_strcmp0(method_name, "GetState") == 0) {
         g_dbus_method_invocation_return_value(inv, wave3_build_state_outer(d));
@@ -278,15 +289,12 @@ static void handle_method_call(G_GNUC_UNUSED GDBusConnection *conn,
     if (g_strcmp0(method_name, "SetMicMute") == 0) {
         gboolean muted;
         g_variant_get(parameters, "(b)", &muted);
-        buf[0] = muted ? 1 : 0;
-        int r = wave3_uac_set(d, MIC_FU, UAC_MUTE, 0, buf, 1);
-        if (r < 0) {
-            g_dbus_method_invocation_return_error(inv, G_IO_ERROR,
-                                                  G_IO_ERROR_FAILED,
-                                                  "USB error: %s",
-                                                  libusb_error_name(r));
-            return;
-        }
+        unsigned char cfg[16];
+        int r = wave3_cfg_read(d, cfg);
+        if (r != 16) goto usb_err;
+        cfg[CFG_MIC_MUTE] = muted ? 1 : 0;
+        r = wave3_cfg_write(d, cfg);
+        if (r != 16) goto usb_err;
         d->mic_mute = muted;
         wave3_dbus_emit_state(d);
         g_dbus_method_invocation_return_value(inv, g_variant_new("(b)", TRUE));
@@ -294,15 +302,12 @@ static void handle_method_call(G_GNUC_UNUSED GDBusConnection *conn,
     }
 
     if (g_strcmp0(method_name, "ToggleMicMute") == 0) {
-        buf[0] = d->mic_mute ? 0 : 1;
-        int r = wave3_uac_set(d, MIC_FU, UAC_MUTE, 0, buf, 1);
-        if (r < 0) {
-            g_dbus_method_invocation_return_error(inv, G_IO_ERROR,
-                                                  G_IO_ERROR_FAILED,
-                                                  "USB error: %s",
-                                                  libusb_error_name(r));
-            return;
-        }
+        unsigned char cfg[16];
+        int r = wave3_cfg_read(d, cfg);
+        if (r != 16) goto usb_err;
+        cfg[CFG_MIC_MUTE] = d->mic_mute ? 0 : 1;
+        r = wave3_cfg_write(d, cfg);
+        if (r != 16) goto usb_err;
         d->mic_mute = !d->mic_mute;
         wave3_dbus_emit_state(d);
         g_dbus_method_invocation_return_value(inv, g_variant_new("(b)", d->mic_mute));
@@ -312,15 +317,12 @@ static void handle_method_call(G_GNUC_UNUSED GDBusConnection *conn,
     if (g_strcmp0(method_name, "SetHpMute") == 0) {
         gboolean muted;
         g_variant_get(parameters, "(b)", &muted);
-        buf[0] = muted ? 1 : 0;
-        int r = wave3_uac_set(d, HP_FU, UAC_MUTE, 0, buf, 1);
-        if (r < 0) {
-            g_dbus_method_invocation_return_error(inv, G_IO_ERROR,
-                                                  G_IO_ERROR_FAILED,
-                                                  "USB error: %s",
-                                                  libusb_error_name(r));
-            return;
-        }
+        unsigned char cfg[16];
+        int r = wave3_cfg_read(d, cfg);
+        if (r != 16) goto usb_err;
+        cfg[CFG_HP_MUTE] = muted ? 1 : 0;
+        r = wave3_cfg_write(d, cfg);
+        if (r != 16) goto usb_err;
         d->hp_mute = muted;
         wave3_dbus_emit_state(d);
         g_dbus_method_invocation_return_value(inv, g_variant_new("(b)", TRUE));
@@ -331,16 +333,12 @@ static void handle_method_call(G_GNUC_UNUSED GDBusConnection *conn,
         guint pct;
         g_variant_get(parameters, "(u)", &pct);
         gint16 raw = pct_to_raw((int)pct, d->hp_vol_min, d->hp_vol_max);
-        buf[0] = raw & 0xff;
-        buf[1] = (raw >> 8) & 0xff;
-        int r = wave3_uac_set(d, HP_FU, UAC_VOLUME, 0, buf, 2);
-        if (r < 0) {
-            g_dbus_method_invocation_return_error(inv, G_IO_ERROR,
-                                                  G_IO_ERROR_FAILED,
-                                                  "USB error: %s",
-                                                  libusb_error_name(r));
-            return;
-        }
+        unsigned char cfg[16];
+        int r = wave3_cfg_read(d, cfg);
+        if (r != 16) goto usb_err;
+        cfg[CFG_HP_VOLUME] = (unsigned char)(raw / 256);   /* signed dB */
+        r = wave3_cfg_write(d, cfg);
+        if (r != 16) goto usb_err;
         d->hp_volume = raw;
         wave3_dbus_emit_state(d);
         g_dbus_method_invocation_return_value(inv, g_variant_new("(b)", TRUE));
@@ -353,17 +351,8 @@ static void handle_method_call(G_GNUC_UNUSED GDBusConnection *conn,
     }
 
     if (g_strcmp0(method_name, "SetClipguard") == 0) {
-        gboolean v;
-        g_variant_get(parameters, "(b)", &v);
-        int r = wave3_vendor_set_bool(d, PROP_ID_CLIPGUARD, v);
-        if (r < 0) {
-            g_dbus_method_invocation_return_error(inv, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
-                                                  "Vendor protocol not yet decoded");
-            return;
-        }
-        d->clipguard = v;
-        wave3_dbus_emit_state(d);
-        g_dbus_method_invocation_return_value(inv, g_variant_new("(b)", TRUE));
+        g_dbus_method_invocation_return_error(inv, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+                                              "Clipguard offset not yet identified");
         return;
     }
 
@@ -373,17 +362,8 @@ static void handle_method_call(G_GNUC_UNUSED GDBusConnection *conn,
     }
 
     if (g_strcmp0(method_name, "SetLowCut") == 0) {
-        gboolean v;
-        g_variant_get(parameters, "(b)", &v);
-        int r = wave3_vendor_set_bool(d, PROP_ID_LOWCUT, v);
-        if (r < 0) {
-            g_dbus_method_invocation_return_error(inv, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
-                                                  "Vendor protocol not yet decoded");
-            return;
-        }
-        d->lowcut = v;
-        wave3_dbus_emit_state(d);
-        g_dbus_method_invocation_return_value(inv, g_variant_new("(b)", TRUE));
+        g_dbus_method_invocation_return_error(inv, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+                                              "Low-cut is host-side DSP in Wave Link");
         return;
     }
 
@@ -393,17 +373,8 @@ static void handle_method_call(G_GNUC_UNUSED GDBusConnection *conn,
     }
 
     if (g_strcmp0(method_name, "SetDirectMonitor") == 0) {
-        gdouble v;
-        g_variant_get(parameters, "(d)", &v);
-        int r = wave3_vendor_set_double(d, PROP_ID_DIRECT_MON, CLAMP(v, 0.0, 1.0));
-        if (r < 0) {
-            g_dbus_method_invocation_return_error(inv, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
-                                                  "Vendor protocol not yet decoded");
-            return;
-        }
-        d->direct_monitor = CLAMP(v, 0.0, 1.0);
-        wave3_dbus_emit_state(d);
-        g_dbus_method_invocation_return_value(inv, g_variant_new("(b)", TRUE));
+        g_dbus_method_invocation_return_error(inv, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+                                              "Direct monitor offset not yet identified");
         return;
     }
 
@@ -413,17 +384,8 @@ static void handle_method_call(G_GNUC_UNUSED GDBusConnection *conn,
     }
 
     if (g_strcmp0(method_name, "SetMuteColor") == 0) {
-        guint v;
-        g_variant_get(parameters, "(u)", &v);
-        int r = wave3_vendor_set_rgb(d, PROP_ID_MUTE_RGB, v & 0xffffff);
-        if (r < 0) {
-            g_dbus_method_invocation_return_error(inv, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
-                                                  "Vendor protocol not yet decoded");
-            return;
-        }
-        d->mute_rgb = v & 0xffffff;
-        wave3_dbus_emit_state(d);
-        g_dbus_method_invocation_return_value(inv, g_variant_new("(b)", TRUE));
+        g_dbus_method_invocation_return_error(inv, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+                                              "RGB LED protocol not yet decoded");
         return;
     }
 
@@ -433,17 +395,8 @@ static void handle_method_call(G_GNUC_UNUSED GDBusConnection *conn,
     }
 
     if (g_strcmp0(method_name, "SetHeadphoneColor") == 0) {
-        guint v;
-        g_variant_get(parameters, "(u)", &v);
-        int r = wave3_vendor_set_rgb(d, PROP_ID_HP_RGB, v & 0xffffff);
-        if (r < 0) {
-            g_dbus_method_invocation_return_error(inv, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
-                                                  "Vendor protocol not yet decoded");
-            return;
-        }
-        d->hp_rgb = v & 0xffffff;
-        wave3_dbus_emit_state(d);
-        g_dbus_method_invocation_return_value(inv, g_variant_new("(b)", TRUE));
+        g_dbus_method_invocation_return_error(inv, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+                                              "RGB LED protocol not yet decoded");
         return;
     }
 
@@ -460,6 +413,12 @@ static void handle_method_call(G_GNUC_UNUSED GDBusConnection *conn,
     g_dbus_method_invocation_return_error(inv, G_DBUS_ERROR,
                                           G_DBUS_ERROR_UNKNOWN_METHOD,
                                           "Unknown method %s", method_name);
+    return;
+
+usb_err:
+    g_dbus_method_invocation_return_error(inv, G_IO_ERROR,
+                                          G_IO_ERROR_FAILED,
+                                          "USB error");
 }
 
 static GVariant *handle_get_property(G_GNUC_UNUSED GDBusConnection *conn,

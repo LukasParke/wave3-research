@@ -52,7 +52,7 @@ Observed ranges:
 Raw values are signed 16-bit fixed point with 1/256 dB resolution, i.e.
 `dB = raw / 256.0`.
 
-## Vendor control interface (decoded from Wave Link)
+## Vendor/class control interface (decoded from Wave Link)
 
 Interface 3 (`bInterfaceClass = 0xFF`, `bInterfaceSubClass = 0xF0`,
 `bNumEndpoints = 0`) is used by Elgato Wave Link for proprietary features.
@@ -66,178 +66,92 @@ Wave Link ships three internal "vendor backend strategy" classes:
 and `MK2VendorUSBBackendStrategy`. The first-generation Wave:3 uses the
 **LegacyUAC1** strategy.
 
-For the Wave:3 the vendor strategy methods decompile to these exact
-control transfers (verified by disassembly of `waveapi.dll`):
+Live probing (and the related Wave XLR project `rikkichy/openwave`)
+revealed that the actual request type is **class**, not vendor, and that
+only a handful of `wValue` IDs are implemented on the Wave:3:
 
-| Direction | `bmRequestType` | `bRequest` | `wValue` | `wIndex` | `wLength` |
-|-----------|-----------------|------------|----------|----------|-----------|
-| Read (IN)  | `0xC1` | `0x85` | property ID | `0x3303` | payload size |
-| Write (OUT)| `0x41` | `0x05` | property ID | `0x3303` | payload size |
+| Direction | `bmRequestType` | `bRequest` | `wValue` | `wIndex` | `wLength` | Purpose |
+|-----------|-----------------|------------|----------|----------|-----------|---------|
+| Read (IN)  | `0xA1` | `0x85` | `0x0000` | `0x3303` | 16 | Config block |
+| Write (OUT)| `0x21` | `0x05` | `0x0000` | `0x3303` | 16 | Config block |
+| Read (IN)  | `0xA1` | `0x85` | `0x0001` | `0x3303` | 8  | Level meter |
+| Read (IN)  | `0xA1` | `0x85` | `0x000A` | `0x3303` | 51 | Device info |
 
 `wIndex = 0x3303` means: high byte `0x33` is the UAC-like **entity ID**
 and low byte `0x03` is the vendor **interface number**. This is the same
-encoding as the standard UAC `wIndex` trick, but with a vendor-specific
-entity (`0x33`) and the vendor read/write request codes `0x85`/`0x05`.
+encoding as the standard UAC `wIndex` trick.
 
-Features expected to live here:
+The earlier reverse-engineering guess of `bmRequestType = 0xC1/0x41`
+matched the Thesycon API wrapper but not the actual USB bus: those
+vendor-type requests are rejected by the firmware with `LIBUSB_ERROR_PIPE`
+and an ID scan in that mode triggered a DFU reset. **Always use the class
+request type (`0xA1`/`0x21`) for live control.**
 
-* RGB / LED ring control
-* Direct monitor mix (mic ↔ playback blend in headphones) — **hardware**
-* Clipguard anti-clip/limiter — **hardware**
-* Possibly input/playback level meters
+### Config block layout (16 bytes)
 
-Elgato support documentation confirms that **Clipguard runs inside the
-Wave microphone** and works independent of software, and that the
-**Mic/PC monitor mix** can be adjusted from the hardware dial as well as
-from Wave Link. Both must therefore be controllable over USB.
+The Wave:3 config block (`wValue = 0x0000`) is fully read/write and
+contains the hardware settings:
 
-Features that appear to be **host-side DSP in Wave Link** rather than
-hardware USB controls (based on `applogic` strings):
+| Offset | Size | Field | Notes |
+|--------|------|-------|-------|
+| 0 | u8 | unknown / input select | writable, default `0x00` |
+| 1 | u8 | unknown | writable, default `0x01` |
+| 2 | u8 | unknown | writable, default `0x00` |
+| 3 | u8 | unknown | writable, default `0x00` |
+| 4 | u8 | **Mic mute** | `0x00` = live, `0x01` = muted |
+| 5 | u8 | unknown | writable, default `0x00` |
+| 6 | u8 | unknown | writable, default `0x00` |
+| 7 | u8 | unknown | writable, default `0x00` |
+| 8 | s8 | **Headphone volume** | signed dB attenuation (`0x00` = 0 dB, `0xF7` ≈ -9 dB, `0xC4` ≈ -60 dB) |
+| 9 | u8 | **Headphone mute** | `0x00` = on, `0x01` = muted |
+| 10 | u8 | unknown | writable, default `0x00` |
+| 11 | u8 | unknown | writable, default `0x00` |
+| 12 | u8 | unknown / read-only | does **not** accept writes; default `0x01` |
+| 13 | u8 | unknown | writable, default `0x00` |
+| 14 | u8 | **Volume select / dial mode** | writable; values `0`, `1`, `2` accepted |
+| 15 | u8 | unknown | writable, default `0x01` |
 
-* Low-cut filter (`LowCutSettings`, frequency configurable)
-* Compressor / EQ / expander (`DSPSettingsArray`)
+**Confirmed controls:**
 
-This distinction is not yet fully confirmed; the exact **property IDs**
-for each feature must still be mapped.
+* Mic mute (offset 4)
+* Headphone mute (offset 9)
+* Headphone volume (offset 8, signed dB attenuation)
 
-Static reverse engineering shows that the property ID carried in `wValue`
-is a **single byte** returned by the `IMessage` virtual method at vtable
-offset 0 (`IMessage::propertyId()`). The `SessionAPI::Impl` descriptor
-constructors store the IDs indirectly, so the exact byte for each logical
-path has not been recovered from static analysis alone.
+**Still to identify:** clipguard, direct monitor mix, low-cut, RGB/LED
+brightness, and the exact meaning of offsets 0, 1, 2, 3, 5, 6, 7, 10,
+11, 13, 15. The path table in `wave3-descriptor-paths.md` gives logical
+names (e.g. `/clipguard_enable`, `/direct_monitor`,
+`/moninor_mix/level/0`, indicator brightness paths) but the byte mapping
+requires either a Wave Link USB capture or further physical-device
+correlation.
 
-### Static-analysis findings
+### Meter block (`wValue = 0x0001`)
 
-#### Cross-platform backend names
-
-From `waveapi.dll` / `WaveAPI.framework`:
-
-* `VendorUSBLewittDeviceBackend`
-* `LegacyUAC1VendorUSBBackendStrategy`
-* `MK2VendorUSBBackendStrategy`
-* Thesycon-style strings: `TUSBAUDIO_ClassVendorRequestOut`,
-  `THESYCON: OUT CTRL, vendor request with bInterfaceNumber==0`
-
-These confirm a vendor-specific control-transfer backend, but do not
-expose the exact request bytes.
-
-#### Control paths
-
-Wave Link's shared audio engine exposes 309 logical control paths.
-Top-level namespaces:
-
-```
-/dspfx
-/headphone1
-/headphone2
-/line
-/mixer
-```
-
-Examples:
-
-```
-/dspfx/compressor/attack_ms
-/dspfx/compressor/threshold_dB
-/dspfx/equalizer/band/0/enabled
-/dspfx/equalizer/band/0/gain_dB
-/headphone1/mute
-/headphone1/volume
-/headphone1/limiter_bypassed
-/line/volume
-/line/gain_lock
-/mixer/0/input_enabled/0
-/mixer/0/input_volume/0
-```
-
-These paths are shared across multiple Elgato/Lewitt devices and are
-unlikely to all apply to the Wave:3.
-
-#### App-level session fields
-
-From Wave Link application strings (`applogic-session-fields.txt`):
-
-| Field | Meaning |
-|-------|---------|
-| `Clipguard` | clip/limiter feature |
-| `LowCut` / `LowCut1Enabled` / `LowCut2Enabled` | high-pass filter(s) |
-| `MuteColorRGB*` | RGB color shown when muted |
-| `MicrophoneColorRGB*` | RGB color for mic ring |
-| `HeadphoneColorRGB*` | RGB color for headphone indicator |
-| `MixColorRGB*` | mixer/channel color |
-| `GRColorRGB*` | gain-reduction meter color (likely UI-only) |
-| `IndicatorBrightness` / `MuteBrightness` / `BackgroundBrightness` | LED brightness |
-| `LedFlip` | LED orientation |
-| `InputEnabled` | mixer input routing |
-| `P48Enabled` | phantom power (Wave XLR only) |
-| `LowImpedanceEnabled` | low-impedance mode (Wave XLR only) |
-
-No RGB/LED strings were found inside `waveapi.dll`, which suggests the
-LED color logic lives in the platform-specific application layer and is
-sent to the device through the vendor control interface.
-
-No HID interface or HID report strings were found anywhere in the
-binaries or device descriptors.
-
-### Fuzzing results
-
-`native-linux/src/fuzz_vendor_smart.c` was used to safely probe interface 3
-with common vendor/class request patterns (`bmRequestType = 0x40/0xc0`,
-`bRequest` 0x00..0xff, varied `wValue`/`wIndex`).  No responses were
-observed.
-
-Targeted read probes using the recovered encoding
-(`0xC1, 0x85, wIndex=0x3303`) also returned `LIBUSB_ERROR_PIPE` for all
-tested IDs, confirming that the device is not in APP mode.
-
-A broad read-only scan of IDs `0x0000`–`0x00FF`
-(`native-linux/src/probe_vendor_ids.c`) caused the device to reboot into
-its DFU/bootloader PID (`0x0071`) before re-enumerating as `0x0070`.
-**Arbitrary live enumeration is therefore unsafe and must not be
-repeated.**
-
-### Encoding summary
+Eight bytes, two little-endian `uint32` values:
 
 ```c
-// Vendor read
-libusb_control_transfer(dev,
-    0xC1,              // vendor, IN, interface recipient
-    0x85,              // vendor read request code
-    property_id,       // wValue: feature/property ID
-    0x3303,            // wIndex: entity 0x33, interface 3
-    buf, len, timeout);
-
-// Vendor write
-libusb_control_transfer(dev,
-    0x41,              // vendor, OUT, interface recipient
-    0x05,              // vendor write request code
-    property_id,       // wValue: feature/property ID
-    0x3303,            // wIndex: entity 0x33, interface 3
-    buf, len, timeout);
+uint32_t input_level    = buf[0] | (buf[1] << 8) | (buf[2] << 16) | (buf[3] << 24);
+uint32_t playback_level = buf[4] | (buf[5] << 8) | (buf[6] << 16) | (buf[7] << 24);
 ```
 
-`property_id` is the byte returned by `IMessage::propertyId()`. The
-payload size and interpretation are feature-specific (boolean, uint8/16,
-fixed-point, RGB triple, etc.). The ID table is stored in the Wave Link
-`SessionAPI` descriptor data inside `waveapi.dll`; it can be recovered by
-further static parsing **or** by targeted live enumeration once the
-device is in APP mode.
+The numeric scale is not yet calibrated; the daemon currently reports
+`20 * log10(level / 0x80000000)` as a relative dBFS value.
 
-### How to decode the vendor protocol
+### Device info block (`wValue = 0x000A`)
 
-1. Run Wave Link in a Windows VM with the Wave:3 passed through.
-2. Capture USB control traffic on the host with `usbmon` + `tshark`:
+51 bytes. Known fields:
 
-```bash
-sudo modprobe usbmon
-sudo tshark -i usbmonN -f "usb.idVendor == 0x0fd9 and usb.idProduct == 0x0070" \
-    -w wave3-wavelink.pcapng -F pcapng
-```
+* `data[0]`.`data[1]` — API version (observed `5.3`)
+* `data[6]`..`data[8]` — firmware version (observed `0.3.7`)
+* `data[27]`..`data[46]` — serial number as ASCII
 
-3. In the VM, toggle one feature at a time and annotate the timestamp.
-4. Correlate each UI action with the exact `bmRequestType`, `bRequest`,
-   `wValue`, `wIndex`, and payload.
-5. Map property IDs to the logical feature names above.
+### Live probe safety
+
+A broad read-only scan of IDs `0x0000`–`0x00FF` using the *vendor*
+request type (`0xC1`) caused the device to reboot into its DFU/bootloader
+PID (`0x0071`) before re-enumerating as `0x0070`. **Always use the class
+request type (`0xA1`/`0x21`) and only probe the known IDs (`0x0000`,
+`0x0001`, `0x000A`).**
 
 ## PipeWire / WirePlumber integration
 
@@ -265,7 +179,9 @@ Key PipeWire properties learned from Undertone:
 
 * USB Audio Class 1.0 specification
 * [rikkichy/openwave](https://github.com/rikkichy/openwave) — Wave XLR
-  Linux control app that discovered the `wIndex` interface-number trick.
+  Linux control app that discovered the `wIndex` interface-number trick
+  and the class-based `0xA1/0x21` control encoding (`wValue` IDs
+  `0x0000`, `0x0001`, `0x000A`).
 * [x4ndr0m3d4x/wave3ctl](https://git.4ndr0m3d4.me/4ndr0m3d4/wave3ctl) —
   upstream kernel-module + Python CLI for the Wave:3.
 * [polariscli/Undertone](https://github.com/polariscli/Undertone) —

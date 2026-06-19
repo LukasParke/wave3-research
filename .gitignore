@@ -34,3 +34,4 @@ native-linux/captures/*.txt
 *.swp
 *~
 .DS_Store
+uac_set

@@ -133,7 +133,7 @@ virtual method at vtable offset 0 (`IMessage::propertyId()`).  The
 indirectly, so the exact byte for each logical path has not yet been
 recovered from static analysis alone.
 
-### 3.2 App-Level Feature Names (from Wave Link binary strings)
+### 3.5 App-Level Feature Names (from Wave Link binary strings)
 
 These fields exist in Wave Link's session/settings layer.  They tell us what the UI exposes, but **not** which ones are sent to the device vs processed in host software:
 
@@ -152,38 +152,36 @@ These fields exist in Wave Link's session/settings layer.  They tell us what the
 | `P48Enabled` | boolean | Wave XLR only (phantom power) |
 | `LowImpedanceEnabled` | boolean | Wave XLR only |
 
-### 3.3 What Is NOT in the Binary
+### 3.6 What Is NOT in the Binary
 
 * **No HID interface** was found in the device descriptors or in Wave Link's `waveapi.dll` strings.
 * **No RGB/LED strings** were found in `waveapi.dll`.  LED color handling appears to live in the platform-specific application layer (Wave Link UI), not the shared cross-platform audio backend.
 * Therefore, the exact USB encoding for RGB and direct-monitor cannot be recovered from static analysis alone.
 
-### 3.4 Fuzzing & Live Probe Results
+### 3.7 Fuzzing & Live Probe Results
 
 * A safe fuzzer (`native-linux/src/fuzz_vendor_smart.c`) was run against interface 3 trying common vendor/class request patterns.  No responses to generic patterns; the protocol requires the specific `bRequest`/`wIndex` encoding recovered above.
-* Targeted read-only probes with the recovered encoding (`0xC1, 0x85, wValue=candidate_id, wIndex=0x3303`) returned `LIBUSB_ERROR_PIPE` for all tested IDs, confirming the device rejects the requests until APP mode is entered.
-* A broad read-only scan of IDs `0x0000`–`0x00FF` caused the device to reboot into its DFU/bootloader PID (`0x0071`) before re-enumerating as `0x0070`.  **Arbitrary live enumeration is therefore unsafe and must not be repeated.**
+* Targeted read-only probes using the *vendor* encoding (`0xC1, 0x85,
+wValue=candidate_id, wIndex=0x3303`) returned `LIBUSB_ERROR_PIPE` for all
+tested IDs.  The same scan using the *class* encoding (`0xA1, 0x85`) only
+returned data for IDs `0x0000`, `0x0001`, and `0x000A`.
+* A broad read-only scan of IDs `0x0000`–`0x00FF` using the **vendor**
+request type (`0xC1`) caused the device to reboot into its DFU/bootloader
+PID (`0x0071`) before re-enumerating as `0x0070`.  **Always use class
+requests and avoid arbitrary ID scans.**
 
-### 3.5 Property ID Mapping (Outstanding)
+### 3.8 Remaining Mapping Work
 
-The exact property IDs for each feature are not yet recovered.  Static
-analysis recovered the full logical-path table (≈309 paths, see
-`wavelink/teardown/waveapi-control-paths.txt` and
-`native-linux/docs/wave3-descriptor-paths.md`) and the request encoding,
-but the `IMessage::propertyId()` byte for each path is generated from the
-`SessionAPI::Impl` descriptor data and has not been extracted.
+The remaining task is to map the unknown config bytes to logical features.
+Approaches:
 
-Two complementary approaches remain:
-
-1. **Static parsing**: locate and decode the descriptor table in
-   `waveapi.dll` so that the property-ID byte can be read directly.
-2. **Live enumeration with APP mode**: place the device in APP mode
-   (replicating the Thesycon driver's open handshake) and then perform
-   small, targeted read probes correlated with physical state.
-
-Live probe tools exist at `native-linux/src/probe_vendor_ids.c` and
-`probe_vendor_targeted.c`, but **must only be used after APP-mode entry
-is understood**.
+1. **Physical correlation:** toggle each writable byte and observe the
+   device (LED color, dial mode, monitor mix, clipguard behavior).
+2. **Wave Link USB capture:** run Wave Link in a VM with `usbmon` and
+   correlate config writes with UI actions.
+3. **Further static analysis:** parse the `SessionAPI::Impl` descriptor
+   table in `waveapi.dll` to see which logical paths are grouped with
+   which config offsets.
 
 ---
 
@@ -211,9 +209,10 @@ Wave:3 mic ──► wave3-source ──► wave3-mic-mix ──► wave3-stream
 
 Hardware controls (daemon):
 
-* Mic mute/gain — UAC entity 6
-* Headphone mute/volume — UAC entity 5
-* Direct monitor mix / LED colors — vendor protocol (pending capture)
+* Mic mute/gain — class config block (`wValue=0x0000`, offsets 4 and via UAC)
+* Headphone mute/volume — class config block (offsets 8 and 9)
+* Input/playback level meters — class meter block (`wValue=0x0001`)
+* Direct monitor mix / LED colors / clipguard — class config block, exact bytes still pending
 
 ### 4.3 Key PipeWire Properties
 
@@ -231,6 +230,7 @@ From Undertone's implementation:
 | Project | Language | What It Provides | Relevance |
 |---------|----------|------------------|-----------|
 | `wave3ctl` (upstream kernel module) | C + Python | `snd-usb-audio` patch + `amixer`-based CLI | Fallback; requires patching the kernel. Our daemon avoids kernel changes. |
+| **openwave** | Python | Wave XLR Linux control app | Discovered the class-based `0xA1/0x21` control encoding and the config/meter/device-info IDs (`0x0000`, `0x0001`, `0x000A`). |
 | **Undertone** | Rust | Full PipeWire mixer, app routing, profiles, Qt6 UI | Excellent PipeWire topology reference; HID/vendor protocol is also stubbed/ALSA fallback. |
 | `wavelink-ts` docs | TypeScript docs | Wave Link JSON-RPC app protocol | Confirms logical feature names only; not the USB encoding. |
 | Wave Link 3.0 (Windows/macOS) | C++/C#/Swift | Official driver/application | Static source of 309 control paths and backend strategy names. |
@@ -261,32 +261,26 @@ From Undertone's implementation:
 
 ## 7. Remaining Unknowns
 
-1. **Property ID table** for RGB, direct monitor, clipguard, low-cut, level meters.
-2. **Data format** for each property (bool, u8, u16, RGB triple, float).
-3. **APP-mode handshake**: the exact USB control transfer(s) the Thesycon driver sends to switch the Wave:3 from audio mode to vendor-control mode.
-4. Whether **Low-cut** is a hardware toggle or host-side DSP in Wave Link. (Clipguard and direct monitor mix are confirmed hardware.)
-5. Whether the **level meters** are exposed via UAC peak meters on an unused terminal/unit, or only via vendor requests.
+1. **Config byte mapping** for clipguard, direct monitor mix, low-cut, RGB/LED,
+   dial mode, and the unused/unknown offsets.
+2. **Meter scale** — the full-scale reference for the `uint32` input/playback
+   level values.
+3. Whether **Low-cut** is a hardware toggle or host-side DSP in Wave Link.
+4. Whether **RGB/LED** control is reachable through the config block or a
+   separate request path.
 
 ---
 
 ## 8. Next Steps
 
-1. **APP-mode handshake (static or capture):** Determine how the Thesycon
-   driver places the Wave:3 into APP mode.  This is the current blocker.
-2. **Property ID recovery:** Once APP mode is available, perform targeted
-   read probes to map logical paths to `wValue` property IDs.
-3. **Correlate:** Match observed vendor requests with the 309 known control
-   paths and the feature names from Wave Link strings.
-4. **Implement:** Replace the placeholder vendor functions in
-   `wave3-daemon.c` with real `libusb_control_transfer` calls.
-5. **Verify:** Test RGB, Clipguard, low-cut, direct monitor, and level
+1. **Map unknown config bytes:** Toggle each writable byte and observe the
+   physical device, or capture Wave Link in a VM to correlate UI actions
+   with config writes.
+2. **Implement:** Add the newly identified controls to `wave3-daemon.c`,
+   `wave3ctl`, the GTK4 GUI, and the D-Bus API.
+3. **Verify:** Test RGB, Clipguard, low-cut, direct monitor, and level
    meters on the live Wave:3.
-6. **Polish:** Update GUI, WirePlumber script, packaging, and documentation.
-
-Because the device requires the Thesycon driver for APP mode, a **Windows
-VM capture of Wave Link USB traffic remains the most reliable path** to
-recover both the handshake and the property-ID table, even though the
-user prefers to avoid it.
+4. **Polish:** Update WirePlumber script, packaging, and documentation.
 
 ### 8.1 Exact Capture Commands for the User
 

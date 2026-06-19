@@ -288,6 +288,8 @@ firmware still accepts it.
 * Mic gain range: **0.0 dB … 40.0 dB**
 * Software control works for: mic mute, headphone mute, headphone volume
 * Mic gain is read-only via UAC (physical dial)
+* Level meters (input/playback) read via class control `wValue=0x0001`
+* Device info (serial, firmware/API version) read via `wValue=0x000A`
 
 ### Quick start
 
@@ -315,18 +317,23 @@ reference.
   using `wIndex = (entity << 8) | 3` through the unclaimed vendor
   interface 3. Verified controls: mic mute, mic gain (read-only dial),
   headphone mute, headphone volume.
-* **Proprietary vendor interface** (`0xFF/0xF0`, no endpoints) is used
-  by Wave Link for RGB/LED control, direct monitor mix, and possibly
-  hardware limiter/level meters. The exact USB encoding is **not**
-  recoverable from static analysis alone.
+* **Proprietary class-based control** on interface 3 is implemented
+  through endpoint-0 control transfers (`bmRequestType=0xA1/0x21`,
+  `bRequest=0x85/0x05`, `wIndex=0x3303`). The Wave:3 exposes three live
+  IDs: `wValue=0x0000` (16-byte read/write config block),
+  `wValue=0x0001` (8-byte meter), and `wValue=0x000A` (51-byte device
+  info). The config block bytes for mic mute (offset 4), headphone
+  volume (offset 8), and headphone mute (offset 9) are confirmed.
 * **Static analysis** of Wave Link 3.0 identified 309 logical control
   paths and app-level session fields (Clipguard, LowCut, MuteColorRGB,
   HeadphoneColorRGB, etc.). Low-cut/EQ/compressor appear to be host-side
-  DSP in Wave Link; LED colors and direct monitor are likely hardware
-  controls.
-* **Fuzzing** of interface 3 produced no responses to generic vendor
-  request patterns. A live `usbmon` capture from Wave Link in a Windows
-  VM is required to decode the remaining protocol.
+  DSP in Wave Link; LED colors, direct monitor mix, and clipguard likely
+  live in the remaining config bytes.
+* **Fuzzing** of interface 3 with vendor-type requests produced no
+  responses and a dangerous DFU reset; class-type requests work for the
+  three known IDs. A live `usbmon` capture from Wave Link in a Windows VM
+  (or physical byte correlation) is required to decode the remaining
+  config bytes.
 * **PipeWire topology** for Wave Link parity was improved using patterns
   from the [Undertone](https://github.com/polariscli/Undertone) project:
   `wave3-source` renamed ALSA capture node, custom `wave3-sink` for
