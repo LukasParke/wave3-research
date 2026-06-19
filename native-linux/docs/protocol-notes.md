@@ -52,12 +52,32 @@ Observed ranges:
 Raw values are signed 16-bit fixed point with 1/256 dB resolution, i.e.
 `dB = raw / 256.0`.
 
-## Vendor control interface (future work)
+## Vendor control interface (decoded from Wave Link)
 
 Interface 3 (`bInterfaceClass = 0xFF`, `bInterfaceSubClass = 0xF0`,
 `bNumEndpoints = 0`) is used by Elgato Wave Link for proprietary features.
 Because it has no endpoints, the protocol runs over **endpoint-0 control
 transfers**.
+
+### Request format recovered by static reverse engineering
+
+Wave Link ships three internal "vendor backend strategy" classes:
+`LegacyUAC1VendorUSBBackendStrategy`, `LegacyUAC2VendorUSBBackendStrategy`,
+and `MK2VendorUSBBackendStrategy`. The first-generation Wave:3 uses the
+**LegacyUAC1** strategy.
+
+For the Wave:3 the vendor strategy methods decompile to these exact
+control transfers (verified by disassembly of `waveapi.dll`):
+
+| Direction | `bmRequestType` | `bRequest` | `wValue` | `wIndex` | `wLength` |
+|-----------|-----------------|------------|----------|----------|-----------|
+| Read (IN)  | `0xC1` | `0x85` | property ID | `0x3303` | payload size |
+| Write (OUT)| `0x41` | `0x05` | property ID | `0x3303` | payload size |
+
+`wIndex = 0x3303` means: high byte `0x33` is the UAC-like **entity ID**
+and low byte `0x03` is the vendor **interface number**. This is the same
+encoding as the standard UAC `wIndex` trick, but with a vendor-specific
+entity (`0x33`) and the vendor read/write request codes `0x85`/`0x05`.
 
 Features expected to live here:
 
@@ -77,7 +97,14 @@ hardware USB controls (based on `applogic` strings):
 * Low-cut filter (`LowCutSettings`, frequency configurable)
 * Compressor / EQ / expander (`DSPSettingsArray`)
 
-This distinction is not yet confirmed; a live capture is required.
+This distinction is not yet fully confirmed; the exact **property IDs**
+for each feature must still be mapped.
+
+Static reverse engineering shows that the property ID carried in `wValue`
+is a **single byte** returned by the `IMessage` virtual method at vtable
+offset 0 (`IMessage::propertyId()`). The `SessionAPI::Impl` descriptor
+constructors store the IDs indirectly, so the exact byte for each logical
+path has not been recovered from static analysis alone.
 
 ### Static-analysis findings
 
@@ -157,31 +184,44 @@ binaries or device descriptors.
 `native-linux/src/fuzz_vendor_smart.c` was used to safely probe interface 3
 with common vendor/class request patterns (`bmRequestType = 0x40/0xc0`,
 `bRequest` 0x00..0xff, varied `wValue`/`wIndex`).  No responses were
-observed.  The protocol requires a specific encoding that cannot be
-brute-forced without a reference capture.
+observed.
 
-### Guessed encoding
+Targeted read probes using the recovered encoding
+(`0xC1, 0x85, wIndex=0x3303`) also returned `LIBUSB_ERROR_PIPE` for all
+tested IDs, confirming that the device is not in APP mode.
 
-Based on Thesycon conventions and the 0-endpoint vendor interface, the
-most likely format is a vendor control transfer:
+A broad read-only scan of IDs `0x0000`–`0x00FF`
+(`native-linux/src/probe_vendor_ids.c`) caused the device to reboot into
+its DFU/bootloader PID (`0x0071`) before re-enumerating as `0x0070`.
+**Arbitrary live enumeration is therefore unsafe and must not be
+repeated.**
+
+### Encoding summary
 
 ```c
-// Vendor write (no data stage or small payload)
-bmRequestType = 0x40;          // vendor, OUT, device
-bRequest      = <unknown>;     // likely a small constant
-wValue        = property_id;
-wIndex        = (sub_index << 8) | 3;   // 3 = vendor interface
-wLength       = 0..N;
-
 // Vendor read
-bmRequestType = 0xc0;          // vendor, IN, device
-bRequest      = <unknown>;
-wValue        = property_id;
-wIndex        = (sub_index << 8) | 3;
-wLength       = 1, 2, or 4;
+libusb_control_transfer(dev,
+    0xC1,              // vendor, IN, interface recipient
+    0x85,              // vendor read request code
+    property_id,       // wValue: feature/property ID
+    0x3303,            // wIndex: entity 0x33, interface 3
+    buf, len, timeout);
+
+// Vendor write
+libusb_control_transfer(dev,
+    0x41,              // vendor, OUT, interface recipient
+    0x05,              // vendor write request code
+    property_id,       // wValue: feature/property ID
+    0x3303,            // wIndex: entity 0x33, interface 3
+    buf, len, timeout);
 ```
 
-This is **only a hypothesis** until a live capture is available.
+`property_id` is the byte returned by `IMessage::propertyId()`. The
+payload size and interpretation are feature-specific (boolean, uint8/16,
+fixed-point, RGB triple, etc.). The ID table is stored in the Wave Link
+`SessionAPI` descriptor data inside `waveapi.dll`; it can be recovered by
+further static parsing **or** by targeted live enumeration once the
+device is in APP mode.
 
 ### How to decode the vendor protocol
 

@@ -13,6 +13,9 @@ modules.order
 # Binaries
 wave3-daemon
 probe_wave3
+probe_vendor_ids
+probe_vendor_targeted
+probe_vendor_targeted2
 fuzz_vendor
 fuzz_vendor_smart
 test_windex_trick

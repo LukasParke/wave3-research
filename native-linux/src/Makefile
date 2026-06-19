@@ -1,11 +1,12 @@
 # Native Linux Wave:3 control daemon
 
-CFLAGS  += -O2 -Wall -Wextra $(shell pkg-config --cflags glib-2.0 gio-0 libusb-1.0)
+CFLAGS  += -O2 -Wall -Wextra $(shell pkg-config --cflags glib-2.0 gio-2.0 libusb-1.0)
 LDLIBS  += $(shell pkg-config --libs glib-2.0 gio-2.0 libusb-1.0) -lm
 
 BIN      = wave3-daemon
 TOOLS    = probe_wave3 restore_defaults
 FUZZERS  = fuzz_vendor fuzz_vendor_smart
+PROBES   = probe_vendor_ids probe_vendor_targeted probe_vendor_targeted2
 
 .PHONY: all clean install
 
@@ -17,11 +18,13 @@ $(BIN): wave3-daemon.c
 # Helper probes (not installed)
 probes: $(TOOLS)
 
+vendor-probes: $(PROBES)
+
 %: %.c
 	$(CC) $(CFLAGS) -o $@ $< $(LDLIBS)
 
 clean:
-	rm -f $(BIN) $(TOOLS) $(FUZZERS)
+	rm -f $(BIN) $(TOOLS) $(FUZZERS) $(PROBES)
 
 PREFIX  ?= /usr/local
 BINDIR   = $(PREFIX)/bin

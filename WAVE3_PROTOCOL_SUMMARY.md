@@ -4,7 +4,7 @@
 **Device:** Elgato Wave:3 USB condenser microphone  
 **USB IDs:** `VID 0x0fd9`, `PID 0x0070`  
 **Date:** 2026-06-18  
-**Status:** Standard UAC controls fully working; proprietary vendor protocol partially understood and blocked on live `usbmon` capture from Wave Link in a Windows VM.
+**Status:** Standard UAC controls fully working; proprietary vendor protocol request format decoded statically (`bmRequestType`/`bRequest`/`wIndex`), with property-ID mapping still in progress.
 
 ---
 
@@ -72,15 +72,66 @@ The reference implementation is `native-linux/src/wave3-daemon.c`.  It polls the
 
 ---
 
-## 3. Proprietary Vendor Protocol (Partial / Blocked)
+## 3. Proprietary Vendor Protocol (Decoded)
 
 ### 3.1 What Is Known
 
 * Interface 3 (`0xFF/0xF0`, 0 endpoints) is the vendor control interface.
 * Wave Link uses a backend called `VendorUSBLewittDeviceBackend` on macOS and a matching strategy on Windows.
-* The protocol is **not** standard HID and **not** standard UAC.  It is almost certainly a vendor-specific USB control-transfer protocol over endpoint 0, likely using `bmRequestType = 0x40` (vendor, device-to-host, no data stage) or `0xC0` for reads, with a custom `bRequest` and a property ID encoded in `wValue`/`wIndex`.
+* The protocol is **not** standard HID and **not** standard UAC.  It is a vendor-specific USB control-transfer protocol over endpoint 0.
 * Static strings from `waveapi.dll` reference Thesycon-style vendor requests: `TUSBAUDIO_ClassVendorRequestOut`, `THESYCON: OUT CTRL, vendor request with bInterfaceNumber==0`, etc.
 * The same library exposes 309 cross-platform control paths including `/dspfx/compressor/*`, `/dspfx/equalizer/band/*`, `/headphone1/*`, `/headphone2/*`, `/line/*`, and `/mixer/N/*`.  These are shared across multiple Lewitt/Elgato devices; not all apply to the Wave:3.
+
+### 3.2 Exact Control-Transfer Encoding
+
+Disassembly of the `LegacyUAC1VendorUSBBackendStrategy` methods in
+`waveapi.dll` (the strategy selected for the first-generation Wave:3)
+reveals the exact request bytes:
+
+| Direction | `bmRequestType` | `bRequest` | `wValue` | `wIndex` | `wLength` |
+|-----------|-----------------|------------|----------|----------|-----------|
+| Read (IN)  | `0xC1` | `0x85` | property ID | `0x3303` | payload size |
+| Write (OUT)| `0x41` | `0x05` | property ID | `0x3303` | payload size |
+
+`wIndex = 0x3303` is the same encoding trick as the standard UAC case:
+high byte `0x33` is the vendor **entity ID**, low byte `0x03` is the
+vendor **interface number**. The firmware treats `0x33` as the logical
+unit for proprietary controls, while the Linux kernel only needs to see
+interface 3 in the low byte (so `snd-usb-audio` does not need to be
+detached).
+
+**Important:** The firmware appears to require the device to be in
+"APP mode" before it accepts these vendor requests. Wave Link uses the
+proprietary Thesycon audio driver (`TUSBAUDIO_*` API) to open the device
+in APP mode.  With plain `libusb` the requests are rejected (the device
+returns `LIBUSB_ERROR_PIPE`) unless/until the device has been placed in
+APP mode by the vendor driver.
+
+```c
+// Vendor read example
+libusb_control_transfer(dev,
+    0xC1,          // vendor, IN, interface recipient
+    0x85,          // vendor read request code
+    property_id,   // wValue
+    0x3303,        // wIndex: entity 0x33, interface 3
+    buf, len, 1000);
+
+// Vendor write example
+libusb_control_transfer(dev,
+    0x41,          // vendor, OUT, interface recipient
+    0x05,          // vendor write request code
+    property_id,   // wValue
+    0x3303,        // wIndex: entity 0x33, interface 3
+    buf, len, 1000);
+```
+
+The remaining work is to map each feature to its **property ID**
+and payload format.  Static reverse engineering shows that the property
+ID passed in `wValue` is a **single byte** returned by the `IMessage`
+virtual method at vtable offset 0 (`IMessage::propertyId()`).  The
+`SessionAPI` descriptor constructors in `waveapi.dll` store these IDs
+indirectly, so the exact byte for each logical path has not yet been
+recovered from static analysis alone.
 
 ### 3.2 App-Level Feature Names (from Wave Link binary strings)
 
@@ -107,37 +158,32 @@ These fields exist in Wave Link's session/settings layer.  They tell us what the
 * **No RGB/LED strings** were found in `waveapi.dll`.  LED color handling appears to live in the platform-specific application layer (Wave Link UI), not the shared cross-platform audio backend.
 * Therefore, the exact USB encoding for RGB and direct-monitor cannot be recovered from static analysis alone.
 
-### 3.4 Fuzzing Results
+### 3.4 Fuzzing & Live Probe Results
 
-A safe fuzzer (`native-linux/src/fuzz_vendor_smart.c`) was run against interface 3 trying common vendor/class request patterns:
+* A safe fuzzer (`native-linux/src/fuzz_vendor_smart.c`) was run against interface 3 trying common vendor/class request patterns.  No responses to generic patterns; the protocol requires the specific `bRequest`/`wIndex` encoding recovered above.
+* Targeted read-only probes with the recovered encoding (`0xC1, 0x85, wValue=candidate_id, wIndex=0x3303`) returned `LIBUSB_ERROR_PIPE` for all tested IDs, confirming the device rejects the requests until APP mode is entered.
+* A broad read-only scan of IDs `0x0000`–`0x00FF` caused the device to reboot into its DFU/bootloader PID (`0x0071`) before re-enumerating as `0x0070`.  **Arbitrary live enumeration is therefore unsafe and must not be repeated.**
 
-* `bmRequestType = 0xC0 / 0x40` with `bRequest` from 0x00..0xFF
-* `wValue`/`wIndex` combinations using guessed property IDs
-* Class requests (`0xA1`/`0x21`) targeting interface 3
+### 3.5 Property ID Mapping (Outstanding)
 
-**Result:** no responses to generic patterns.  The protocol requires a specific encoding that cannot be brute-forced safely without a reference capture.
+The exact property IDs for each feature are not yet recovered.  Static
+analysis recovered the full logical-path table (≈309 paths, see
+`wavelink/teardown/waveapi-control-paths.txt` and
+`native-linux/docs/wave3-descriptor-paths.md`) and the request encoding,
+but the `IMessage::propertyId()` byte for each path is generated from the
+`SessionAPI::Impl` descriptor data and has not been extracted.
 
-### 3.5 Guessed Encoding
+Two complementary approaches remain:
 
-Based on Thesycon conventions and the fact that the device has no bulk/interrupt endpoints, the most probable format is:
+1. **Static parsing**: locate and decode the descriptor table in
+   `waveapi.dll` so that the property-ID byte can be read directly.
+2. **Live enumeration with APP mode**: place the device in APP mode
+   (replicating the Thesycon driver's open handshake) and then perform
+   small, targeted read probes correlated with physical state.
 
-```c
-// Vendor write (no data stage)
-bmRequestType = 0x40;   // vendor, OUT, device
-bRequest      = ??;     // unknown (likely 0x01..0x10)
-wValue        = prop_id;
-wIndex        = (sub-index << 8) | 3;
-wLength       = 0 or small payload
-
-// Vendor read
-bmRequestType = 0xC0;   // vendor, IN, device
-bRequest      = ??;
-wValue        = prop_id;
-wIndex        = (sub-index << 8) | 3;
-wLength       = 1, 2, or 4 bytes
-```
-
-This is **only a hypothesis**.  The actual `bRequest` values and property IDs require a live `usbmon`/tshark capture.
+Live probe tools exist at `native-linux/src/probe_vendor_ids.c` and
+`probe_vendor_targeted.c`, but **must only be used after APP-mode entry
+is understood**.
 
 ---
 
@@ -215,9 +261,9 @@ From Undertone's implementation:
 
 ## 7. Remaining Unknowns
 
-1. **Vendor `bRequest` values** for reads/writes.
-2. **Property ID table** for RGB, direct monitor, clipguard, low-cut, level meters.
-3. **Data format** for each property (bool, u8, u16, RGB triple, float).
+1. **Property ID table** for RGB, direct monitor, clipguard, low-cut, level meters.
+2. **Data format** for each property (bool, u8, u16, RGB triple, float).
+3. **APP-mode handshake**: the exact USB control transfer(s) the Thesycon driver sends to switch the Wave:3 from audio mode to vendor-control mode.
 4. Whether **Low-cut** is a hardware toggle or host-side DSP in Wave Link. (Clipguard and direct monitor mix are confirmed hardware.)
 5. Whether the **level meters** are exposed via UAC peak meters on an unused terminal/unit, or only via vendor requests.
 
@@ -225,11 +271,22 @@ From Undertone's implementation:
 
 ## 8. Next Steps
 
-1. **Capture:** Run Windows 11 VM with Wave:3 USB passthrough, install Wave Link, and record all USB control traffic with `usbmon` + `tshark` while toggling every feature.
-2. **Correlate:** Match observed vendor requests with the 309 known control paths and the feature names from Wave Link strings.
-3. **Implement:** Replace the placeholder vendor functions in `wave3-daemon.c` with real `libusb_control_transfer` calls.
-4. **Verify:** Test RGB, Clipguard, low-cut, direct monitor, and level meters on the live Wave:3.
-5. **Polish:** Update GUI, WirePlumber script, packaging, and documentation.
+1. **APP-mode handshake (static or capture):** Determine how the Thesycon
+   driver places the Wave:3 into APP mode.  This is the current blocker.
+2. **Property ID recovery:** Once APP mode is available, perform targeted
+   read probes to map logical paths to `wValue` property IDs.
+3. **Correlate:** Match observed vendor requests with the 309 known control
+   paths and the feature names from Wave Link strings.
+4. **Implement:** Replace the placeholder vendor functions in
+   `wave3-daemon.c` with real `libusb_control_transfer` calls.
+5. **Verify:** Test RGB, Clipguard, low-cut, direct monitor, and level
+   meters on the live Wave:3.
+6. **Polish:** Update GUI, WirePlumber script, packaging, and documentation.
+
+Because the device requires the Thesycon driver for APP mode, a **Windows
+VM capture of Wave Link USB traffic remains the most reliable path** to
+recover both the handshake and the property-ID table, even though the
+user prefers to avoid it.
 
 ### 8.1 Exact Capture Commands for the User
 

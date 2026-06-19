@@ -23,9 +23,12 @@ ProtectKernelModules=true
 ProtectControlGroups=true
 
 # Required paths
-ReadWritePaths=%t/pipewire-0
-ReadWritePaths=%t/dbus-1
-ReadWritePaths=%h/.local/share/dbus-1
+ReadWritePaths=%t
+ReadWritePaths=/dev/bus/usb
+
+# USB access for libusb
+PrivateDevices=no
+DeviceAllow=/dev/bus/usb rw
 
 [Install]
 WantedBy=default.target
