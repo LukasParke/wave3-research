@@ -77,7 +77,8 @@ static void restore(libusb_device_handle *h, const unsigned char *baseline) {
 
 int main(int argc, char **argv) {
     (void)argc; (void)argv;
-    FILE *out = fopen("/home/USER/wave3-auto-probe-report.txt", "w");
+    const char *out_path = (argc > 1) ? argv[1] : "wave3-auto-probe-report.txt";
+    FILE *out = fopen(out_path, "w");
     if (!out) { perror("fopen"); return 1; }
 
     fprintf(out, "# Wave:3 Automated Config Block Probe Report\n");
@@ -185,6 +186,6 @@ int main(int argc, char **argv) {
     /* restart daemon */
     system("systemctl --user start wave3-daemon 2>/dev/null");
 
-    printf("Report written to /home/USER/wave3-auto-probe-report.txt\n");
+    printf("Report written to %s\n", out_path);
     return 0;
 }

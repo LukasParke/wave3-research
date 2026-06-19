@@ -7,6 +7,16 @@
 
 Both installers were downloaded from Elgato’s official `edge.elgato.com` CDN.
 
+> **Educational purpose only**
+>
+> The original installer packages (`.msix`, `.dmg`) and their extracted
+> binary contents have been removed from this repository. Only
+> independent research notes, string/path summaries, and file manifests
+> are retained here for educational and interoperability research
+> purposes. Elgato®, Wave Link®, and related marks are trademarks of
+> Corsair Memory, Inc. / Elgato and are used solely for identification
+> and commentary.
+
 ## 1. Package Structure
 
 ### 1.1 Windows (MSIX)

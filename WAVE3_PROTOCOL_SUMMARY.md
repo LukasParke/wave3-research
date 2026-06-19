@@ -6,6 +6,15 @@
 **Date:** 2026-06-19  
 **Status:** Standard UAC controls and proprietary class config block fully working. All hardware-controllable features on the first-gen Wave:3 are mapped; only reserved bytes remain.
 
+> **Educational and interoperability purpose**
+>
+> This document is research output from controlling a device I physically
+> own on a Linux host. It is published for educational and interoperability
+> purposes only. No proprietary firmware, driver binaries, or copyrighted
+> source code are distributed alongside it. Elgato®, Wave:3®, Wave Link®,
+> and related marks are trademarks of Corsair Memory, Inc. / Elgato and
+> are used here solely for identification and commentary.
+
 ---
 
 ## 1. Device Overview

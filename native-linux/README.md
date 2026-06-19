@@ -4,6 +4,17 @@ This directory contains a fully native, userspace D-Bus daemon for the
 Elgato Wave:3 microphone. It requires **no kernel module**, **no driver
 detach**, and **no Windows/macOS software** for the core controls.
 
+> **Purpose and Disclaimer**
+>
+> This project is provided for **educational and interoperability
+> research purposes only**. It enables control of Elgato Wave:3
+> hardware that I physically own, using standard USB Audio Class and
+> publicly documented control-transfer techniques. No proprietary
+> Elgato firmware, driver binaries, or copyrighted source code are
+> included here. Elgato®, Wave:3®, Wave Link®, and related marks are
+> trademarks of Corsair Memory, Inc. / Elgato and are used solely for
+> identification and commentary.
+
 ## Key discovery
 
 The Wave:3 exposes standard USB Audio Class 1.0 feature units for the

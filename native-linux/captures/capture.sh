@@ -4,7 +4,7 @@
 
 set -euo pipefail
 
-OUT="/home/USER/wave3-audio-report/native-linux/captures/wave3-wavelink.pcapng"
+OUT="${1:-wave3-wavelink.pcapng}"
 
 BUS=$(lsusb -d 0fd9:0070 | awk '{print $2}' | head -1)
 if [[ -z "$BUS" ]]; then

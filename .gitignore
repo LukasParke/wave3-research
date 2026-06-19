@@ -30,6 +30,10 @@ watch_state
 poll_observatory
 analyze_observatory.py
 
+# Generated reports / logs
+wave3-auto-probe-report.txt
+wave3-poll-observatory.log
+
 # Captures (keep README.md)
 native-linux/captures/*.pcapng
 native-linux/captures/*.pcap

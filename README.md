@@ -5,6 +5,23 @@
 **Report generated:** 2026-06-18  
 **Sound server:** PulseAudio on PipeWire 1.6.6
 
+> **Purpose and Disclaimer**
+>
+> This repository was created for **educational and interoperability
+> research purposes only**. All information here was derived from
+> publicly available documentation, standard USB Audio Class
+> specifications, live observation of a device I physically own, and
+> static analysis of publicly distributed Elgato Wave Link installer
+> packages. No proprietary source code, firmware, or copyrighted binary
+> assets are distributed in this repository. Elgato®, Wave:3®, Wave
+> Link®, and related marks are trademarks of Corsair Memory, Inc. /
+> Elgato and are used here solely for identification and commentary.
+>
+> The original Wave Link installer packages (`.msix`, `.dmg`) and their
+> extracted contents have been removed from this repository. Only
+> independent research notes, string/path summaries, and the original
+> open-source native Linux implementation are retained.
+
 ## Executive Summary
 
 A single **Elgato Wave:3** USB audio device is connected to this host. It is the current default playback sink and default recording source. The device enumerates as a USB Audio Class 1.0 full-speed device with one stereo playback stream, one mono capture stream, a vendor-specific control interface, and a Device Firmware Upgrade (DFU) interface.

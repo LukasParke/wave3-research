@@ -102,7 +102,7 @@ static void print_legend(void) {
     printf("  q + Enter = quit and restore daemon\n\n");
 }
 
-int main(void) {
+int main(int argc, char **argv) {
     printf("Stopping wave3-daemon...\n");
     system("systemctl --user stop wave3-daemon 2>/dev/null");
     sleep(1);
@@ -132,7 +132,8 @@ int main(void) {
     int16_t prev_hp_vol = 0x7fff;
     int first = 1;
 
-    FILE *log = fopen("/home/USER/wave3-poll-observatory.log", "a");
+    const char *log_path = (argc > 1) ? argv[1] : "wave3-poll-observatory.log";
+    FILE *log = fopen(log_path, "a");
     if (!log) perror("fopen log");
 
     print_legend();
@@ -258,6 +259,6 @@ int main(void) {
     printf("Restarting wave3-daemon...\n");
     system("systemctl --user start wave3-daemon 2>/dev/null");
 
-    printf("Log saved to /home/USER/wave3-poll-observatory.log\n");
+    printf("Log saved to %s\n", log_path);
     return 0;
 }
