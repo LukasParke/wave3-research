@@ -2,7 +2,8 @@
  * cfg_probe — safe Elgato Wave:3 config block probe
  *
  * Reads/writes the 16-byte config block (wValue=0x0000, wIndex=0x3303).
- * Always "read" first to snapshot, then "restore" returns to that snapshot.
+ * Snapshot is persisted to /tmp/wave3_cfg_snapshot.bin so restore works
+ * across separate invocations.
  */
 
 #include <stdio.h>
@@ -15,9 +16,7 @@
 #define PID 0x0070
 #define IFACE 3
 #define WINDEX 0x3303
-
-static unsigned char snapshot[16];
-static int snapshot_valid = 0;
+#define SNAPSHOT_PATH "/tmp/wave3_cfg_snapshot.bin"
 
 static libusb_device_handle *open_device(libusb_context **ctx) {
     libusb_init(ctx);
@@ -56,6 +55,22 @@ static void print_cfg(const unsigned char *cfg) {
     printf("\n");
 }
 
+static void save_snapshot(const unsigned char *cfg) {
+    FILE *f = fopen(SNAPSHOT_PATH, "wb");
+    if (f) {
+        fwrite(cfg, 1, 16, f);
+        fclose(f);
+    }
+}
+
+static int load_snapshot(unsigned char *cfg) {
+    FILE *f = fopen(SNAPSHOT_PATH, "rb");
+    if (!f) return 0;
+    size_t n = fread(cfg, 1, 16, f);
+    fclose(f);
+    return n == 16;
+}
+
 int main(int argc, char **argv) {
     libusb_context *ctx = NULL;
     libusb_device_handle *h = open_device(&ctx);
@@ -74,8 +89,7 @@ int main(int argc, char **argv) {
             close_device(h, ctx);
             return 1;
         }
-        memcpy(snapshot, cfg, 16);
-        snapshot_valid = 1;
+        save_snapshot(cfg);
         printf("config: ");
         print_cfg(cfg);
     } else if (strcmp(argv[1], "write") == 0 && argc == 4) {
@@ -93,10 +107,7 @@ int main(int argc, char **argv) {
             close_device(h, ctx);
             return 1;
         }
-        if (!snapshot_valid) {
-            memcpy(snapshot, cfg, 16);
-            snapshot_valid = 1;
-        }
+        save_snapshot(cfg);
         printf("before: ");
         print_cfg(cfg);
         cfg[off] = (unsigned char)val;
@@ -107,8 +118,9 @@ int main(int argc, char **argv) {
         printf("after:  ");
         print_cfg(cfg);
     } else if (strcmp(argv[1], "restore") == 0) {
-        if (!snapshot_valid) {
-            fprintf(stderr, "no snapshot; run 'read' first\n");
+        unsigned char snapshot[16];
+        if (!load_snapshot(snapshot)) {
+            fprintf(stderr, "no snapshot; run 'read' or 'write' first\n");
             close_device(h, ctx);
             return 1;
         }

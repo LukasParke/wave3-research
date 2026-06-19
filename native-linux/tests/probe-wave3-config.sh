@@ -17,7 +17,8 @@ log() {
 ask() {
     local prompt="$1"
     local ans
-    echo -en "\n${prompt}\n> " | tee -a "$LOG"
+    echo -e "\n${prompt}" | tee -a "$LOG"
+    echo -n "> " | tee -a "$LOG"
     read -r ans
     echo "ANSWER: $ans" >> "$LOG"
     echo "$ans"
@@ -38,9 +39,10 @@ if ! gcc -o cfg_probe cfg_probe.c $(pkg-config --cflags --libs libusb-1.0) -O2; 
     log "ERROR: failed to build cfg_probe"
     exit 1
 fi
-log "OK.\n"
+log "OK."
 
 # ─── baseline ─────────────────────────────────────────────────────────────
+log ""
 log "--- Baseline config ---"
 run_probe read
 BASELINE=$("$PROBE" read 2>/dev/null | grep '^config:' | sed 's/config: //')
@@ -92,6 +94,7 @@ for i in "${!bytes[@]}"; do
 
     vals="${test_values[$i]}"
     for val in $vals; do
+        log ""
         log "--- Setting offset $off to $val ---"
         run_probe write "$off" "$val"
         ask "Offset $off = $val. What did you observe? (none / describe)"
@@ -109,6 +112,22 @@ log "Setting offsets 10=0xFF, 11=0x00, 13=0x00 (force red)"
 run_probe write 10 0xFF
 run_probe write 11 0x00
 run_probe write 13 0x00
+ask "With the mic muted, what color is the ring LED now?"
+run_probe restore
+
+log ""
+log "Setting offsets 10=0x00, 11=0xFF, 13=0x00 (force green)"
+run_probe write 10 0x00
+run_probe write 11 0xFF
+run_probe write 13 0x00
+ask "With the mic muted, what color is the ring LED now?"
+run_probe restore
+
+log ""
+log "Setting offsets 10=0x00, 11=0x00, 13=0xFF (force blue)"
+run_probe write 10 0x00
+run_probe write 11 0x00
+run_probe write 13 0xFF
 ask "With the mic muted, what color is the ring LED now?"
 run_probe restore
 

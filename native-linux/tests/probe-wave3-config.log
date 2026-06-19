@@ -1,0 +1,40 @@
+=== Wave:3 Config Byte Mapper ===
+Building cfg_probe...
+OK.\n
+--- Baseline config ---
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe read 
+claim interface 3 failed: LIBUSB_ERROR_BUSY
+=== Wave:3 Config Byte Mapper ===
+Building cfg_probe...
+OK.\n
+--- Baseline config ---
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe read 
+config: 00 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+Baseline: 00 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+
+What color is the ring LED right now? (e.g. blue, red, white, off)
+> ANSWER: white
+
+Is the mic currently muted? (yes/no)
+> ANSWER: no
+
+What does the dial control when you turn it? (mic gain / headphone volume / monitor mix / nothing)
+> ANSWER: monitor mix
+
+Do you have Wave Link available to confirm current settings? (yes/no)
+> ANSWER: no
+
+========================================
+Testing config byte offset 0
+Watch for: Any LED change, any audio change, or device mode change
+========================================
+--- Setting offset 0 to 0x01 ---
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe write 0 0x01
+before: 00 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+write offset 0 = 0x01 -> r=16
+after:  01 01 00 00 00 00 00 00 f7 00 00 00 03 00 01 01 
+
+Offset 0 = 0x01. What did you observe? (none / describe)
+> ANSWER: none
+RUN: /home/USER/wave3-audio-report/native-linux/src/cfg_probe restore 
+no snapshot; run 'read' first
