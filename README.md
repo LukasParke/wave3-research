@@ -1,9 +1,12 @@
-# Elgato Wave:3 Audio System Enumeration Report
+# wave3-research
 
-**Host:** `HOST`  
-**User:** `USER`  
-**Report generated:** 2026-06-18  
-**Sound server:** PulseAudio on PipeWire 1.6.6
+**Educational reverse-engineering of the Elgato Wave:3 USB audio protocol and a native Linux D-Bus control daemon.**
+
+This repository contains:
+
+* A fully working **native Linux control daemon** for the first-generation Elgato Wave:3 (`VID 0x0fd9`, `PID 0x0070`).
+* Complete **USB protocol documentation** derived from live observation and static analysis of publicly distributed Elgato Wave Link packages.
+* Hardware enumeration reports, ALSA/PipeWire captures, and independent teardown notes.
 
 > **Purpose and Disclaimer**
 >
@@ -21,6 +24,84 @@
 > extracted contents have been removed from this repository. Only
 > independent research notes, string/path summaries, and the original
 > open-source native Linux implementation are retained.
+
+## Project overview
+
+| Component | Location | Status |
+|-----------|----------|--------|
+| Native D-Bus daemon | [`native-linux/src/wave3-daemon.c`](native-linux/src/wave3-daemon.c) | Working |
+| Shell CLI | [`native-linux/bin/wave3ctl`](native-linux/bin/wave3ctl) | Working |
+| GTK4 GUI applet | [`native-linux/gui/wave3-applet.py`](native-linux/gui/wave3-applet.py) | Working |
+| Integration tests | [`native-linux/tests/test-dbus.py`](native-linux/tests/test-dbus.py) | Passing |
+| Protocol summary | [`WAVE3_PROTOCOL_SUMMARY.md`](WAVE3_PROTOCOL_SUMMARY.md) | Complete |
+| Detailed protocol notes | [`native-linux/docs/protocol-notes.md`](native-linux/docs/protocol-notes.md) | Complete |
+| Hardware enumeration | [`README.md`](README.md) (this file, §1–§10) | Complete |
+| Wave Link teardown notes | [`wavelink/README.md`](wavelink/README.md) and [`wavelink/teardown/`](wavelink/teardown/) | Complete |
+
+## Quick start
+
+```bash
+cd native-linux
+./install.sh                 # build and install locally
+sudo install -Dm644 udev/50-elgato-wave3.rules /etc/udev/rules.d/
+sudo udevadm control --reload-rules
+sudo udevadm trigger --subsystem-match=usb --attr-match=idVendor=0fd9 --attr-match=idProduct=0070
+systemctl --user enable --now wave3-daemon
+wave3ctl status
+wave3ctl mute toggle
+wave3ctl volume 75
+```
+
+See [`native-linux/README.md`](native-linux/README.md) for full build requirements, installation options, and D-Bus API details.
+
+## What the daemon controls
+
+The daemon exposes `org.wave3.Daemon` on the D-Bus session bus. It polls the device at 10 Hz and emits `StateChanged` signals. All hardware controls on the first-generation Wave:3 are implemented:
+
+| Feature | D-Bus method(s) | How it works |
+|---------|-----------------|--------------|
+| Microphone mute | `SetMicMute`, `ToggleMicMute` | UAC feature unit 6, selector 1; also reflected in class config offset 4 |
+| Headphone mute | `SetHpMute` | Class config offset 9 |
+| Headphone volume | `SetHpVolume` | Class config offset 8 (signed dB attenuation) |
+| Microphone gain | read-only state | UAC feature unit 6, selector 2; physical dial, not writable |
+| Clipguard | `SetClipguard` | Class config offset 5 |
+| Direct monitor mix | `SetDirectMonitor` | Class config offset 14 (`0x00` = mic only, `0xFF` = PC only) |
+| Mute-ring RGB | `SetMuteColor` | Class config offsets 10/11/13 |
+| LED brightness | `SetBrightness` | Class config offset 15 |
+| Input/playback level meters | `GetInputLevel`, `GetPlaybackLevel` | Class meter block `wValue=0x0001` |
+| Dial mode | `GetDialMode` | Class config offset 12 (`1` = mic gain, `2` = HP volume, `3` = monitor mix) |
+| Dial value | `GetDialValue` | Class config offsets 0/1 (16-bit little-endian) |
+| Indicator RGB | `GetIndicatorColor` | Class config offsets 10/11/13 (firmware ring feedback) |
+
+`SetLowCut` and `SetHeadphoneColor` return `G_IO_ERROR_NOT_SUPPORTED` because the first-generation Wave:3 has neither hardware low-cut nor a headphone color LED.
+
+## How the protocol was recovered
+
+The Wave:3 has an unclaimed vendor-specific interface 3 (`0xFF/0xF0`) with no endpoints. All proprietary control traffic runs over endpoint-0 **class** control transfers:
+
+```
+Read config:  bmRequestType=0xA1, bRequest=0x85, wValue=0x0000, wIndex=0x3303, wLength=16
+Write config: bmRequestType=0x21, bRequest=0x05, wValue=0x0000, wIndex=0x3303, wLength=16
+Read meter:   bmRequestType=0xA1, bRequest=0x85, wValue=0x0001, wIndex=0x3303, wLength=8
+Read info:    bmRequestType=0xA1, bRequest=0x85, wValue=0x000A, wIndex=0x3303, wLength=51
+```
+
+`wIndex=0x3303` routes the request through interface 3 so `snd-usb-audio` does not need to be detached, while the firmware sees entity `0x33`. This trick was first published for the Elgato Wave XLR by [rikkichy/openwave](https://github.com/rikkichy/openwave); the Wave:3 uses the same encoding.
+
+Full details are in [`WAVE3_PROTOCOL_SUMMARY.md`](WAVE3_PROTOCOL_SUMMARY.md) and [`native-linux/docs/protocol-notes.md`](native-linux/docs/protocol-notes.md).
+
+## Known unknowns
+
+Even though every user-facing hardware control on the first-gen Wave:3 is implemented, a few things remain unexplained:
+
+* **Config offsets 2, 3, 6** accept arbitrary writes but produce no observable effect on this firmware. They may be reserved for other device variants.
+* **Meter full-scale calibration** — the `uint32` input/playback values from `wValue=0x0001` are reported as relative dBFS using `20·log10(value / 0x80000000)`. The true full-scale reference has not been calibrated against a known signal.
+* **Headphone plug/unplug detection** — no config-byte change was observed in the captured window when headphones were removed/reinserted. This state may not be exposed in the config block, may be brief, or may use a different mechanism.
+* **Host-side DSP features** (low-cut filter, compressor, equalizer, noise gate, reverb, etc.) are implemented in Wave Link's application software, not in the Wave:3 hardware. They are out of scope for this hardware-control daemon.
+
+## Detailed enumeration report
+
+The remainder of this file is the original hardware enumeration report captured from the live device.
 
 ## Executive Summary
 
@@ -340,11 +421,12 @@ reference.
   IDs: `wValue=0x0000` (16-byte read/write config block),
   `wValue=0x0001` (8-byte meter), and `wValue=0x000A` (51-byte device
   info). The config block is now fully mapped:
-  mic mute (offset 4), Clipguard (offset 5), headphone volume (offset 8),
-  headphone mute (offset 9), mute-ring RGB (offsets 10/11/13), device
-  state (offset 12, read-only), direct monitor mix (offset 14), and LED
-  brightness (offset 15). Offsets 0/1 are a firmware checksum/validation
-  pair, and offsets 2/3/6/7 are unused on this firmware.
+  dial value low/high (offsets 0/1), mic mute (offset 4), Clipguard
+  (offset 5), dial flag (offset 7), headphone volume (offset 8),
+  headphone mute (offset 9), indicator/mute-ring RGB (offsets 10/11/13),
+  dial mode (offset 12), direct monitor mix (offset 14), and LED
+  brightness (offset 15). Offsets 2, 3, and 6 are writable but unused on
+  this firmware.
 * **Static analysis** of Wave Link 3.0 identified 309 logical control
   paths and app-level session fields (Clipguard, LowCut, MuteColorRGB,
   HeadphoneColorRGB, etc.). Low-cut/EQ/compressor are host-side DSP in
@@ -353,8 +435,9 @@ reference.
 * **Fuzzing** of interface 3 with vendor-type requests produced no
   responses and a dangerous DFU reset; class-type requests work for the
   three known IDs. Automated byte probing of the config block confirmed
-  the layout above. Offsets 0, 1, 2, 3, 6, 7 remain writable but without
-  observable effect; offset 12 is read-only device state.
+  the layout above. Offsets 2, 3, and 6 are writable but without
+  observable effect on this firmware; offsets 0/1 and 12 are updated by
+  the firmware to reflect dial value and dial mode.
 * **PipeWire topology** for Wave Link parity was improved using patterns
   from the [Undertone](https://github.com/polariscli/Undertone) project:
   `wave3-source` renamed ALSA capture node, custom `wave3-sink` for
