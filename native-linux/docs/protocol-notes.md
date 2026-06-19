@@ -52,14 +52,14 @@ Observed ranges:
 Raw values are signed 16-bit fixed point with 1/256 dB resolution, i.e.
 `dB = raw / 256.0`.
 
-## Vendor/class control interface (decoded from Wave Link)
+## Vendor/class control interface (decoded)
 
 Interface 3 (`bInterfaceClass = 0xFF`, `bInterfaceSubClass = 0xF0`,
 `bNumEndpoints = 0`) is used by Elgato Wave Link for proprietary features.
 Because it has no endpoints, the protocol runs over **endpoint-0 control
 transfers**.
 
-### Request format recovered by static reverse engineering
+### Request format recovered by static reverse engineering + live probing
 
 Wave Link ships three internal "vendor backend strategy" classes:
 `LegacyUAC1VendorUSBBackendStrategy`, `LegacyUAC2VendorUSBBackendStrategy`,
@@ -89,41 +89,54 @@ request type (`0xA1`/`0x21`) for live control.**
 
 ### Config block layout (16 bytes)
 
-The Wave:3 config block (`wValue = 0x0000`) is fully read/write and
-contains the hardware settings:
+The Wave:3 config block (`wValue = 0x0000`) contains the hardware
+settings. Most offsets are now mapped:
 
 | Offset | Size | Field | Notes |
 |--------|------|-------|-------|
-| 0 | u8 | unknown / input select | writable, default `0x00` |
-| 1 | u8 | unknown | writable, default `0x01` |
-| 2 | u8 | unknown | writable, default `0x00` |
-| 3 | u8 | unknown | writable, default `0x00` |
+| 0 | u8 | **checksum / flags** | writable, but likely part of a firmware checksum or validation pair with offset 1 |
+| 1 | u8 | **checksum / validation** | firmware normalizes this value; invalid writes cause offset 0 to reset to `0x00` |
+| 2 | u8 | **unused / reserved** | writable, no visible effect |
+| 3 | u8 | **unused / reserved** | writable, no visible effect |
 | 4 | u8 | **Mic mute** | `0x00` = live, `0x01` = muted |
-| 5 | u8 | unknown | writable, default `0x00` |
-| 6 | u8 | unknown | writable, default `0x00` |
-| 7 | u8 | unknown | writable, default `0x00` |
+| 5 | u8 | **Clipguard** | `0x00` = off, `0x01` = on (same offset as Wave XLR) |
+| 6 | u8 | **unused / reserved** | writable, no visible effect |
+| 7 | u8 | **unused / reserved** | writable, no visible effect; not low-cut |
 | 8 | s8 | **Headphone volume** | signed dB attenuation (`0x00` = 0 dB, `0xF7` ≈ -9 dB, `0xC4` ≈ -60 dB) |
 | 9 | u8 | **Headphone mute** | `0x00` = on, `0x01` = muted |
-| 10 | u8 | unknown | writable, default `0x00` |
-| 11 | u8 | unknown | writable, default `0x00` |
-| 12 | u8 | unknown / read-only | does **not** accept writes; default `0x01` |
-| 13 | u8 | unknown | writable, default `0x00` |
-| 14 | u8 | **Volume select / dial mode** | writable; values `0`, `1`, `2` accepted |
-| 15 | u8 | unknown | writable, default `0x01` |
+| 10 | u8 | **Mute color R** | RGB red channel for the mute-ring LED |
+| 11 | u8 | **Mute color G** | RGB green channel; also appears in monitor-mix indicator |
+| 12 | u8 | **Device state** | **read-only**; accepts only `0x01`, `0x02`, `0x03`; observed `0x03` (likely headphone connected + dial status) |
+| 13 | u8 | **Mute color B** | RGB blue channel |
+| 14 | u8 | **Direct monitor mix** | `0x00` = microphone only, `0xFF` = PC playback only, linear in between |
+| 15 | u8 | **LED/indicator brightness** | `0x00` = off, `0xFF` = maximum |
 
-**Confirmed controls:**
+**Confirmed hardware controls:**
 
 * Mic mute (offset 4)
 * Headphone mute (offset 9)
 * Headphone volume (offset 8, signed dB attenuation)
+* Clipguard (offset 5)
+* Direct monitor mix (offset 14, 0–255)
+* Mute-ring RGB color (offsets 10/11/13)
+* LED brightness (offset 15)
 
-**Still to identify:** clipguard, direct monitor mix, low-cut, RGB/LED
-brightness, and the exact meaning of offsets 0, 1, 2, 3, 5, 6, 7, 10,
-11, 13, 15. The path table in `wave3-descriptor-paths.md` gives logical
-names (e.g. `/clipguard_enable`, `/direct_monitor`,
-`/moninor_mix/level/0`, indicator brightness paths) but the byte mapping
-requires either a Wave Link USB capture or further physical-device
-correlation.
+**Host-side only:**
+
+* **Low-cut filter** — not present in the Wave:3 config block. This is a
+  software DSP effect applied by Wave Link (confirmed by Elgato
+  documentation and the absence of any byte that toggles it).
+
+**Checksum/validation:** offsets 0 and 1 behave like a firmware
+validation pair. Offset 1 is normalized by the device, and invalid
+values cause offset 0 to reset to `0x00`. They are not user features.
+
+**Unused/reserved:** offsets 2, 3, 6, 7 accept arbitrary writes but
+produce no observable change. They may be used by other firmware
+variants or future devices.
+
+**Read-only state:** offset 12 reflects device state (likely headphone
+connection + dial mode); exact bit meanings are not decoded.
 
 ### Meter block (`wValue = 0x0001`)
 
@@ -152,6 +165,26 @@ request type (`0xC1`) caused the device to reboot into its DFU/bootloader
 PID (`0x0071`) before re-enumerating as `0x0070`. **Always use the class
 request type (`0xA1`/`0x21`) and only probe the known IDs (`0x0000`,
 `0x0001`, `0x000A`).**
+
+## D-Bus API
+
+The daemon exposes `org.wave3.Daemon` on the session bus. State is
+returned as the tuple:
+
+```
+(mic_mute, hp_mute,
+ mic_gain_pct, hp_vol_pct, mic_gain_db, hp_vol_db,
+ clipguard, lowcut,
+ direct_monitor, mute_rgb, input_level_db,
+ brightness, playback_level_db)
+```
+
+Methods include `SetMicMute`, `ToggleMicMute`, `SetHpMute`,
+`SetHpVolume`, `SetClipguard`, `SetDirectMonitor`, `SetMuteColor`,
+`SetBrightness`, `GetInputLevel`, `GetPlaybackLevel`, plus getters for
+all fields. `SetLowCut` and `SetHeadphoneColor` return
+`G_IO_ERROR_NOT_SUPPORTED` because the first-gen Wave:3 has neither
+hardware low-cut nor a headphone-color LED.
 
 ## PipeWire / WirePlumber integration
 

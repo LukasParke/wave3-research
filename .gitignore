@@ -24,6 +24,9 @@ test_windex_set
 test_windex_hp
 test_mic_gain_only
 restore_defaults
+auto_probe
+device_info
+watch_state
 
 # Captures (keep README.md)
 native-linux/captures/*.pcapng

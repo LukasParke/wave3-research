@@ -45,11 +45,15 @@
 
 /* Wave:3 config block layout (16 bytes) */
 #define CFG_MIC_MUTE        4
+#define CFG_CLIPGUARD       5
 #define CFG_HP_VOLUME       8   /* signed 8-bit dB attenuation */
 #define CFG_HP_MUTE         9
-#define CFG_HP_CONNECTED    12  /* read-only? */
-#define CFG_VOLUME_SELECT   14  /* 0/1/2 dial mode */
-#define CFG_UNKNOWN_15      15
+#define CFG_MUTE_R          10
+#define CFG_MUTE_G          11
+#define CFG_HP_CONNECTED    12  /* read-only device state */
+#define CFG_MUTE_B          13
+#define CFG_MONITOR_MIX     14  /* 0 = mic only, 255 = PC only */
+#define CFG_BRIGHTNESS      15
 
 typedef struct {
     libusb_context *ctx;
@@ -69,7 +73,7 @@ typedef struct {
     gboolean lowcut;
     gdouble  direct_monitor;
     guint32  mute_rgb;
-    guint32  hp_rgb;
+    guint32  brightness;
     gdouble  input_level_db;
     gdouble  playback_level_db;
 
@@ -96,15 +100,6 @@ static int wave3_uac_get(Wave3Daemon *d, int entity, int selector,
     uint16_t wIndex3 = (uint16_t)((entity << 8) | WAVE3_IFACE);
     return libusb_control_transfer(d->dev, UAC_BM_IN, UAC_GET_CUR,
                                    wValue, wIndex3, out, len, 1000);
-}
-
-static int wave3_uac_set(Wave3Daemon *d, int entity, int selector,
-                         int channel, const unsigned char *in, int len)
-{
-    uint16_t wValue  = (uint16_t)((selector << 8) | channel);
-    uint16_t wIndex3 = (uint16_t)((entity << 8) | WAVE3_IFACE);
-    return libusb_control_transfer(d->dev, UAC_BM_OUT, UAC_SET_CUR,
-                                   wValue, wIndex3, (unsigned char *)in, len, 1000);
 }
 
 static int wave3_get_range(Wave3Daemon *d, int entity, gint16 *min, gint16 *max, gint16 *res)
@@ -158,8 +153,8 @@ static GVariant *wave3_build_state(Wave3Daemon *d)
                          d->lowcut,
                          d->direct_monitor,
                          d->mute_rgb,
+                         d->brightness,
                          d->input_level_db,
-                         d->hp_rgb,
                          d->playback_level_db);
 }
 
@@ -176,8 +171,8 @@ static GVariant *wave3_build_state_outer(Wave3Daemon *d)
                          d->lowcut,
                          d->direct_monitor,
                          d->mute_rgb,
+                         d->brightness,
                          d->input_level_db,
-                         d->hp_rgb,
                          d->playback_level_db);
 }
 
@@ -206,6 +201,20 @@ static gboolean wave3_refresh(Wave3Daemon *d)
         /* cfg[8] is signed dB attenuation; scale to 1/256 dB for the state API */
         gint16 hp_vol = (gint8)cfg[CFG_HP_VOLUME] * 256;
         if (hp_vol != d->hp_volume) { d->hp_volume = hp_vol; changed = TRUE; }
+
+        gboolean clipguard = cfg[CFG_CLIPGUARD] ? TRUE : FALSE;
+        if (clipguard != d->clipguard) { d->clipguard = clipguard; changed = TRUE; }
+
+        gdouble monitor = cfg[CFG_MONITOR_MIX] / 255.0;
+        if (fabs(monitor - d->direct_monitor) > 0.01) { d->direct_monitor = monitor; changed = TRUE; }
+
+        guint32 mute_rgb = ((guint32)cfg[CFG_MUTE_R] << 16) |
+                           ((guint32)cfg[CFG_MUTE_G] << 8) |
+                           ((guint32)cfg[CFG_MUTE_B]);
+        if (mute_rgb != d->mute_rgb) { d->mute_rgb = mute_rgb; changed = TRUE; }
+
+        guint32 brightness = cfg[CFG_BRIGHTNESS];
+        if (brightness != d->brightness) { d->brightness = brightness; changed = TRUE; }
 
         /* level meters */
         unsigned char meter[8];
@@ -351,8 +360,17 @@ static void handle_method_call(G_GNUC_UNUSED GDBusConnection *conn,
     }
 
     if (g_strcmp0(method_name, "SetClipguard") == 0) {
-        g_dbus_method_invocation_return_error(inv, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
-                                              "Clipguard offset not yet identified");
+        gboolean v;
+        g_variant_get(parameters, "(b)", &v);
+        unsigned char cfg[16];
+        int r = wave3_cfg_read(d, cfg);
+        if (r != 16) goto usb_err;
+        cfg[CFG_CLIPGUARD] = v ? 1 : 0;
+        r = wave3_cfg_write(d, cfg);
+        if (r != 16) goto usb_err;
+        d->clipguard = v;
+        wave3_dbus_emit_state(d);
+        g_dbus_method_invocation_return_value(inv, g_variant_new("(b)", TRUE));
         return;
     }
 
@@ -373,8 +391,18 @@ static void handle_method_call(G_GNUC_UNUSED GDBusConnection *conn,
     }
 
     if (g_strcmp0(method_name, "SetDirectMonitor") == 0) {
-        g_dbus_method_invocation_return_error(inv, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
-                                              "Direct monitor offset not yet identified");
+        gdouble v;
+        g_variant_get(parameters, "(d)", &v);
+        v = CLAMP(v, 0.0, 1.0);
+        unsigned char cfg[16];
+        int r = wave3_cfg_read(d, cfg);
+        if (r != 16) goto usb_err;
+        cfg[CFG_MONITOR_MIX] = (unsigned char)round(v * 255.0);
+        r = wave3_cfg_write(d, cfg);
+        if (r != 16) goto usb_err;
+        d->direct_monitor = v;
+        wave3_dbus_emit_state(d);
+        g_dbus_method_invocation_return_value(inv, g_variant_new("(b)", TRUE));
         return;
     }
 
@@ -384,19 +412,52 @@ static void handle_method_call(G_GNUC_UNUSED GDBusConnection *conn,
     }
 
     if (g_strcmp0(method_name, "SetMuteColor") == 0) {
-        g_dbus_method_invocation_return_error(inv, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
-                                              "RGB LED protocol not yet decoded");
+        guint v;
+        g_variant_get(parameters, "(u)", &v);
+        v &= 0xffffff;
+        unsigned char cfg[16];
+        int r = wave3_cfg_read(d, cfg);
+        if (r != 16) goto usb_err;
+        cfg[CFG_MUTE_R] = (v >> 16) & 0xff;
+        cfg[CFG_MUTE_G] = (v >> 8) & 0xff;
+        cfg[CFG_MUTE_B] = v & 0xff;
+        r = wave3_cfg_write(d, cfg);
+        if (r != 16) goto usb_err;
+        d->mute_rgb = v;
+        wave3_dbus_emit_state(d);
+        g_dbus_method_invocation_return_value(inv, g_variant_new("(b)", TRUE));
         return;
     }
 
     if (g_strcmp0(method_name, "GetHeadphoneColor") == 0) {
-        g_dbus_method_invocation_return_value(inv, g_variant_new("(u)", d->hp_rgb));
+        g_dbus_method_invocation_return_value(inv, g_variant_new("(u)", 0));
         return;
     }
 
     if (g_strcmp0(method_name, "SetHeadphoneColor") == 0) {
         g_dbus_method_invocation_return_error(inv, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
-                                              "RGB LED protocol not yet decoded");
+                                              "First-gen Wave:3 has no headphone color LED");
+        return;
+    }
+
+    if (g_strcmp0(method_name, "GetBrightness") == 0) {
+        g_dbus_method_invocation_return_value(inv, g_variant_new("(u)", d->brightness));
+        return;
+    }
+
+    if (g_strcmp0(method_name, "SetBrightness") == 0) {
+        guint v;
+        g_variant_get(parameters, "(u)", &v);
+        if (v > 255) v = 255;
+        unsigned char cfg[16];
+        int r = wave3_cfg_read(d, cfg);
+        if (r != 16) goto usb_err;
+        cfg[CFG_BRIGHTNESS] = (unsigned char)v;
+        r = wave3_cfg_write(d, cfg);
+        if (r != 16) goto usb_err;
+        d->brightness = v;
+        wave3_dbus_emit_state(d);
+        g_dbus_method_invocation_return_value(inv, g_variant_new("(b)", TRUE));
         return;
     }
 
@@ -447,8 +508,10 @@ static GVariant *handle_get_property(G_GNUC_UNUSED GDBusConnection *conn,
         return g_variant_new_double(d->direct_monitor);
     if (g_strcmp0(property_name, "MuteColor") == 0)
         return g_variant_new_uint32(d->mute_rgb);
+    if (g_strcmp0(property_name, "Brightness") == 0)
+        return g_variant_new_uint32(d->brightness);
     if (g_strcmp0(property_name, "HeadphoneColor") == 0)
-        return g_variant_new_uint32(d->hp_rgb);
+        return g_variant_new_uint32(0);
 
     g_set_error(error, G_DBUS_ERROR, G_DBUS_ERROR_UNKNOWN_PROPERTY,
                 "Unknown property %s", property_name);
@@ -518,6 +581,13 @@ static const gchar *introspection_xml =
     "      <arg type='u' name='rgb' direction='in'/>"
     "      <arg type='b' name='ok' direction='out'/>"
     "    </method>"
+    "    <method name='GetBrightness'>"
+    "      <arg type='u' name='value' direction='out'/>"
+    "    </method>"
+    "    <method name='SetBrightness'>"
+    "      <arg type='u' name='value' direction='in'/>"
+    "      <arg type='b' name='ok' direction='out'/>"
+    "    </method>"
     "    <method name='GetInputLevel'>"
     "      <arg type='d' name='db' direction='out'/>"
     "    </method>"
@@ -535,6 +605,7 @@ static const gchar *introspection_xml =
     "    <property name='LowCut' type='b' access='read'/>"
     "    <property name='DirectMonitor' type='d' access='read'/>"
     "    <property name='MuteColor' type='u' access='read'/>"
+    "    <property name='Brightness' type='u' access='read'/>"
     "    <property name='HeadphoneColor' type='u' access='read'/>"
     "  </interface>"
     "</node>";

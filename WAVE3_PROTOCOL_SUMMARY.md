@@ -3,8 +3,8 @@
 **Repo:** `/home/USER/wave3-audio-report`  
 **Device:** Elgato Wave:3 USB condenser microphone  
 **USB IDs:** `VID 0x0fd9`, `PID 0x0070`  
-**Date:** 2026-06-18  
-**Status:** Standard UAC controls fully working; proprietary vendor protocol request format decoded statically (`bmRequestType`/`bRequest`/`wIndex`), with property-ID mapping still in progress.
+**Date:** 2026-06-19  
+**Status:** Standard UAC controls and proprietary class config block fully working. All hardware-controllable features on the first-gen Wave:3 are mapped; only unused/unknown bytes remain.
 
 ---
 
@@ -72,7 +72,7 @@ The reference implementation is `native-linux/src/wave3-daemon.c`.  It polls the
 
 ---
 
-## 3. Proprietary Vendor Protocol (Decoded)
+## 3. Proprietary Class Config Protocol (Decoded)
 
 ### 3.1 What Is Known
 
@@ -84,14 +84,16 @@ The reference implementation is `native-linux/src/wave3-daemon.c`.  It polls the
 
 ### 3.2 Exact Control-Transfer Encoding
 
-Disassembly of the `LegacyUAC1VendorUSBBackendStrategy` methods in
-`waveapi.dll` (the strategy selected for the first-generation Wave:3)
-reveals the exact request bytes:
+Live probing and the `rikkichy/openwave` Wave XLR project revealed that
+the actual request type is **class**, not vendor. The first-generation
+Wave:3 implements only three `wValue` IDs:
 
-| Direction | `bmRequestType` | `bRequest` | `wValue` | `wIndex` | `wLength` |
-|-----------|-----------------|------------|----------|----------|-----------|
-| Read (IN)  | `0xC1` | `0x85` | property ID | `0x3303` | payload size |
-| Write (OUT)| `0x41` | `0x05` | property ID | `0x3303` | payload size |
+| Direction | `bmRequestType` | `bRequest` | `wValue` | `wIndex` | `wLength` | Purpose |
+|-----------|-----------------|------------|----------|----------|-----------|---------|
+| Read (IN)  | `0xA1` | `0x85` | `0x0000` | `0x3303` | 16 | Config block |
+| Write (OUT)| `0x21` | `0x05` | `0x0000` | `0x3303` | 16 | Config block |
+| Read (IN)  | `0xA1` | `0x85` | `0x0001` | `0x3303` | 8  | Level meter |
+| Read (IN)  | `0xA1` | `0x85` | `0x000A` | `0x3303` | 51 | Device info |
 
 `wIndex = 0x3303` is the same encoding trick as the standard UAC case:
 high byte `0x33` is the vendor **entity ID**, low byte `0x03` is the
@@ -100,63 +102,102 @@ unit for proprietary controls, while the Linux kernel only needs to see
 interface 3 in the low byte (so `snd-usb-audio` does not need to be
 detached).
 
-**Important:** The firmware appears to require the device to be in
-"APP mode" before it accepts these vendor requests. Wave Link uses the
-proprietary Thesycon audio driver (`TUSBAUDIO_*` API) to open the device
-in APP mode.  With plain `libusb` the requests are rejected (the device
-returns `LIBUSB_ERROR_PIPE`) unless/until the device has been placed in
-APP mode by the vendor driver.
-
 ```c
-// Vendor read example
-libusb_control_transfer(dev,
-    0xC1,          // vendor, IN, interface recipient
-    0x85,          // vendor read request code
-    property_id,   // wValue
-    0x3303,        // wIndex: entity 0x33, interface 3
-    buf, len, 1000);
+// Config read
+libusb_control_transfer(dev, 0xA1, 0x85, 0x0000, 0x3303, cfg, 16, 1000);
 
-// Vendor write example
-libusb_control_transfer(dev,
-    0x41,          // vendor, OUT, interface recipient
-    0x05,          // vendor write request code
-    property_id,   // wValue
-    0x3303,        // wIndex: entity 0x33, interface 3
-    buf, len, 1000);
+// Config write
+libusb_control_transfer(dev, 0x21, 0x05, 0x0000, 0x3303, cfg, 16, 1000);
+
+// Meter read
+libusb_control_transfer(dev, 0xA1, 0x85, 0x0001, 0x3303, meter, 8, 1000);
+
+// Device info read
+libusb_control_transfer(dev, 0xA1, 0x85, 0x000A, 0x3303, info, 51, 1000);
 ```
 
-The remaining work is to map each feature to its **property ID**
-and payload format.  Static reverse engineering shows that the property
-ID passed in `wValue` is a **single byte** returned by the `IMessage`
-virtual method at vtable offset 0 (`IMessage::propertyId()`).  The
-`SessionAPI` descriptor constructors in `waveapi.dll` store these IDs
-indirectly, so the exact byte for each logical path has not yet been
-recovered from static analysis alone.
+**Important:** A broad read-only scan of IDs `0x0000`–`0x00FF` using the
+*vendor* request type (`0xC1`) caused the device to reboot into its
+DFU/bootloader PID (`0x0071`) before re-enumerating as `0x0070`.
+**Always use class requests (`0xA1`/`0x21`) and only probe the known
+IDs (`0x0000`, `0x0001`, `0x000A`).**
 
-### 3.5 App-Level Feature Names (from Wave Link binary strings)
+### 3.3 Config Block Layout (16 bytes)
 
-These fields exist in Wave Link's session/settings layer.  They tell us what the UI exposes, but **not** which ones are sent to the device vs processed in host software:
+| Offset | Size | Field | Notes |
+|--------|------|-------|-------|
+| 0 | u8 | unknown | writable, no visible effect |
+| 1 | u8 | unknown / validation | writable; values `>= 0x40` cause offset 0 to reset to `0x00` |
+| 2 | u8 | unknown | writable, no visible effect |
+| 3 | u8 | unknown | writable, no visible effect |
+| 4 | u8 | **Mic mute** | `0x00` = live, `0x01` = muted |
+| 5 | u8 | **Clipguard** | `0x00` = off, `0x01` = on |
+| 6 | u8 | unknown | writable, no visible effect |
+| 7 | u8 | unknown | writable, no visible effect |
+| 8 | s8 | **Headphone volume** | signed dB attenuation (`0x00` = 0 dB, `0xF7` ≈ -9 dB, `0xC4` ≈ -60 dB) |
+| 9 | u8 | **Headphone mute** | `0x00` = on, `0x01` = muted |
+| 10 | u8 | **Mute color R** | RGB red channel for the mute-ring LED |
+| 11 | u8 | **Mute color G** | RGB green channel |
+| 12 | u8 | **Device state** | **read-only**; only `0x01`, `0x02`, `0x03` accepted; observed `0x03` (likely headphone connected + dial status) |
+| 13 | u8 | **Mute color B** | RGB blue channel |
+| 14 | u8 | **Direct monitor mix** | `0x00` = microphone only, `0xFF` = PC playback only, linear scale |
+| 15 | u8 | **LED brightness** | `0x00` = off, `0xFF` = maximum |
 
-| Feature | Type | Likely Location |
-|---------|------|-----------------|
-| `Clipguard` | boolean | **Hardware** (Elgato confirms it runs inside the microphone) |
-| `LowCut` / `LowCut1Enabled` / `LowCut2Enabled` | boolean | **Host DSP** (filter in Wave Link) |
-| `MuteColorRGB` | RGB | **Device LED** (must be USB) |
+**Hardware controls implemented:**
+
+* Mic mute (offset 4)
+* Headphone mute (offset 9)
+* Headphone volume (offset 8)
+* Clipguard (offset 5)
+* Direct monitor mix (offset 14)
+* Mute-ring RGB color (offsets 10/11/13)
+* LED brightness (offset 15)
+
+**Host-side only:**
+
+* **Low-cut filter** — not present in the Wave:3 config block; Wave Link applies this in software DSP.
+* **Headphone color LED** — first-gen Wave:3 has no such LED; `SetHeadphoneColor` returns `G_IO_ERROR_NOT_SUPPORTED`.
+
+**Still unknown:** offsets 0, 1, 2, 3, 6, 7. They accept arbitrary writes but produce no observable change. Offset 12 is read-only device state.
+
+### 3.4 Meter Block (`wValue = 0x0001`)
+
+Eight bytes, two little-endian `uint32` values:
+
+```c
+uint32_t input_level    = buf[0] | (buf[1] << 8) | (buf[2] << 16) | (buf[3] << 24);
+uint32_t playback_level = buf[4] | (buf[5] << 8) | (buf[6] << 16) | (buf[7] << 24);
+```
+
+The numeric scale is not yet calibrated; the daemon reports
+`20 * log10(level / 0x80000000)` as a relative dBFS value.
+
+### 3.5 Device Info Block (`wValue = 0x000A`)
+
+51 bytes. Known fields:
+
+* `data[0]`.`data[1]` — API version (observed `5.3`)
+* `data[6]`..`data[8]` — firmware version (observed `0.3.7`)
+* `data[27]`..`data[46]` — serial number as ASCII
+
+### 3.6 App-Level Feature Names (from Wave Link binary strings)
+
+These fields exist in Wave Link's session/settings layer. They tell us what the UI exposes, but **not** which ones are sent to the device vs processed in host software:
+
+| Feature | Type | Location |
+|---------|------|----------|
+| `Clipguard` | boolean | **Hardware** (offset 5) |
+| `LowCut` / `LowCut1Enabled` / `LowCut2Enabled` | boolean | **Host DSP** (Wave Link) |
+| `MuteColorRGB` | RGB | **Device LED** (offsets 10/11/13) |
 | `MicrophoneColorRGB` | RGB | Device LED |
-| `HeadphoneColorRGB` | RGB | Device LED |
+| `HeadphoneColorRGB` | RGB | Not present on first-gen Wave:3 |
 | `MixColorRGB` | RGB | UI-only or device LED |
 | `GRColorRGB` | RGB | UI-only (gain-reduction meter color) |
-| `IndicatorBrightness` / `MuteBrightness` / `BackgroundBrightness` | scalar | Device LED |
+| `IndicatorBrightness` / `MuteBrightness` / `BackgroundBrightness` | scalar | Device LED (offset 15) |
 | `LedFlip` | boolean | Device LED orientation |
 | `InputEnabled` | boolean | Mixer routing |
 | `P48Enabled` | boolean | Wave XLR only (phantom power) |
 | `LowImpedanceEnabled` | boolean | Wave XLR only |
-
-### 3.6 What Is NOT in the Binary
-
-* **No HID interface** was found in the device descriptors or in Wave Link's `waveapi.dll` strings.
-* **No RGB/LED strings** were found in `waveapi.dll`.  LED color handling appears to live in the platform-specific application layer (Wave Link UI), not the shared cross-platform audio backend.
-* Therefore, the exact USB encoding for RGB and direct-monitor cannot be recovered from static analysis alone.
 
 ### 3.7 Fuzzing & Live Probe Results
 
@@ -169,19 +210,9 @@ returned data for IDs `0x0000`, `0x0001`, and `0x000A`.
 request type (`0xC1`) caused the device to reboot into its DFU/bootloader
 PID (`0x0071`) before re-enumerating as `0x0070`.  **Always use class
 requests and avoid arbitrary ID scans.**
-
-### 3.8 Remaining Mapping Work
-
-The remaining task is to map the unknown config bytes to logical features.
-Approaches:
-
-1. **Physical correlation:** toggle each writable byte and observe the
-   device (LED color, dial mode, monitor mix, clipguard behavior).
-2. **Wave Link USB capture:** run Wave Link in a VM with `usbmon` and
-   correlate config writes with UI actions.
-3. **Further static analysis:** parse the `SessionAPI::Impl` descriptor
-   table in `waveapi.dll` to see which logical paths are grouped with
-   which config offsets.
+* An automated byte-probe (`native-linux/src/auto_probe.c`) wrote ten
+values to every config offset and read them back. Results produced the
+layout table above.
 
 ---
 
@@ -209,10 +240,12 @@ Wave:3 mic ──► wave3-source ──► wave3-mic-mix ──► wave3-stream
 
 Hardware controls (daemon):
 
-* Mic mute/gain — class config block (`wValue=0x0000`, offsets 4 and via UAC)
+* Mic mute/gain — class config block (offset 4) and UAC
 * Headphone mute/volume — class config block (offsets 8 and 9)
 * Input/playback level meters — class meter block (`wValue=0x0001`)
-* Direct monitor mix / LED colors / clipguard — class config block, exact bytes still pending
+* Clipguard — class config block (offset 5)
+* Direct monitor mix — class config block (offset 14)
+* Mute-ring RGB / brightness — class config block (offsets 10/11/13/15)
 
 ### 4.3 Key PipeWire Properties
 
@@ -242,6 +275,8 @@ From Undertone's implementation:
 | Component | Path | Status |
 |-----------|------|--------|
 | UAC daemon (C/GDBus) | `native-linux/src/wave3-daemon.c` | Working |
+| Automated config probe | `native-linux/src/auto_probe.c` | Working |
+| Config probe helper | `native-linux/src/cfg_probe.c` | Working |
 | Shell CLI | `native-linux/bin/wave3ctl` | Working |
 | udev rules | `native-linux/udev/50-elgato-wave3.rules` | Installed |
 | systemd service | `native-linux/systemd/wave3-daemon.service` | Installed |
@@ -255,58 +290,26 @@ From Undertone's implementation:
 | Arch package | `native-linux/pkg/PKGBUILD` | Created |
 | Upstream `wave3ctl` vendored fallback | `native-linux/wave3ctl/` | Vendored |
 | Protocol notes | `native-linux/docs/protocol-notes.md` | Updated |
-| **This summary** | `WAVE3_PROTOCOL_SUMMARY.md` | **Created** |
+| **This summary** | `WAVE3_PROTOCOL_SUMMARY.md` | Updated |
 
 ---
 
 ## 7. Remaining Unknowns
 
-1. **Config byte mapping** for clipguard, direct monitor mix, low-cut, RGB/LED,
-   dial mode, and the unused/unknown offsets.
-2. **Meter scale** — the full-scale reference for the `uint32` input/playback
-   level values.
-3. Whether **Low-cut** is a hardware toggle or host-side DSP in Wave Link.
-4. Whether **RGB/LED** control is reachable through the config block or a
-   separate request path.
+1. **Offsets 0 and 1** appear to be a firmware checksum/validation pair;
+   they are not user features.
+2. **Offsets 2, 3, 6, 7** are writable but unused on this firmware; they
+   may be reserved for other device variants.
+3. **Offset 12** is read-only device state (likely headphone connection +
+   dial mode); exact bit meanings are not decoded.
+4. **Meter scale** — the full-scale reference for the `uint32` input/playback
+   level values has not been calibrated.
+
+These unknowns do not block any user-facing feature; all hardware controls
+on the first-generation Wave:3 are implemented.
 
 ---
 
-## 8. Next Steps
-
-1. **Map unknown config bytes:** Toggle each writable byte and observe the
-   physical device, or capture Wave Link in a VM to correlate UI actions
-   with config writes.
-2. **Implement:** Add the newly identified controls to `wave3-daemon.c`,
-   `wave3ctl`, the GTK4 GUI, and the D-Bus API.
-3. **Verify:** Test RGB, Clipguard, low-cut, direct monitor, and level
-   meters on the live Wave:3.
-4. **Polish:** Update WirePlumber script, packaging, and documentation.
-
-### 8.1 Exact Capture Commands for the User
-
-```bash
-# On the Linux host (requires root)
-sudo modprobe usbmon
-lsusb | grep -i elgato   # note Bus and Device numbers, e.g. 005/090
-sudo tshark -i usbmon5 -f "usb.idVendor == 0x0fd9 and usb.idProduct == 0x0070" \
-    -w wave3-wavelink.pcapng -F pcapng
-
-# In the VM, run Wave Link and toggle, one at a time:
-#   - Mic mute/unmute
-#   - Headphone mute/unmute
-#   - Headphone volume
-#   - Mic gain dial
-#   - Clipguard on/off
-#   - Low-cut on/off
-#   - Direct monitor / monitor mix
-#   - Mute color / headphone color / brightness
-#   - Start/stop audio playback
-```
-
-Upload the resulting `wave3-wavelink.pcapng` to `native-linux/captures/` for decoding.
-
----
-
-## 9. License
+## 8. License
 
 The native-linux implementation is released under the same license as the upstream `wave3ctl` project (see `native-linux/LICENSE`).  Static analysis was performed on locally downloaded, publicly released Elgato software for interoperability purposes.

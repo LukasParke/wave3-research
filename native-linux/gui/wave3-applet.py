@@ -110,6 +110,14 @@ class Wave3Applet(Gtk.Application):
         self.dm_scale.connect("value-changed", self._on_dm_changed)
         box.append(self.dm_scale)
 
+        # Brightness
+        box.append(Gtk.Label(label="LED Brightness"))
+        self.bright_scale = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, 0, 255, 1)
+        self.bright_scale.set_digits(0)
+        self.bright_scale.set_hexpand(True)
+        self.bright_scale.connect("value-changed", self._on_brightness_changed)
+        box.append(self.bright_scale)
+
         # Mute color
         h = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
         h.append(Gtk.Label(label="Mute-ring color"))
@@ -157,6 +165,12 @@ class Wave3Applet(Gtk.Application):
         except Exception as e:
             print(f"SetDirectMonitor failed: {e}")
 
+    def _on_brightness_changed(self, scale):
+        try:
+            self.proxy.SetBrightness(int(scale.get_value()))
+        except Exception as e:
+            print(f"SetBrightness failed: {e}")
+
     def _on_color_set(self, btn):
         rgba = btn.get_rgba()
         rgb = (int(rgba.red * 255) << 16) | (int(rgba.green * 255) << 8) | int(rgba.blue * 255)
@@ -169,13 +183,13 @@ class Wave3Applet(Gtk.Application):
         try:
             state = self.proxy.GetState()
             mic_mute, hp_mute, mic_gain_pct, hp_vol_pct, mic_gain_db, hp_vol_db, \
-                clipguard, lowcut, direct_monitor, mute_rgb, hp_rgb, in_level, pb_level = state
+                clipguard, lowcut, direct_monitor, mute_rgb, in_level, brightness, pb_level = state
 
             status = (
                 f"Mic: {'MUTED' if mic_mute else 'LIVE'} ({mic_gain_pct}% / {mic_gain_db} dB)\n"
                 f"HP: {'MUTED' if hp_mute else 'ON'} ({hp_vol_pct}% / {hp_vol_db} dB)\n"
                 f"Clipguard: {'ON' if clipguard else 'OFF'} | Low-cut: {'ON' if lowcut else 'OFF'}\n"
-                f"Direct monitor: {direct_monitor:.2f}"
+                f"Direct monitor: {direct_monitor:.2f} | Brightness: {brightness}"
             )
             self.status_label.set_text(status)
 
@@ -183,6 +197,7 @@ class Wave3Applet(Gtk.Application):
             self.clip_switch.set_state(clipguard)
             self.lowcut_switch.set_state(lowcut)
             self.dm_scale.set_value(direct_monitor)
+            self.bright_scale.set_value(brightness)
 
             r = ((mute_rgb >> 16) & 0xff) / 255.0
             g = ((mute_rgb >> 8) & 0xff) / 255.0

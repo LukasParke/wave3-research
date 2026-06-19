@@ -3,7 +3,7 @@
 Integration tests for the wave3-daemon D-Bus API.
 
 Requires the daemon to be running and a Wave:3 connected.
-This script restores the original headphone volume before exiting.
+This script restores the original state before exiting.
 """
 
 import sys
@@ -27,11 +27,14 @@ def main():
     print(f"GetState: {state}")
 
     mic_mute, hp_mute, mic_gain_pct, hp_vol_pct, mic_gain_db, hp_vol_db, \
-        clipguard, lowcut, direct_monitor, mute_rgb, hp_rgb, in_level, pb_level = state
+        clipguard, lowcut, direct_monitor, mute_rgb, in_level, brightness, pb_level = state
 
     assert isinstance(mic_mute, (bool, dbus.Boolean)), "mic_mute must be bool"
     assert 0 <= mic_gain_pct <= 100, "mic gain percent out of range"
     assert 0 <= hp_vol_pct <= 100, "hp volume percent out of range"
+    assert 0 <= direct_monitor <= 1, "direct monitor out of range"
+    assert 0 <= mute_rgb <= 0xFFFFFF, "mute RGB out of range"
+    assert 0 <= brightness <= 255, "brightness out of range"
     print("PASS: GetState returns sane values")
 
     original_hp_vol = hp_vol_pct
@@ -46,13 +49,41 @@ def main():
     print("PASS: ToggleMicMute works")
     proxy.ToggleMicMute()  # restore
 
-    # Vendor methods should report not-yet-decoded but not crash
+    original_clipguard = bool(clipguard)
+    proxy.SetClipguard(not original_clipguard)
+    state4 = proxy.GetState()
+    assert bool(state4[6]) != original_clipguard, "clipguard did not change"
+    print("PASS: SetClipguard works")
+    proxy.SetClipguard(original_clipguard)  # restore
+
+    original_monitor = float(direct_monitor)
+    proxy.SetDirectMonitor(0.75)
+    state5 = proxy.GetState()
+    assert abs(float(state5[8]) - 0.75) < 0.02, f"direct monitor did not change: {state5[8]}"
+    print("PASS: SetDirectMonitor works")
+    proxy.SetDirectMonitor(original_monitor)  # restore
+
+    original_color = int(mute_rgb)
+    proxy.SetMuteColor(0x00FF00)
+    state6 = proxy.GetState()
+    assert int(state6[9]) == 0x00FF00, f"mute color did not change: {state6[9]}"
+    print("PASS: SetMuteColor works")
+    proxy.SetMuteColor(original_color)  # restore
+
+    original_brightness = int(brightness)
+    proxy.SetBrightness(128)
+    state7 = proxy.GetState()
+    assert int(state7[11]) == 128, f"brightness did not change: {state7[11]}"
+    print("PASS: SetBrightness works")
+    proxy.SetBrightness(original_brightness)  # restore
+
+    # Low-cut is host-side DSP on first-gen Wave:3
     try:
-        proxy.SetClipguard(True)
+        proxy.SetLowCut(True)
     except dbus.DBusException:
-        print("PASS: SetClipguard reports unsupported as expected")
+        print("PASS: SetLowCut reports unsupported as expected")
     else:
-        print("FAIL: SetClipguard should report unsupported")
+        print("FAIL: SetLowCut should report unsupported")
         return 1
 
     proxy.SetHpVolume(original_hp_vol)

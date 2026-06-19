@@ -30,13 +30,24 @@ uses the same encoding.
 
 | Offset | Field | Notes |
 |--------|-------|-------|
+| 0 | **Checksum / flags** | part of firmware validation pair with offset 1 |
+| 1 | **Checksum / validation** | firmware normalizes; invalid writes reset offset 0 |
+| 2 | **Unused / reserved** | writable, no visible effect |
+| 3 | **Unused / reserved** | writable, no visible effect |
 | 4 | **Mic mute** | `0x00` live, `0x01` muted |
+| 5 | **Clipguard** | `0x00` off, `0x01` on |
+| 6 | **Unused / reserved** | writable, no visible effect |
+| 7 | **Unused / reserved** | writable, no visible effect |
 | 8 | **Headphone volume** | signed dB attenuation (`0x00` = 0 dB) |
 | 9 | **Headphone mute** | `0x00` on, `0x01` muted |
-| 14 | **Dial mode / volume select** | writable; meaning still being mapped |
+| 10 | **Mute color R** | RGB red channel |
+| 11 | **Mute color G** | RGB green channel |
+| 12 | **Device state** | read-only (headphone connected + dial status) |
+| 13 | **Mute color B** | RGB blue channel |
+| 14 | **Direct monitor mix** | `0x00` = mic only, `0xFF` = PC only |
+| 15 | **LED brightness** | `0x00` off, `0xFF` maximum |
 
-The remaining bytes are unknown or read-only.  See
-`docs/protocol-notes.md` for details.
+See `docs/protocol-notes.md` for details.
 
 ## What is implemented
 
@@ -44,9 +55,11 @@ The remaining bytes are unknown or read-only.  See
   * Owns `org.wave3.Daemon` on the session bus
   * Polls hardware at 10 Hz and emits `StateChanged`
   * Methods: `GetState`, `SetMicMute`, `ToggleMicMute`, `SetHpMute`,
-    `SetHpVolume`, plus vendor-feature stubs for
-    `SetClipguard`, `SetLowCut`, `SetDirectMonitor`,
-    `SetMuteColor`, `SetHeadphoneColor`, and level readouts.
+    `SetHpVolume`, `SetClipguard`, `SetDirectMonitor`,
+    `SetMuteColor`, `SetBrightness`, `GetInputLevel`, `GetPlaybackLevel`.
+  * `SetLowCut` and `SetHeadphoneColor` return not-supported because the
+    first-generation Wave:3 has neither hardware low-cut nor a headphone
+    color LED.
 * `wave3ctl` — shell CLI wrapper around `gdbus`
 * GTK4 GUI applet (`gui/wave3-applet.py`)
 * PipeWire/WirePlumber integration files
@@ -131,10 +144,11 @@ wave3ctl mute toggle
 wave3ctl volume 75
 wave3ctl hpmute on
 wave3ctl monitor
-wave3ctl clipguard on     # requires decoded vendor protocol
-wave3ctl lowcut on        # requires decoded vendor protocol
-wave3ctl directmonitor 0.5 # requires decoded vendor protocol
-wave3ctl mute-color 0xff0000 # requires decoded vendor protocol
+wave3ctl clipguard on
+wave3ctl directmonitor 0.5
+wave3ctl mute-color 0xff0000
+wave3ctl brightness 200
+wave3ctl lowcut on        # not supported: host-side DSP only
 ```
 
 GUI:
@@ -199,27 +213,18 @@ From a live test on the connected Wave:3:
 
 ## What requires further mapping
 
-The same class-based config block on interface 3 is used by Elgato Wave
-Link for advanced features.  The logical paths are known from static
-analysis:
+All user-facing hardware controls on the first-generation Wave:3 are now
+implemented. The only remaining unknowns are:
 
-* RGB/mute-light color (`/leds/*`)
-* Clipguard (`/config/clipguard_enable`)
-* Low-cut filter (`/config/lowcut_enable`)
-* Direct monitor mix (`/config/direct_monitor`, `/moninor_mix/level/*`)
-* Mixer routing (`/mixer/*`)
-* Indicator/background brightness
+* Config offsets 0 and 1 — firmware checksum/validation pair, not user
+  features.
+* Config offsets 2, 3, 6, 7 — writable but unused on this firmware.
+* Config offset 12 — read-only device state (likely headphone connection +
+  dial mode); exact bit meanings not decoded.
+* Meter full-scale calibration for the `uint32` input/playback levels.
 
-Static analysis suggests that **low-cut filter**, **compressor**, and
-**EQ** may be host-side DSP in Wave Link rather than hardware controls.
-LED colors, direct monitor mix, and clipguard are almost certainly
-hardware controls stored in the remaining config bytes.
-
-The D-Bus API and GUI already expose these as methods, but the
-underlying byte offsets are not yet confirmed.  To complete them, either
-physically observe each config byte or capture Wave Link in a Windows VM
-with `usbmon`.  See `docs/protocol-notes.md` and
-`docs/wave3-descriptor-paths.md`.
+Mixer routing, compressor, equalizer, and low-cut filter are handled in
+Wave Link's host-side DSP and are not stored in the Wave:3 hardware.
 
 ## Related projects
 
@@ -257,6 +262,8 @@ native-linux/
 ├── pipewire/                          static virtual mix sinks
 ├── src/
 │   ├── wave3-daemon.c                 main daemon
+│   ├── auto_probe.c                   automated config byte enumerator
+│   ├── cfg_probe.c                    interactive config read/write helper
 │   ├── probe_wave3.c                  descriptor / interface probe
 │   ├── restore_defaults.c             restores safe defaults
 │   └── Makefile

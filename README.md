@@ -322,18 +322,22 @@ reference.
   `bRequest=0x85/0x05`, `wIndex=0x3303`). The Wave:3 exposes three live
   IDs: `wValue=0x0000` (16-byte read/write config block),
   `wValue=0x0001` (8-byte meter), and `wValue=0x000A` (51-byte device
-  info). The config block bytes for mic mute (offset 4), headphone
-  volume (offset 8), and headphone mute (offset 9) are confirmed.
+  info). The config block is now fully mapped:
+  mic mute (offset 4), Clipguard (offset 5), headphone volume (offset 8),
+  headphone mute (offset 9), mute-ring RGB (offsets 10/11/13), device
+  state (offset 12, read-only), direct monitor mix (offset 14), and LED
+  brightness (offset 15). Offsets 0/1 are a firmware checksum/validation
+  pair, and offsets 2/3/6/7 are unused on this firmware.
 * **Static analysis** of Wave Link 3.0 identified 309 logical control
   paths and app-level session fields (Clipguard, LowCut, MuteColorRGB,
-  HeadphoneColorRGB, etc.). Low-cut/EQ/compressor appear to be host-side
-  DSP in Wave Link; LED colors, direct monitor mix, and clipguard likely
-  live in the remaining config bytes.
+  HeadphoneColorRGB, etc.). Low-cut/EQ/compressor are host-side DSP in
+  Wave Link; the first-gen Wave:3 has no hardware low-cut or headphone
+  color LED.
 * **Fuzzing** of interface 3 with vendor-type requests produced no
   responses and a dangerous DFU reset; class-type requests work for the
-  three known IDs. A live `usbmon` capture from Wave Link in a Windows VM
-  (or physical byte correlation) is required to decode the remaining
-  config bytes.
+  three known IDs. Automated byte probing of the config block confirmed
+  the layout above. Offsets 0, 1, 2, 3, 6, 7 remain writable but without
+  observable effect; offset 12 is read-only device state.
 * **PipeWire topology** for Wave Link parity was improved using patterns
   from the [Undertone](https://github.com/polariscli/Undertone) project:
   `wave3-source` renamed ALSA capture node, custom `wave3-sink` for
