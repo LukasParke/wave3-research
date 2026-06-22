@@ -65,6 +65,10 @@ typedef struct {
     libusb_context *ctx;
     libusb_device_handle *dev;
 
+    /* connection state */
+    gboolean connected;
+    gboolean notified_disconnected;
+
     /* cached state */
     gboolean mic_mute;
     gint16   mic_gain;   /* read-only on Wave:3 (physical dial) */
@@ -99,12 +103,94 @@ static int wave3_cfg_read(Wave3Daemon *d, unsigned char *cfg);
 static int wave3_cfg_write(Wave3Daemon *d, const unsigned char *cfg);
 static int wave3_meter_read(Wave3Daemon *d, unsigned char *meter);
 static gdouble level_to_db(uint32_t raw);
+static gboolean wave3_open_device(Wave3Daemon *d);
+static void wave3_close_device(Wave3Daemon *d);
+static gboolean wave3_is_io_error(int libusb_err);
+static int wave3_get_range(Wave3Daemon *d, int entity, gint16 *min, gint16 *max, gint16 *res);
+
+/* ── device open/close ─────────────────────────────────────────────────── */
+
+static void wave3_close_device(Wave3Daemon *d)
+{
+    if (!d->dev) return;
+    g_message("Releasing Wave:3 USB interface and closing device");
+    libusb_release_interface(d->dev, WAVE3_IFACE);
+    libusb_close(d->dev);
+    d->dev = NULL;
+    d->connected = FALSE;
+}
+
+static gboolean wave3_open_device(Wave3Daemon *d)
+{
+    int r;
+
+    if (d->dev) {
+        d->connected = TRUE;
+        return TRUE;
+    }
+
+    if (!d->ctx) {
+        r = libusb_init(&d->ctx);
+        if (r < 0) {
+            g_warning("libusb_init failed: %s", libusb_error_name(r));
+            return FALSE;
+        }
+    }
+
+    d->dev = libusb_open_device_with_vid_pid(d->ctx, WAVE3_VID, WAVE3_PID);
+    if (!d->dev) {
+        /* Device not present right now; this is normal during reconnect. */
+        return FALSE;
+    }
+
+    r = libusb_claim_interface(d->dev, WAVE3_IFACE);
+    if (r < 0) {
+        g_warning("claim interface %d failed: %s", WAVE3_IFACE, libusb_error_name(r));
+        libusb_close(d->dev);
+        d->dev = NULL;
+        return FALSE;
+    }
+
+    if (wave3_get_range(d, HP_FU, &d->hp_vol_min, &d->hp_vol_max, &(gint16){0}) < 0) {
+        d->hp_vol_min = -60 * 256;
+        d->hp_vol_max = 0;
+    }
+    if (wave3_get_range(d, MIC_FU, &d->mic_gain_min, &d->mic_gain_max, &(gint16){0}) < 0) {
+        d->mic_gain_min = 0;
+        d->mic_gain_max = 40 * 256;
+    }
+
+    d->connected = TRUE;
+    d->notified_disconnected = FALSE;
+    g_message("Wave:3 connected and interface %d claimed", WAVE3_IFACE);
+    g_message("  HP volume range: %.1f … %.1f dB",
+              d->hp_vol_min / 256.0, d->hp_vol_max / 256.0);
+    g_message("  Mic gain range:  %.1f … %.1f dB (read-only dial)",
+              d->mic_gain_min / 256.0, d->mic_gain_max / 256.0);
+    return TRUE;
+}
+
+static gboolean wave3_is_io_error(int libusb_err)
+{
+    return libusb_err == LIBUSB_ERROR_NO_DEVICE ||
+           libusb_err == LIBUSB_ERROR_IO ||
+           libusb_err == LIBUSB_ERROR_NOT_FOUND ||
+           libusb_err == LIBUSB_ERROR_BUSY ||
+           libusb_err == LIBUSB_ERROR_PIPE;
+}
+
+static gboolean wave3_ensure_open(Wave3Daemon *d)
+{
+    if (d->connected && d->dev) return TRUE;
+    return wave3_open_device(d);
+}
 
 /* ── UAC helpers ───────────────────────────────────────────────────────── */
 
 static int wave3_uac_get(Wave3Daemon *d, int entity, int selector,
                          int channel, unsigned char *out, int len)
 {
+    if (!d->dev) return LIBUSB_ERROR_NO_DEVICE;
     uint16_t wValue  = (uint16_t)((selector << 8) | channel);
     uint16_t wIndex3 = (uint16_t)((entity << 8) | WAVE3_IFACE);
     return libusb_control_transfer(d->dev, UAC_BM_IN, UAC_GET_CUR,
@@ -189,6 +275,53 @@ static GVariant *wave3_build_state_outer(Wave3Daemon *d)
                          (guint)d->dial_value);
 }
 
+static void wave3_log_changes(Wave3Daemon *d, gboolean old_mic_mute, gboolean old_hp_mute,
+                              gint16 old_mic_gain, gint16 old_hp_volume,
+                              gboolean old_clipguard, gdouble old_direct_monitor,
+                              guint32 old_mute_rgb, guint32 old_indicator_rgb,
+                              guint32 old_brightness, guint old_dial_mode,
+                              gint16 old_dial_value)
+{
+    if (d->mic_mute != old_mic_mute)
+        g_message("Mic mute changed: %s -> %s",
+                  old_mic_mute ? "MUTED" : "LIVE",
+                  d->mic_mute ? "MUTED" : "LIVE");
+    if (d->hp_mute != old_hp_mute)
+        g_message("Headphone mute changed: %s -> %s",
+                  old_hp_mute ? "MUTED" : "ON",
+                  d->hp_mute ? "MUTED" : "ON");
+    if (d->mic_gain != old_mic_gain)
+        g_message("Mic gain changed: %.1f dB (%d%%)",
+                  d->mic_gain / 256.0,
+                  pct_from_raw(d->mic_gain, d->mic_gain_min, d->mic_gain_max));
+    if (d->hp_volume != old_hp_volume)
+        g_message("Headphone volume changed: %.1f dB (%d%%)",
+                  d->hp_volume / 256.0,
+                  pct_from_raw(d->hp_volume, d->hp_vol_min, d->hp_vol_max));
+    if (d->clipguard != old_clipguard)
+        g_message("Clipguard changed: %s", d->clipguard ? "ON" : "OFF");
+    if (fabs(d->direct_monitor - old_direct_monitor) > 0.01)
+        g_message("Direct monitor mix changed: %.2f", d->direct_monitor);
+    if (d->mute_rgb != old_mute_rgb)
+        g_message("Mute color changed: 0x%06x", d->mute_rgb);
+    if (d->indicator_rgb != old_indicator_rgb)
+        g_message("Indicator color changed: 0x%06x", d->indicator_rgb);
+    if (d->brightness != old_brightness)
+        g_message("Brightness changed: %u", d->brightness);
+    if (d->dial_mode != old_dial_mode)
+        g_message("Dial mode changed: %u (%s)", d->dial_mode,
+                  d->dial_mode == 1 ? "mic gain" :
+                  d->dial_mode == 2 ? "hp volume" :
+                  d->dial_mode == 3 ? "monitor mix" : "unknown");
+    if (d->dial_value != old_dial_value)
+        g_message("Dial value changed: %d", d->dial_value);
+    /* Level meters are intentionally not logged here; they fluctuate
+     * continuously at the noise floor and would flood the journal.
+     * They are still emitted via StateChanged and readable via
+     * GetInputLevel / GetPlaybackLevel.
+     */
+}
+
 static gboolean wave3_refresh(Wave3Daemon *d)
 {
     unsigned char buf[8];
@@ -196,11 +329,37 @@ static gboolean wave3_refresh(Wave3Daemon *d)
     gboolean changed = FALSE;
     int r;
 
+    if (!wave3_ensure_open(d)) {
+        if (!d->notified_disconnected) {
+            d->notified_disconnected = TRUE;
+            g_message("Wave:3 not connected; waiting for device");
+        }
+        return FALSE;
+    }
+
+    /* snapshot old values for logging */
+    gboolean old_mic_mute = d->mic_mute;
+    gboolean old_hp_mute = d->hp_mute;
+    gint16 old_mic_gain = d->mic_gain;
+    gint16 old_hp_volume = d->hp_volume;
+    gboolean old_clipguard = d->clipguard;
+    gdouble old_direct_monitor = d->direct_monitor;
+    guint32 old_mute_rgb = d->mute_rgb;
+    guint32 old_indicator_rgb = d->indicator_rgb;
+    guint32 old_brightness = d->brightness;
+    guint old_dial_mode = d->dial_mode;
+    gint16 old_dial_value = d->dial_value;
+
+
     /* mic gain is still read via standard UAC (physical dial) */
     r = wave3_uac_get(d, MIC_FU, UAC_VOLUME, 0, buf, 2);
     if (r == 2) {
         gint16 v = (gint16)((buf[1] << 8) | buf[0]);
         if (v != d->mic_gain) { d->mic_gain = v; changed = TRUE; }
+    } else if (wave3_is_io_error(r)) {
+        g_warning("Mic gain read failed (%s); closing device", libusb_error_name(r));
+        wave3_close_device(d);
+        return FALSE;
     }
 
     r = wave3_cfg_read(d, cfg);
@@ -252,7 +411,23 @@ static gboolean wave3_refresh(Wave3Daemon *d)
             if (fabs(in_db - d->input_level_db) > 0.5) { d->input_level_db = in_db; changed = TRUE; }
             gdouble pb_db = level_to_db(right);
             if (fabs(pb_db - d->playback_level_db) > 0.5) { d->playback_level_db = pb_db; changed = TRUE; }
+        } else if (wave3_is_io_error(r)) {
+            g_warning("Meter read failed (%s); closing device", libusb_error_name(r));
+            wave3_close_device(d);
+            return FALSE;
         }
+
+        if (changed)
+            wave3_log_changes(d, old_mic_mute, old_hp_mute, old_mic_gain, old_hp_volume,
+                              old_clipguard, old_direct_monitor, old_mute_rgb,
+                              old_indicator_rgb, old_brightness, old_dial_mode,
+                              old_dial_value);
+    } else if (wave3_is_io_error(r)) {
+        g_warning("Config read failed (%s); closing device", libusb_error_name(r));
+        wave3_close_device(d);
+        return FALSE;
+    } else {
+        g_warning("Config read returned unexpected length %d", r);
     }
 
     return changed;
@@ -276,6 +451,7 @@ static void wave3_dbus_emit_state(Wave3Daemon *d)
 
 static int wave3_cfg_read(Wave3Daemon *d, unsigned char *cfg)
 {
+    if (!d->dev) return LIBUSB_ERROR_NO_DEVICE;
     return libusb_control_transfer(d->dev, 0xA1, 0x85, WAVE3_CFG_WVALUE,
                                    (0x33 << 8) | WAVE3_IFACE,
                                    cfg, 16, 1000);
@@ -283,6 +459,7 @@ static int wave3_cfg_read(Wave3Daemon *d, unsigned char *cfg)
 
 static int wave3_cfg_write(Wave3Daemon *d, const unsigned char *cfg)
 {
+    if (!d->dev) return LIBUSB_ERROR_NO_DEVICE;
     return libusb_control_transfer(d->dev, 0x21, 0x05, WAVE3_CFG_WVALUE,
                                    (0x33 << 8) | WAVE3_IFACE,
                                    (unsigned char *)cfg, 16, 1000);
@@ -290,6 +467,7 @@ static int wave3_cfg_write(Wave3Daemon *d, const unsigned char *cfg)
 
 static int wave3_meter_read(Wave3Daemon *d, unsigned char *meter)
 {
+    if (!d->dev) return LIBUSB_ERROR_NO_DEVICE;
     return libusb_control_transfer(d->dev, 0xA1, 0x85, WAVE3_METER_WVALUE,
                                    (0x33 << 8) | WAVE3_IFACE,
                                    meter, 8, 1000);
@@ -315,6 +493,14 @@ static void handle_method_call(G_GNUC_UNUSED GDBusConnection *conn,
                                gpointer user_data)
 {
     Wave3Daemon *d = user_data;
+    int r;
+
+    if (!wave3_ensure_open(d)) {
+        g_dbus_method_invocation_return_error(inv, G_IO_ERROR,
+                                              G_IO_ERROR_NOT_CONNECTED,
+                                              "Wave:3 is not connected");
+        return;
+    }
 
     if (g_strcmp0(method_name, "GetState") == 0) {
         g_dbus_method_invocation_return_value(inv, wave3_build_state_outer(d));
@@ -325,12 +511,13 @@ static void handle_method_call(G_GNUC_UNUSED GDBusConnection *conn,
         gboolean muted;
         g_variant_get(parameters, "(b)", &muted);
         unsigned char cfg[16];
-        int r = wave3_cfg_read(d, cfg);
+        r = wave3_cfg_read(d, cfg);
         if (r != 16) goto usb_err;
         cfg[CFG_MIC_MUTE] = muted ? 1 : 0;
         r = wave3_cfg_write(d, cfg);
         if (r != 16) goto usb_err;
         d->mic_mute = muted;
+        g_message("SetMicMute: %s", muted ? "MUTED" : "LIVE");
         wave3_dbus_emit_state(d);
         g_dbus_method_invocation_return_value(inv, g_variant_new("(b)", TRUE));
         return;
@@ -338,12 +525,13 @@ static void handle_method_call(G_GNUC_UNUSED GDBusConnection *conn,
 
     if (g_strcmp0(method_name, "ToggleMicMute") == 0) {
         unsigned char cfg[16];
-        int r = wave3_cfg_read(d, cfg);
+        r = wave3_cfg_read(d, cfg);
         if (r != 16) goto usb_err;
         cfg[CFG_MIC_MUTE] = d->mic_mute ? 0 : 1;
         r = wave3_cfg_write(d, cfg);
         if (r != 16) goto usb_err;
         d->mic_mute = !d->mic_mute;
+        g_message("ToggleMicMute: now %s", d->mic_mute ? "MUTED" : "LIVE");
         wave3_dbus_emit_state(d);
         g_dbus_method_invocation_return_value(inv, g_variant_new("(b)", d->mic_mute));
         return;
@@ -353,12 +541,13 @@ static void handle_method_call(G_GNUC_UNUSED GDBusConnection *conn,
         gboolean muted;
         g_variant_get(parameters, "(b)", &muted);
         unsigned char cfg[16];
-        int r = wave3_cfg_read(d, cfg);
+        r = wave3_cfg_read(d, cfg);
         if (r != 16) goto usb_err;
         cfg[CFG_HP_MUTE] = muted ? 1 : 0;
         r = wave3_cfg_write(d, cfg);
         if (r != 16) goto usb_err;
         d->hp_mute = muted;
+        g_message("SetHpMute: %s", muted ? "MUTED" : "ON");
         wave3_dbus_emit_state(d);
         g_dbus_method_invocation_return_value(inv, g_variant_new("(b)", TRUE));
         return;
@@ -369,12 +558,13 @@ static void handle_method_call(G_GNUC_UNUSED GDBusConnection *conn,
         g_variant_get(parameters, "(u)", &pct);
         gint16 raw = pct_to_raw((int)pct, d->hp_vol_min, d->hp_vol_max);
         unsigned char cfg[16];
-        int r = wave3_cfg_read(d, cfg);
+        r = wave3_cfg_read(d, cfg);
         if (r != 16) goto usb_err;
         cfg[CFG_HP_VOLUME] = (unsigned char)(raw / 256);   /* signed dB */
         r = wave3_cfg_write(d, cfg);
         if (r != 16) goto usb_err;
         d->hp_volume = raw;
+        g_message("SetHpVolume: %d%% (%.1f dB)", pct, raw / 256.0);
         wave3_dbus_emit_state(d);
         g_dbus_method_invocation_return_value(inv, g_variant_new("(b)", TRUE));
         return;
@@ -389,12 +579,13 @@ static void handle_method_call(G_GNUC_UNUSED GDBusConnection *conn,
         gboolean v;
         g_variant_get(parameters, "(b)", &v);
         unsigned char cfg[16];
-        int r = wave3_cfg_read(d, cfg);
+        r = wave3_cfg_read(d, cfg);
         if (r != 16) goto usb_err;
         cfg[CFG_CLIPGUARD] = v ? 1 : 0;
         r = wave3_cfg_write(d, cfg);
         if (r != 16) goto usb_err;
         d->clipguard = v;
+        g_message("SetClipguard: %s", v ? "ON" : "OFF");
         wave3_dbus_emit_state(d);
         g_dbus_method_invocation_return_value(inv, g_variant_new("(b)", TRUE));
         return;
@@ -422,12 +613,13 @@ static void handle_method_call(G_GNUC_UNUSED GDBusConnection *conn,
         if (v < 0.0) v = 0.0;
         if (v > 1.0) v = 1.0;
         unsigned char cfg[16];
-        int r = wave3_cfg_read(d, cfg);
+        r = wave3_cfg_read(d, cfg);
         if (r != 16) goto usb_err;
         cfg[CFG_MONITOR_MIX] = (unsigned char)round(v * 255.0);
         r = wave3_cfg_write(d, cfg);
         if (r != 16) goto usb_err;
         d->direct_monitor = v;
+        g_message("SetDirectMonitor: %.2f", v);
         wave3_dbus_emit_state(d);
         g_dbus_method_invocation_return_value(inv, g_variant_new("(b)", TRUE));
         return;
@@ -443,7 +635,7 @@ static void handle_method_call(G_GNUC_UNUSED GDBusConnection *conn,
         g_variant_get(parameters, "(u)", &v);
         v &= 0xffffff;
         unsigned char cfg[16];
-        int r = wave3_cfg_read(d, cfg);
+        r = wave3_cfg_read(d, cfg);
         if (r != 16) goto usb_err;
         cfg[CFG_MUTE_R] = (v >> 16) & 0xff;
         cfg[CFG_MUTE_G] = (v >> 8) & 0xff;
@@ -451,6 +643,7 @@ static void handle_method_call(G_GNUC_UNUSED GDBusConnection *conn,
         r = wave3_cfg_write(d, cfg);
         if (r != 16) goto usb_err;
         d->mute_rgb = v;
+        g_message("SetMuteColor: 0x%06x", v);
         wave3_dbus_emit_state(d);
         g_dbus_method_invocation_return_value(inv, g_variant_new("(b)", TRUE));
         return;
@@ -477,12 +670,13 @@ static void handle_method_call(G_GNUC_UNUSED GDBusConnection *conn,
         g_variant_get(parameters, "(u)", &v);
         if (v > 255) v = 255;
         unsigned char cfg[16];
-        int r = wave3_cfg_read(d, cfg);
+        r = wave3_cfg_read(d, cfg);
         if (r != 16) goto usb_err;
         cfg[CFG_BRIGHTNESS] = (unsigned char)v;
         r = wave3_cfg_write(d, cfg);
         if (r != 16) goto usb_err;
         d->brightness = v;
+        g_message("SetBrightness: %u", v);
         wave3_dbus_emit_state(d);
         g_dbus_method_invocation_return_value(inv, g_variant_new("(b)", TRUE));
         return;
@@ -519,9 +713,18 @@ static void handle_method_call(G_GNUC_UNUSED GDBusConnection *conn,
     return;
 
 usb_err:
-    g_dbus_method_invocation_return_error(inv, G_IO_ERROR,
-                                          G_IO_ERROR_FAILED,
-                                          "USB error");
+    if (d->dev && wave3_is_io_error(r)) {
+        g_warning("USB I/O error during %s (%s); closing device", method_name, libusb_error_name(r));
+        wave3_close_device(d);
+        g_dbus_method_invocation_return_error(inv, G_IO_ERROR,
+                                              G_IO_ERROR_NOT_CONNECTED,
+                                              "Wave:3 disconnected during operation");
+    } else {
+        g_warning("USB error during %s: %s", method_name, libusb_error_name(r));
+        g_dbus_method_invocation_return_error(inv, G_IO_ERROR,
+                                              G_IO_ERROR_FAILED,
+                                              "USB error during %s: %s", method_name, libusb_error_name(r));
+    }
 }
 
 static GVariant *handle_get_property(G_GNUC_UNUSED GDBusConnection *conn,
@@ -533,6 +736,12 @@ static GVariant *handle_get_property(G_GNUC_UNUSED GDBusConnection *conn,
                                      gpointer user_data)
 {
     Wave3Daemon *d = user_data;
+
+    if (!wave3_ensure_open(d)) {
+        g_set_error(error, G_IO_ERROR, G_IO_ERROR_NOT_CONNECTED,
+                    "Wave:3 is not connected");
+        return NULL;
+    }
 
     if (g_strcmp0(property_name, "MicMute") == 0)
         return g_variant_new_boolean(d->mic_mute);
@@ -721,38 +930,18 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    d->dev = libusb_open_device_with_vid_pid(d->ctx, WAVE3_VID, WAVE3_PID);
-    if (!d->dev) {
-        g_printerr("Wave:3 (%04x:%04x) not found\n", WAVE3_VID, WAVE3_PID);
-        libusb_exit(d->ctx);
-        return 1;
-    }
+    /* Try to open the device; if it's not present yet, the poll loop will retry. */
+    (void)wave3_open_device(d);
 
-    r = libusb_claim_interface(d->dev, WAVE3_IFACE);
-    if (r < 0) {
-        g_printerr("claim interface %d: %s\n", WAVE3_IFACE,
-                   libusb_error_name(r));
-        libusb_close(d->dev);
-        libusb_exit(d->ctx);
-        return 1;
+    g_print("wave3-daemon: D-Bus name org.wave3.Daemon ready\n");
+    if (d->connected) {
+        g_print("  HP volume range: %.1f … %.1f dB\n",
+                d->hp_vol_min / 256.0, d->hp_vol_max / 256.0);
+        g_print("  Mic gain range:  %.1f … %.1f dB (read-only dial)\n",
+                d->mic_gain_min / 256.0, d->mic_gain_max / 256.0);
+    } else {
+        g_print("  Wave:3 not present at startup; will reconnect automatically\n");
     }
-
-    if (wave3_get_range(d, HP_FU, &d->hp_vol_min, &d->hp_vol_max, &(gint16){0}) < 0) {
-        d->hp_vol_min = -60 * 256;
-        d->hp_vol_max = 0;
-    }
-    if (wave3_get_range(d, MIC_FU, &d->mic_gain_min, &d->mic_gain_max, &(gint16){0}) < 0) {
-        d->mic_gain_min = 0;
-        d->mic_gain_max = 40 * 256;
-    }
-
-    wave3_refresh(d);
-
-    g_print("wave3-daemon: Wave:3 ready on D-Bus name org.wave3.Daemon\n");
-    g_print("  HP volume range: %.1f … %.1f dB\n",
-            d->hp_vol_min / 256.0, d->hp_vol_max / 256.0);
-    g_print("  Mic gain range:  %.1f … %.1f dB (read-only dial)\n",
-            d->mic_gain_min / 256.0, d->mic_gain_max / 256.0);
 
     GMainLoop *loop = g_main_loop_new(NULL, FALSE);
 
@@ -773,8 +962,7 @@ int main(int argc, char **argv)
     g_bus_unown_name(d->owner_id);
     g_main_loop_unref(loop);
 
-    libusb_release_interface(d->dev, WAVE3_IFACE);
-    libusb_close(d->dev);
+    wave3_close_device(d);
     libusb_exit(d->ctx);
     return 0;
 }

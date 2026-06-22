@@ -1,6 +1,6 @@
 [Unit]
 Description=Elgato Wave:3 native control daemon
-Documentation=See README.md in the source tree
+Documentation=https://github.com/LukasParke/wave3-research
 After=pipewire.service wireplumber.service dbus.service
 Wants=pipewire.service wireplumber.service
 
