@@ -47,6 +47,12 @@ def main():
     assert state2[3] == 42, f"hp volume did not change: {state2[3]}"
     print("PASS: SetHpVolume works")
 
+    # The Wave:3 mic gain UAC control appears read-only from software on
+    # this firmware revision, so SetMicGain may not physically move the
+    # hardware.  We only verify the method exists and returns success.
+    proxy.SetMicGain(60)
+    print("PASS: SetMicGain method accepted")
+
     proxy.ToggleMicMute()
     state3 = proxy.GetState()
     assert bool(state3[0]) != bool(mic_mute), "mic mute did not toggle"

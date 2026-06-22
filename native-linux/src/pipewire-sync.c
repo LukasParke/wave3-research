@@ -14,7 +14,7 @@
 #include <string.h>
 
 #define POLL_MS          100      /* must match daemon poll interval */
-#define SYNC_SETTLE_US   800000   /* 0.8 s settle window after we set PW */
+#define SYNC_SETTLE_US   1200000  /* 1.2 s settle window after we set PW */
 #define SYNC_INTERVAL_MS 1000     /* poll PW for user changes every 1 s */
 #define VOLUME_THRESHOLD 2        /* ignore PW volume drift within ±2% */
 
@@ -165,6 +165,18 @@ void pipewire_sync_push_source(PipeWireSync *s, gint volume_pct, gboolean mute)
     g_message("PipeWire sync: source -> %d%%, mute=%s", volume_pct, mute ? "yes" : "no");
 }
 
+/* Let callers explicitly refresh the "last push" timestamp when they
+ * perform a related hardware write that will soon be reflected back by
+ * PipeWire.  This prevents the poller from immediately treating the
+ * in-flight update as a user change.
+ */
+void pipewire_sync_bump_push_time(PipeWireSync *s)
+{
+    g_return_if_fail(s != NULL);
+    if (!s->enabled) return;
+    s->last_pw_push_us = monotonic_us();
+}
+
 void pipewire_sync_push_sink(PipeWireSync *s, gint volume_pct, gboolean mute)
 {
     g_return_if_fail(s != NULL);
@@ -184,6 +196,39 @@ void pipewire_sync_push_sink(PipeWireSync *s, gint volume_pct, gboolean mute)
 
     s->last_pw_push_us = monotonic_us();
     g_message("PipeWire sync: sink -> %d%%, mute=%s", volume_pct, mute ? "yes" : "no");
+}
+
+void pipewire_sync_push_both(PipeWireSync *s,
+                             gint source_volume_pct, gboolean source_mute,
+                             gint sink_volume_pct, gboolean sink_mute)
+{
+    g_return_if_fail(s != NULL);
+    if (!s->enabled) return;
+
+    s->source_volume_pct = source_volume_pct;
+    s->source_mute = source_mute;
+    s->sink_volume_pct = sink_volume_pct;
+    s->sink_mute = sink_mute;
+
+    gchar *cmd_src_vol = g_strdup_printf("set-source-volume wave3-source %d%%", source_volume_pct);
+    gchar *cmd_src_mute = g_strdup_printf("set-source-mute wave3-source %d", source_mute ? 1 : 0);
+    gchar *cmd_sink_vol = g_strdup_printf("set-sink-volume wave3-sink %d%%", sink_volume_pct);
+    gchar *cmd_sink_mute = g_strdup_printf("set-sink-mute wave3-sink %d", sink_mute ? 1 : 0);
+
+    spawn_pactl(cmd_src_vol, NULL, NULL);
+    spawn_pactl(cmd_src_mute, NULL, NULL);
+    spawn_pactl(cmd_sink_vol, NULL, NULL);
+    spawn_pactl(cmd_sink_mute, NULL, NULL);
+
+    g_free(cmd_src_vol);
+    g_free(cmd_src_mute);
+    g_free(cmd_sink_vol);
+    g_free(cmd_sink_mute);
+
+    s->last_pw_push_us = monotonic_us();
+    g_message("PipeWire sync: source -> %d%%, mute=%s; sink -> %d%%, mute=%s",
+              source_volume_pct, source_mute ? "yes" : "no",
+              sink_volume_pct, sink_mute ? "yes" : "no");
 }
 
 /* Pull user-made changes from PipeWire. Returns TRUE if any value changed. */

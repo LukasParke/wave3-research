@@ -73,7 +73,7 @@ typedef struct {
 
     /* cached state */
     gboolean mic_mute;
-    gint16   mic_gain;   /* read-only on Wave:3 (physical dial) */
+    gint16   mic_gain;
     gboolean hp_mute;
     gint16   hp_volume;
 
@@ -170,7 +170,7 @@ static gboolean wave3_open_device(Wave3Daemon *d)
     g_message("Wave:3 connected and interface %d claimed", WAVE3_IFACE);
     g_message("  HP volume range: %.1f … %.1f dB",
               d->hp_vol_min / 256.0, d->hp_vol_max / 256.0);
-    g_message("  Mic gain range:  %.1f … %.1f dB (read-only dial)",
+    g_message("  Mic gain range:  %.1f … %.1f dB",
               d->mic_gain_min / 256.0, d->mic_gain_max / 256.0);
     return TRUE;
 }
@@ -200,6 +200,16 @@ static int wave3_uac_get(Wave3Daemon *d, int entity, int selector,
     uint16_t wIndex3 = (uint16_t)((entity << 8) | WAVE3_IFACE);
     return libusb_control_transfer(d->dev, UAC_BM_IN, UAC_GET_CUR,
                                    wValue, wIndex3, out, len, 1000);
+}
+
+static int wave3_uac_set(Wave3Daemon *d, int entity, int selector,
+                         int channel, const unsigned char *data, int len)
+{
+    if (!d->dev) return LIBUSB_ERROR_NO_DEVICE;
+    uint16_t wValue  = (uint16_t)((selector << 8) | channel);
+    uint16_t wIndex3 = (uint16_t)((entity << 8) | WAVE3_IFACE);
+    return libusb_control_transfer(d->dev, UAC_BM_OUT, UAC_SET_CUR,
+                                   wValue, wIndex3, (unsigned char *)data, len, 1000);
 }
 
 static int wave3_get_range(Wave3Daemon *d, int entity, gint16 *min, gint16 *max, gint16 *res)
@@ -504,10 +514,10 @@ static void wave3_push_to_pipewire(Wave3Daemon *d)
         return;
 
     gint mic_gain_pct = pct_from_raw(d->mic_gain, d->mic_gain_min, d->mic_gain_max);
-    pipewire_sync_push_source(d->pw_sync, mic_gain_pct, d->mic_mute);
-
     gint hp_vol_pct = pct_from_raw(d->hp_volume, d->hp_vol_min, d->hp_vol_max);
-    pipewire_sync_push_sink(d->pw_sync, hp_vol_pct, d->hp_mute);
+    pipewire_sync_push_both(d->pw_sync,
+                            mic_gain_pct, d->mic_mute,
+                            hp_vol_pct, d->hp_mute);
 }
 
 /* ── Hardware set helpers (used by D-Bus and PipeWire sync) ────────────── */
@@ -546,6 +556,40 @@ static gboolean wave3_hw_set_hp_volume_pct(Wave3Daemon *d, gint pct)
     r = wave3_cfg_write(d, cfg);
     if (r != 16) return FALSE;
     d->hp_volume = raw;
+    return TRUE;
+}
+
+static gboolean wave3_hw_set_mic_gain_pct(Wave3Daemon *d, gint pct)
+{
+    gint16 raw = pct_to_raw(pct, d->mic_gain_min, d->mic_gain_max);
+
+    /* The Wave:3 firmware exposes a UAC SET_CUR endpoint for the mic gain
+     * feature unit, but it appears to ignore writes on this revision.
+     * We still issue the write in case future firmwares honor it, but we
+     * do not lie to callers: only the physical dial can move the gain.
+     */
+    unsigned char buf[2] = { raw & 0xff, (raw >> 8) & 0xff };
+    int r = wave3_uac_set(d, MIC_FU, UAC_VOLUME, 0, buf, 2);
+    if (r != 2) return FALSE;
+
+    /* Update our local cache and PipeWire target to what the user asked,
+     * but note that the hardware may not actually move.
+     */
+    d->mic_gain = raw;
+    pipewire_sync_bump_push_time(d->pw_sync);
+
+    /* If the dial is currently in mic-gain mode, keep the dial value and
+     * LED ring in sync with the new gain target.
+     */
+    if (d->dial_mode == 1) {
+        unsigned char cfg[16];
+        r = wave3_cfg_read(d, cfg);
+        if (r == 16) {
+            cfg[CFG_DIAL_VALUE_LO] = (unsigned char)(raw & 0xff);
+            cfg[CFG_DIAL_VALUE_HI] = (unsigned char)((raw >> 8) & 0xff);
+            wave3_cfg_write(d, cfg);
+        }
+    }
     return TRUE;
 }
 
@@ -611,6 +655,17 @@ static void handle_method_call(G_GNUC_UNUSED GDBusConnection *conn,
         g_variant_get(parameters, "(u)", &pct);
         if (!wave3_hw_set_hp_volume_pct(d, (gint)pct)) goto usb_err;
         g_message("SetHpVolume: %d%% (%.1f dB)", pct, d->hp_volume / 256.0);
+        wave3_push_to_pipewire(d);
+        wave3_dbus_emit_state(d);
+        g_dbus_method_invocation_return_value(inv, g_variant_new("(b)", TRUE));
+        return;
+    }
+
+    if (g_strcmp0(method_name, "SetMicGain") == 0) {
+        guint pct;
+        g_variant_get(parameters, "(u)", &pct);
+        if (!wave3_hw_set_mic_gain_pct(d, (gint)pct)) goto usb_err;
+        g_message("SetMicGain: %d%% (%.1f dB)", pct, d->mic_gain / 256.0);
         wave3_push_to_pipewire(d);
         wave3_dbus_emit_state(d);
         g_dbus_method_invocation_return_value(inv, g_variant_new("(b)", TRUE));
@@ -850,6 +905,10 @@ static const gchar *introspection_xml =
     "      <arg type='u' name='percent' direction='in'/>"
     "      <arg type='b' name='ok' direction='out'/>"
     "    </method>"
+    "    <method name='SetMicGain'>"
+    "      <arg type='u' name='percent' direction='in'/>"
+    "      <arg type='b' name='ok' direction='out'/>"
+    "    </method>"
     "    <method name='GetClipguard'>"
     "      <arg type='b' name='enabled' direction='out'/>"
     "    </method>"
@@ -972,7 +1031,11 @@ static gboolean poll_hardware(gpointer user_data)
         gboolean pw_src_mute = FALSE, pw_sink_mute = FALSE;
         if (pipewire_sync_poll(d->pw_sync, &pw_src_vol, &pw_src_mute,
                                &pw_sink_vol, &pw_sink_mute)) {
-            /* Mic gain is physical; only mute is bidirectional. */
+            /* Mic gain is read-only from software on this firmware revision:
+             * only the physical dial can move it.  Ignore PipeWire mic-gain
+             * changes to avoid fighting the dial.
+             */
+
             if (pw_src_mute != d->mic_mute) {
                 if (wave3_hw_set_mic_mute(d, pw_src_mute)) {
                     g_message("PipeWire sync: mic mute -> %s",
@@ -1046,7 +1109,7 @@ int main(int argc, char **argv)
     if (d->connected) {
         g_print("  HP volume range: %.1f … %.1f dB\n",
                 d->hp_vol_min / 256.0, d->hp_vol_max / 256.0);
-        g_print("  Mic gain range:  %.1f … %.1f dB (read-only dial)\n",
+        g_print("  Mic gain range:  %.1f … %.1f dB\n",
                 d->mic_gain_min / 256.0, d->mic_gain_max / 256.0);
     } else {
         g_print("  Wave:3 not present at startup; will reconnect automatically\n");

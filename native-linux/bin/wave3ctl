@@ -13,6 +13,7 @@ Usage: wave3ctl <command> [arg]
 
   status                 Show current device state
   mute [on|off|toggle]   Set/toggle microphone mute
+  gain <0-100>           Set microphone gain percent
   hpmute [on|off]        Set headphone mute
   volume <0-100>         Set headphone volume percent
   clipguard [on|off]     Set Clipguard anti-distortion
@@ -25,6 +26,7 @@ Usage: wave3ctl <command> [arg]
 Examples:
   wave3ctl status
   wave3ctl mute toggle
+  wave3ctl gain 60
   wave3ctl volume 75
   wave3ctl clipguard on
   wave3ctl directmonitor 0.5
@@ -122,6 +124,11 @@ case "${1:-}" in
     brightness)
         [ -n "${2:-}" ] || { usage; exit 1; }
         call SetBrightness "${2}" >/dev/null
+        print_state
+        ;;
+    gain)
+        [ -n "${2:-}" ] || { usage; exit 1; }
+        call SetMicGain "${2}" >/dev/null
         print_state
         ;;
     monitor)

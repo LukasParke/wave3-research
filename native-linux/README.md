@@ -234,6 +234,11 @@ PipeWire nodes:
 A short settle window prevents feedback loops, so adjusting a control
 from either side converges instead of oscillating.
 
+> **Note:** on the first-generation Wave:3 firmware the mic gain UAC
+> feature unit reports success on `SET_CUR` but appears to ignore the
+> value; only the physical dial actually changes the gain. The daemon
+> therefore only syncs mic gain hardware → PipeWire, not the reverse.
+
 ## ALSA UCM profile
 
 ```bash

@@ -20,6 +20,14 @@ gboolean      pipewire_sync_enabled(const PipeWireSync *s);
  */
 void pipewire_sync_push_source(PipeWireSync *s, gint volume_pct, gboolean mute);
 void pipewire_sync_push_sink(PipeWireSync *s, gint volume_pct, gboolean mute);
+void pipewire_sync_push_both(PipeWireSync *s,
+                             gint source_volume_pct, gboolean source_mute,
+                             gint sink_volume_pct, gboolean sink_mute);
+
+/* Refresh the "last push" timestamp so a related hardware write is not
+ * immediately treated as a user change when PipeWire reports it back.
+ */
+void pipewire_sync_bump_push_time(PipeWireSync *s);
 
 /* Poll PipeWire for user-made changes.
  * Call at the same rate as hardware polling (e.g. 100 ms); the helper
