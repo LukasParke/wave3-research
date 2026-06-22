@@ -8,12 +8,18 @@ TOOLS    = probe_wave3 restore_defaults cfg_probe watch_state device_info auto_p
 FUZZERS  = fuzz_vendor fuzz_vendor_smart
 PROBES   = probe_vendor_ids probe_vendor_targeted probe_vendor_targeted2
 
+WAVE3_DAEMON_SRCS = wave3-daemon.c pipewire-sync.c
+WAVE3_DAEMON_OBJS = $(WAVE3_DAEMON_SRCS:.c=.o)
+
 .PHONY: all clean install
 
 all: $(BIN)
 
-$(BIN): wave3-daemon.c
-	$(CC) $(CFLAGS) -o $@ $< $(LDLIBS)
+$(BIN): $(WAVE3_DAEMON_OBJS)
+	$(CC) $(CFLAGS) -o $@ $(WAVE3_DAEMON_OBJS) $(LDLIBS)
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 # Helper probes (not installed)
 probes: $(TOOLS)
@@ -24,7 +30,7 @@ vendor-probes: $(PROBES)
 	$(CC) $(CFLAGS) -o $@ $< $(LDLIBS)
 
 clean:
-	rm -f $(BIN) $(TOOLS) $(FUZZERS) $(PROBES)
+	rm -f $(BIN) $(WAVE3_DAEMON_OBJS) $(TOOLS) $(FUZZERS) $(PROBES)
 
 PREFIX  ?= /usr/local
 BINDIR   = $(PREFIX)/bin

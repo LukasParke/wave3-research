@@ -71,6 +71,9 @@ See `docs/protocol-notes.md` for details.
   * `SetLowCut` and `SetHeadphoneColor` return not-supported because the
     first-generation Wave:3 has neither hardware low-cut nor a headphone
     color LED.
+  * Optional `--sync-pipewire` flag for bidirectional volume/mute sync:
+    hardware mic mute and HP volume/mute are pushed to PipeWire, and
+    changes made in PipeWire are written back to hardware.
 * `wave3ctl` — shell CLI wrapper around `gdbus`
 * GTK4 GUI applet (`gui/wave3-applet.py`)
 * PipeWire/WirePlumber integration files
@@ -140,6 +143,12 @@ Start the daemon manually:
 wave3-daemon &
 ```
 
+With bidirectional PipeWire sync:
+
+```bash
+wave3-daemon --sync-pipewire &
+```
+
 Or as a user service:
 
 ```bash
@@ -201,8 +210,29 @@ systemctl --user enable --now wave3-daemon
 The WirePlumber script renames the ALSA capture node to `wave3-source`,
 disables the default ALSA playback node, and creates a proper
 `wave3-sink` node for the headphone output. It also keeps the mic source
-awake with a `wave3-null-sink`. This pattern is derived from the
-[Undertone](https://github.com/polariscli/Undertone) project.
+awake with a `wave3-null-sink`. Defaults are tuned for the Wave:3
+(48 kHz, no suspend, clear descriptions, priority hints). This pattern
+is derived from the [Undertone](https://github.com/polariscli/Undertone)
+project.
+
+### Bidirectional PipeWire sync
+
+When `wave3-daemon` is started with `--sync-pipewire` (the default in
+the systemd service), it keeps the following in sync with the named
+PipeWire nodes:
+
+| Direction | Control | Notes |
+|-----------|---------|-------|
+| hardware → PipeWire | mic gain | physical dial; read-only |
+| hardware → PipeWire | mic mute | pushed to `wave3-source` |
+| hardware → PipeWire | HP volume | pushed to `wave3-sink` |
+| hardware → PipeWire | HP mute | pushed to `wave3-sink` |
+| PipeWire → hardware | mic mute | `pactl set-source-mute wave3-source` |
+| PipeWire → hardware | HP volume | `pactl set-sink-volume wave3-sink` |
+| PipeWire → hardware | HP mute | `pactl set-sink-mute wave3-sink` |
+
+A short settle window prevents feedback loops, so adjusting a control
+from either side converges instead of oscillating.
 
 ## ALSA UCM profile
 
@@ -276,6 +306,7 @@ native-linux/
 ├── pipewire/                          static virtual mix sinks
 ├── src/
 │   ├── wave3-daemon.c                 main daemon
+│   ├── pipewire-sync.c/h              PipeWire bidirectional sync
 │   ├── auto_probe.c                   automated config byte enumerator
 │   ├── cfg_probe.c                    interactive config read/write helper
 │   ├── probe_wave3.c                  descriptor / interface probe

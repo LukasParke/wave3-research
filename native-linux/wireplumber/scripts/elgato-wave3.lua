@@ -46,12 +46,15 @@ local function create_null_sink()
 		["factory.name"] = "support.null-audio-sink",
 		["node.name"] = "wave3-null-sink",
 		["node.description"] = "Wave:3 Null Sink (internal)",
+		["node.nick"] = "Wave:3 Keepalive",
 		["media.class"] = "Audio/Sink",
 		["audio.channels"] = "1",
 		["audio.position"] = "MONO",
+		["audio.rate"] = "48000",
 		["monitor.channel-volumes"] = "true",
 		["monitor.passthrough"] = "true",
 		["node.passive"] = "false",
+		["node.pause-on-idle"] = "false",
 		["session.suspend-timeout-seconds"] = "0",
 	}
 
@@ -81,6 +84,7 @@ local function create_wave_sink(source)
 			["factory.name"] = "api.alsa.pcm.sink",
 			["node.name"] = "wave3-sink",
 			["node.description"] = "Wave:3 Headphones",
+			["node.nick"] = "Wave:3 HP",
 			["media.class"] = "Audio/Sink",
 			["api.alsa.path"] = source.properties["api.alsa.path"],
 			["api.alsa.pcm.card"] = source.properties["api.alsa.pcm.card"],
@@ -88,10 +92,12 @@ local function create_wave_sink(source)
 			["alsa.resolution_bits"] = "24",
 			["audio.channels"] = "2",
 			["audio.position"] = "FL,FR",
+			["audio.rate"] = "48000",
 			["priority.driver"] = "1000",
 			["priority.session"] = "1000",
 			["node.pause-on-idle"] = "false",
 			["node.autoconnect"] = "false",
+			["session.suspend-timeout-seconds"] = "0",
 		}
 
 		for k, v in pairs(dev.properties) do

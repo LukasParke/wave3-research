@@ -6,7 +6,7 @@ Wants=pipewire.service wireplumber.service
 
 [Service]
 Type=simple
-ExecStart=%h/.local/bin/wave3-daemon
+ExecStart=%h/.local/bin/wave3-daemon --sync-pipewire
 Restart=on-failure
 RestartSec=5
 
