@@ -14,8 +14,9 @@
 #include <string.h>
 
 #define POLL_MS          100      /* must match daemon poll interval */
-#define SYNC_SETTLE_US   500000   /* 0.5 s settle window after we set PW */
+#define SYNC_SETTLE_US   800000   /* 0.8 s settle window after we set PW */
 #define SYNC_INTERVAL_MS 1000     /* poll PW for user changes every 1 s */
+#define VOLUME_THRESHOLD 2        /* ignore PW volume drift within ±2% */
 
 struct _PipeWireSync {
     gboolean enabled;
@@ -223,7 +224,8 @@ gboolean pipewire_sync_poll(PipeWireSync *s,
     gint pw_src_vol = -1;
     gboolean pw_src_mute = FALSE;
     if (parse_pactl_list(sources_text, "Name: wave3-source", &pw_src_vol, &pw_src_mute)) {
-        if (pw_src_vol != s->source_volume_pct || pw_src_mute != s->source_mute) {
+        if (abs(pw_src_vol - s->source_volume_pct) > VOLUME_THRESHOLD ||
+            pw_src_mute != s->source_mute) {
             s->source_volume_pct = pw_src_vol;
             s->source_mute = pw_src_mute;
             *out_source_volume_pct = pw_src_vol;
@@ -237,7 +239,8 @@ gboolean pipewire_sync_poll(PipeWireSync *s,
     gint pw_sink_vol = -1;
     gboolean pw_sink_mute = FALSE;
     if (parse_pactl_list(sinks_text, "Name: wave3-sink", &pw_sink_vol, &pw_sink_mute)) {
-        if (pw_sink_vol != s->sink_volume_pct || pw_sink_mute != s->sink_mute) {
+        if (abs(pw_sink_vol - s->sink_volume_pct) > VOLUME_THRESHOLD ||
+            pw_sink_mute != s->sink_mute) {
             s->sink_volume_pct = pw_sink_vol;
             s->sink_mute = pw_sink_mute;
             *out_sink_volume_pct = pw_sink_vol;

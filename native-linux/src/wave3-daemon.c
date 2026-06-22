@@ -327,6 +327,8 @@ static void wave3_log_changes(Wave3Daemon *d, gboolean old_mic_mute, gboolean ol
      */
 }
 
+static void wave3_push_to_pipewire(Wave3Daemon *d);
+
 static gboolean wave3_refresh(Wave3Daemon *d)
 {
     unsigned char buf[8];
@@ -432,13 +434,8 @@ static gboolean wave3_refresh(Wave3Daemon *d)
             /* Push hardware audio settings to PipeWire if sync is enabled.
              * Mic gain is a physical dial and can only flow hardware -> PipeWire.
              */
-            if (audio_changed && pipewire_sync_enabled(d->pw_sync)) {
-                gint mic_gain_pct = pct_from_raw(d->mic_gain, d->mic_gain_min, d->mic_gain_max);
-                pipewire_sync_push_source(d->pw_sync, mic_gain_pct, d->mic_mute);
-
-                gint hp_vol_pct = pct_from_raw(d->hp_volume, d->hp_vol_min, d->hp_vol_max);
-                pipewire_sync_push_sink(d->pw_sync, hp_vol_pct, d->hp_mute);
-            }
+            if (audio_changed)
+                wave3_push_to_pipewire(d);
         }
     } else if (wave3_is_io_error(r)) {
         g_warning("Config read failed (%s); closing device", libusb_error_name(r));
@@ -497,6 +494,20 @@ static gdouble level_to_db(uint32_t raw)
     /* full-scale reference observed in firmware meter; may need calibration */
     double fs = 0x80000000u;
     return 20.0 * log10(raw / fs);
+}
+
+/* ── PipeWire sync push helper ─────────────────────────────────────────── */
+
+static void wave3_push_to_pipewire(Wave3Daemon *d)
+{
+    if (!pipewire_sync_enabled(d->pw_sync))
+        return;
+
+    gint mic_gain_pct = pct_from_raw(d->mic_gain, d->mic_gain_min, d->mic_gain_max);
+    pipewire_sync_push_source(d->pw_sync, mic_gain_pct, d->mic_mute);
+
+    gint hp_vol_pct = pct_from_raw(d->hp_volume, d->hp_vol_min, d->hp_vol_max);
+    pipewire_sync_push_sink(d->pw_sync, hp_vol_pct, d->hp_mute);
 }
 
 /* ── Hardware set helpers (used by D-Bus and PipeWire sync) ────────────── */
@@ -569,6 +580,7 @@ static void handle_method_call(G_GNUC_UNUSED GDBusConnection *conn,
         g_variant_get(parameters, "(b)", &muted);
         if (!wave3_hw_set_mic_mute(d, muted)) goto usb_err;
         g_message("SetMicMute: %s", muted ? "MUTED" : "LIVE");
+        wave3_push_to_pipewire(d);
         wave3_dbus_emit_state(d);
         g_dbus_method_invocation_return_value(inv, g_variant_new("(b)", TRUE));
         return;
@@ -577,6 +589,7 @@ static void handle_method_call(G_GNUC_UNUSED GDBusConnection *conn,
     if (g_strcmp0(method_name, "ToggleMicMute") == 0) {
         if (!wave3_hw_set_mic_mute(d, !d->mic_mute)) goto usb_err;
         g_message("ToggleMicMute: now %s", d->mic_mute ? "MUTED" : "LIVE");
+        wave3_push_to_pipewire(d);
         wave3_dbus_emit_state(d);
         g_dbus_method_invocation_return_value(inv, g_variant_new("(b)", d->mic_mute));
         return;
@@ -587,6 +600,7 @@ static void handle_method_call(G_GNUC_UNUSED GDBusConnection *conn,
         g_variant_get(parameters, "(b)", &muted);
         if (!wave3_hw_set_hp_mute(d, muted)) goto usb_err;
         g_message("SetHpMute: %s", muted ? "MUTED" : "ON");
+        wave3_push_to_pipewire(d);
         wave3_dbus_emit_state(d);
         g_dbus_method_invocation_return_value(inv, g_variant_new("(b)", TRUE));
         return;
@@ -597,6 +611,7 @@ static void handle_method_call(G_GNUC_UNUSED GDBusConnection *conn,
         g_variant_get(parameters, "(u)", &pct);
         if (!wave3_hw_set_hp_volume_pct(d, (gint)pct)) goto usb_err;
         g_message("SetHpVolume: %d%% (%.1f dB)", pct, d->hp_volume / 256.0);
+        wave3_push_to_pipewire(d);
         wave3_dbus_emit_state(d);
         g_dbus_method_invocation_return_value(inv, g_variant_new("(b)", TRUE));
         return;
